@@ -1,10 +1,14 @@
 User Stories:
+
 A) Admin:
 1. Come utente Admin voglio definire un template di report specifico per ogni categoria di asset, affinché gli utenti sappiano esattamente quali controlli tecnici effettuare alla riconsegna.
 2. Come utente Admin voglio creare gruppi di utenti a cui assegnare specifici asset, affinché l'accesso alle risorse sia limitato solo alle persone autorizzate.
+
 B) Operator:
 1. Come utente Operator, voglio prenotare un asset per una determinata fascia oraria, affinché sia garantito che la risorsa sia riservata per il mio lavoro.
 2. Come utente Operator voglio compilare il report di stato durante la riconsegna, affinché io possa declinare ogni responsabilità su guasti futuri o segnalare anomalie immediatamente.
+
 C) Technician:
 1. Come utente Technician voglio visualizzare una lista prioritaria di asset in stato "Guasto", affinché possa pianificare gli interventi di riparazione più urgenti.
+
 

@@ -1,26 +1,16 @@
 Functional Requirements:
 
-1. Il sistema deve registrare l'accesso degli utenti tramite l'inserimento di credenziali univoche.
-2. Il sistema deve identificare la tipologia di utente Operator o Technician che accede al gruppo*, al fine di abilitare le specifiche funzionalità associate.
-3. Il sistema deve creare un nuovo gruppo memorizzando i vincoli di orario operativo definiti dall'Admin.
-4. Il sistema deve generare un codice di accesso univoco necessario per l'adesione di nuovi membri a un gruppo specifico.
-5. Il sistema deve creare un nuovo asset* con parametri definiti dall'Admin.
-6. Il sistema deve registrare l'inserimento di un nuovo bene* associandolo obbligatoriamente a una tipologia di Asset predefinita dell'Admin.
-7. Il sistema deve validare la prenotazione di un bene verificando la disponibilità nella fascia oraria e nella data selezionata dall'Operator.
-8. Il sistema deve limitare la prenotazione di un bene solo per la giornata corrente e quella successiva.
-
-9. Il sistema deve permettere all'Operator di compilare il report di riconsegna al termine di ogni sessione di utilizzo.
-
-10. Il sistema deve fornire al Technician l'elenco dei beni che necessitano di riparazione, ordinati in base alla loro priorità.
-
-11. Il sistema deve permettere al Technician di consultare i report di riconsegna di ogni bene che necessita di riparazione.
-12. Il sistema deve permettere al Technician di segnalare l'avvenuto ripristino della funzionalità di un bene per renderlo nuovamente disponibile.
-13. Il sistema deve permettere all'Admin di bloccare le prenotazioni di un bene.
-14. Il sistema deve permettre all'Admin di inibire la capacità di un Operator di effetuare prenotazioni su ogni bene del gruppo.
-
-15. Il sistema deve bloccare immediatamente le prenotazioni su un bene segnalato guasto, ed eliminare le prenotazioni già effettuate a suo carico.
-16. Il sistema deve notificare agli Operator che la loro prenotazione su un bene guasto è stata eliminata.
-17. Il sistema inibisce l'inserimento di un bene nel gruppo qualora il nome identificativo risulti già presente.
+*1. Il sistema deve registrare l'accesso degli utenti tramite l'inserimento di credenziali univoche.
+*2. Il sistema deve identificare la tipologia di utente Operator o Technician che accede al gruppo*, al fine di abilitare le specifiche funzionalità associate.
+3. Il sistema deve generare un codice di accesso univoco necessario per l'adesione di nuovi membri a un gruppo specifico.
+4. Il sistema deve inibire la prenotazione di un bene* al di fuori delle fascie orarie in cui risulta disponibile.
+5. Il sistema deve limitare la prenotazione di un bene solo alla giornata corrente e quella successiva.
+6. Il sistema deve fornire al Technician l'elenco dei beni che necessitano di riparazione, con i relativi report, ordinati in base alla loro priorità.
+7. Il sistema deve notificare l'Admin dell'avvenuto ripristino di un bene da parte del Technician.
+8. Il sistema deve bloccare immediatamente le prenotazioni su un bene segnalato guasto.
+9. Il sistema deve notificare gli Operator che la loro prenotazione su un bene guasto è stata eliminata.
+10. Il sistema deve inibire l'inserimento di un bene qualora il nome risulti già presente nel set di beni del gruppo in considerazione.
+11. Il sistema deve inibire la creazione di un asset* qualora il nome risulti già presente nel set degli asset creati dall'Admin.
 
 Gruppo = insieme composto da un Admin, vari Operator e un Technician.
 Asset = tipologia di ogetto messo a disposizione del gruppo, composto da:

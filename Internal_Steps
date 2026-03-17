@@ -25,27 +25,36 @@ Caso d'Uso : Gestisci Gruppo
     6. L'Admin seleziona un Operator nello stato ATTIVO all'interno della lista per bloccare ogni sua prenotazione futura.
     7. Il sistema richiede conferma della scelta di bloccare l'Operator selezionato.
     8. L'Admin conferma la scelta di bloccare l'Operator selezionato.
-    9. Il sistema aggiorna lo stato dell'Operator a BLOCCATO e elimina tutte le sue prenotazione future.
+    9. Il sistema aggiorna lo stato dell'Operator a BLOCCATO e elimina tutte le sue prenotazioni.
+    
     Flussi Eccezionali/Alternativi:
     6a. L'Admin seleziona un Operator nello stato BLOCCATO all'interno della lista per sbloccare le sue prenotazioni.
     7a. Il sistema richiede conferma della volonta di sbloccare l'Operator selezionato.
-    8a. Il sistema conferma la volontà di sbloccare l'Operator selezionato.
+    8a. L'Admin conferma la volontà di sbloccare l'Operator selezionato.
+      8aa. L'Admin annulla l'azione sull'operator selezionato. Il processo torna allo step 5.
     9a. Il sistema aggiorna lo stato dell'Operator a ATTIVO.
     8b. L'Admin annulla l'azione sull'operator selezionato. Il processo torna allo step 5.
+ 
   <<extends caso d'uso Gestisci Beni>>
     4. L'Admin seleziona l'elenco dei beni. 
     5. Il sistema presenta l'elenco dei beni.
     6. L'Admin seleziona un bene da eliminare.
     7. Il sistema richiede conferma della scelta di eliminare il bene selezionato.
-    8. Il sistema conferma la scelta di eliminare il bene selezionato.
+    8. L'Admin conferma la scelta di eliminare il bene selezionato.
     9. Il sistema elimina il bene selezionato dall'elenco del gruppo e tutte le relative prenotazioni effettuate.
+    10. Il sistema notifica l'annullamento della prenotazione a tutti gli Operator che l'avevano effettuata.
+    
     Flussi Eccezionali/Alternativi:
-    4a. L'Admin selezione aggiungi bene.
-    5a. Il presemta l'elenco degli Asset creati dall'Admin.
-    6a. L'Admin seleziona l'Asset da cui il bene da aggiungere deve ricevere Report di Riconsegna e tempo massimo di utilizzo.
-    7a. Il sistema richiede il nome da affidare al bene da aggiungere.
-    8a. L'Admin inserisce il nome da affidare al bene da aggiungere.
-    9a. Il sistema verifica che nell'elenco dei beni del gruppo non ci sia un altro bene col nome appena inserito.
-    10a. Il sistema aggiunge il nuovo bene con i dati appena inseriti dall'Admin al set dei beni del gruppo.
+    6a. L'Admin seleziona aggiungi bene.
+    7a. Il sistema richiede di scegliere tra gli Asset creati dall'Admin, quello da cui il bene deve ereditare le caratteristiche.
+      5aa. Non esistono Asset creati dall'Admin, il sistema notifica un errore all'Admin. Il processo torna allo step 4. 
+    8a. L'Admin seleziona l'Asset.
+    9a. Il sistema richiede il nome da affidare al bene da aggiungere.
+    10a. L'Admin inserisce il nome da affidare al bene da aggiungere.
+    11a. Il sistema verifica che nell'elenco dei beni del gruppo non ci sia un altro bene col nome appena inserito.
+      11ab. Il sistema trova un altro bene con lo stesso nome inserito, presenta un messaggio di errore e il processo torna allo step 7a.
+    12a. Il sistema aggiunge il nuovo bene con i dati appena inseriti dall'Admin al set dei beni del gruppo.
     7b. L'Admin annulla l'azione sul bene selezionato. Il processo torna allo step 5.
-    9c. Il sistema trova un altro bene con lo stesso nome inserito, presenta un messaggio di errore e il processo torna allo step 7a.
+
+  Flussi Eccezionali/Alternativi:
+  1a. Non esistono gruppi creati dall'Admin, il sistema notifica un errore all'Admin. Il processo esce dallo use case attuale.

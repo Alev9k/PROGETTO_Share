@@ -35,6 +35,7 @@ Caso d'Uso : Gestisci Gruppo
     8a. L'Admin conferma la volontà di sbloccare l'Operator selezionato.
       8aa. L'Admin annulla l'azione sull'Operator selezionato. Il processo torna allo step 5.
     9a. Il sistema aggiorna lo stato dell'Operator a ATTIVO.
+    10a. Il sistema notifica l'operator di essere stato sbloccato nel relativo Gruppo.
     8b. L'Admin annulla l'azione sull'Operator selezionato. Il processo torna allo step 5.
     9c. L'Operator è in possesso di un Item, il sistema presenta un messaggio di errore all'Admin. Il processo torna allo step 5.
  
@@ -44,8 +45,9 @@ Caso d'Uso : Gestisci Gruppo
     6. L'Admin seleziona un Item da eliminare.
     7. Il sistema richiede conferma della scelta di eliminare l'Item selezionato.
     8. L'Admin conferma la scelta di eliminare l'Item selezionato.
-    9. Il sistema elimina l'Item selezionato dall'elenco del gruppo e tutte le relative prenotazioni effettuate.
-    10. Il sistema notifica l'annullamento della prenotazione a tutti gli Operator che hanno una prenotazione su quell'Item.
+    9. Il sistema verifica che l'Item non sia attualmente utilizzato da un Operator del Gruppo.
+    10. Il sistema elimina l'Item selezionato dall'elenco del gruppo e tutte le relative prenotazioni effettuate.
+    11. Il sistema notifica l'annullamento della prenotazione a tutti gli Operator che hanno una prenotazione su quell'Item.
     
     Flussi Eccezionali/Alternativi:
     6a. L'Admin seleziona aggiungi Item.
@@ -58,6 +60,7 @@ Caso d'Uso : Gestisci Gruppo
       11ab. Il sistema trova un altro Item con lo stesso nome inserito, presenta un messaggio di errore e il processo torna allo step 9a.
     12a. Il sistema aggiunge il nuovo Item con i dati appena inseriti dall'Admin al set degli Items del gruppo.
     7b. L'Admin annulla l'azione sull'Item selezionato. Il processo torna allo step 5.
+    9c. L'Item selezionato è attualmente utilizzato da un Operator, il sistema presenta un messaggio di errore all'Admin. Il processo torna allo step 5.
 
   Flussi Eccezionali/Alternativi:
   1a. Non esistono gruppi creati dall'Admin, il sistema notifica un errore all'Admin. Il processo esce dallo use case attuale.

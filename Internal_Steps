@@ -41,7 +41,7 @@ Caso d'Uso : Gestisci Gruppo
  
   <<extends caso d'uso Gestisci Items>>
     4. L'Admin seleziona l'elenco degli Items. 
-    5. Il sistema presenta l'elenco degli Items.
+    5. Il sistema presenta l'elenco degli Items NON GUASTI.
     6. L'Admin seleziona un Item da eliminare.
     7. Il sistema richiede conferma della scelta di eliminare l'Item selezionato.
     8. L'Admin conferma la scelta di eliminare l'Item selezionato.

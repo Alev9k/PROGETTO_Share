@@ -4,7 +4,7 @@ Functional Requirements:
 *2. Il sistema deve identificare la tipologia di utente Operator o Technician che accede al gruppo*, al fine di abilitare le specifiche funzionalità associate.
 3. Il sistema deve generare un codice di accesso univoco necessario per l'adesione di nuovi membri a un gruppo specifico.
 4. Il sistema deve inibire la prenotazione di un bene* al di fuori delle fascie orarie in cui risulta disponibile.
-5. Il sistema deve limitare la prenotazione di un bene solo alla giornata corrente e quella successiva (minimo 30 minuti prima dell'orario di prenotazione).
+5. Il sistema deve limitare la prenotazione di un bene solo alla giornata corrente e quella successiva.
 6. Il sistema deve fornire al Technician l'elenco dei beni che necessitano di riparazione, con i relativi report, ordinati in base alla loro priorità.
 7. Il sistema deve notificare l'Admin dell'avvenuto ripristino di un bene da parte del Technician.
 8. Il sistema deve bloccare immediatamente le prenotazioni su un bene segnalato guasto.

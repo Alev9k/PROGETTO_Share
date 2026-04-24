@@ -52,7 +52,7 @@ Caso d'Uso : Gestisci Gruppo
     Flussi Eccezionali/Alternativi:
     6a. L'Admin seleziona aggiungi Item.
     7a. Il sistema richiede di scegliere tra gli Asset creati dall'Admin, quello da cui l'Item deve ereditare le caratteristiche.
-      5aa. Non esistono Asset creati dall'Admin, il sistema notifica un errore all'Admin. Il processo torna allo step 4. 
+      7aa. Non esistono Asset creati dall'Admin, il sistema notifica un errore all'Admin. Il processo torna allo step 4. 
     8a. L'Admin seleziona l'Asset.
     9a. Il sistema richiede il nome da affidare all'Item da aggiungere.
     10a. L'Admin inserisce il nome da affidare all'Item da aggiungere.

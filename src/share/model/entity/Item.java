@@ -12,7 +12,7 @@ public class Item {
     public Item(String name, String assetName) {
         this.name = name;
         this.assetName = assetName;
-        this.status = 0; // Inizialmente disponibile
+        this.status = 1; // Inizialmente disponibile
         this.bookingsList = new ArrayList<>();
     }
 

@@ -1,8 +1,4 @@
 name: SonarCloud
-permissions:
-  pull-requests: read
-  contents: read
-  statuses: read
 on:
   push:
     branches:

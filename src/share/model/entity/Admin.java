@@ -3,13 +3,12 @@ package share.model.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Admin {
-    private String username;
+public class Admin extends User {
     private List<Group> groupList; // Tutti i gruppi creati da questo Admin [cite: 76]
     private List<Asset> assetList; // Tutte le tipologie di asset (matrici) definite [cite: 77]
 
-    public Admin(String username) {
-        this.username = username;
+    public Admin(String username, String password) {
+        super(username, password);
         this.groupList = new ArrayList<>();
         this.assetList = new ArrayList<>();
     }
@@ -23,7 +22,7 @@ public class Admin {
         return assetList;
     }
 
-    public String getUsername() {
+    /*public String getUsername() {
         return username;
-    }
+    }*/
 }

@@ -3,12 +3,11 @@ package share.model.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Operator {
-    private String username;
+public class Operator extends User {
     private List<Booking> bookingsList;
     private List<State> stateList;
-    public Operator(String username) {
-        this.username = username;
+    public Operator(String username, String password) {
+        super(username, password);
         this.bookingsList = new ArrayList<>();
         this.stateList = new ArrayList<>();
     }
@@ -54,5 +53,5 @@ public class Operator {
         return removedBookings;
     }
 
-    public String getUsername() { return username; }
+    // public String getUsername() { return username; }
 }

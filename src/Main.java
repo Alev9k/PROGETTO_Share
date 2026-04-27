@@ -1,5 +1,3 @@
-package share;
-
 import share.boundary.*;
 import share.model.entity.*;
 

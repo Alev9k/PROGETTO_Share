@@ -14,10 +14,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Crea cartella binari fake
-        run: mkdir dummy_binaries
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+      - name: Set up JDK 21 # Requisito tecnico per compilare il tuo codice
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      #- name: Crea cartella binari fake
+      #  run: mkdir dummy_binaries
+      - name: Build with Maven and Analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar

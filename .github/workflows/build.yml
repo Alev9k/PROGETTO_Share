@@ -27,4 +27,8 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: >
+          mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+          -Dsonar.host.url=https://sonarcloud.io 
+          -Dsonar.organization=alev9k 
+          -Dsonar.projectKey=Alev9k_PROGETTO_Share

@@ -1,7 +1,7 @@
 package model.dao;
 
-import share.model.factory.UserFactory;
-import share.model.entity.*;
+import model.factory.UserFactory;
+import model.entity.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;

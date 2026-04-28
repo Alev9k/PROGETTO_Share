@@ -1,6 +1,6 @@
 package model.dao;
 
-import share.model.entity.User;
+import model.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 

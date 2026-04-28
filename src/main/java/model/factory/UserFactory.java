@@ -1,6 +1,6 @@
 package model.factory;
 
-import share.model.entity.*;
+import model.entity.*;
 
 public class UserFactory {
     public static User createUser(int type, String username, String password) {

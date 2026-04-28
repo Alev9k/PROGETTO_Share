@@ -1,6 +1,6 @@
 package model.dao;
 
-import share.model.entity.*;
+import model.entity.*;
 import java.util.List;
 
 public interface UserDAO {

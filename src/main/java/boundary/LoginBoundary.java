@@ -1,9 +1,10 @@
-package share.boundary;
+package boundary;
 
-import share.exceptions.*;
-import share.controller.LoginController;
-import share.controller.RegistrationController;
-import share.model.entity.User;
+import exceptions.InvalidCredentialsException;
+import exceptions.UserAlreadyExistsException;
+import controller.LoginController;
+import controller.RegistrationController;
+import model.entity.User;
 import java.util.Scanner;
 
 public class LoginBoundary {
@@ -36,7 +37,7 @@ public class LoginBoundary {
     private void handleRegistration() {
         System.out.print("Nuovo Username: "); String u = scanner.nextLine();
         System.out.print("Nuova Password: "); String p = scanner.nextLine();
-        System.out.println("Tipo: 1.Admin, 2.Operator, 3.Technician");
+        System.out.println("Tipo: 1.model.factory.entity.Admin, 2.model.factory.entity.Operator, 3.model.factory.entity.Technician");
         int t = scanner.nextInt();
 
         try {

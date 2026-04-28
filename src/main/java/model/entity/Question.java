@@ -1,4 +1,4 @@
-package share.model.entity;
+package model.entity;
 
 public class Question {
     private String question;

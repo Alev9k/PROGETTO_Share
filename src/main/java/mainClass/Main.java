@@ -1,9 +1,9 @@
-package main;
+package mainClass;
 
-import share.controller.*;
-import share.model.dao.*;
-import share.boundary.*;
-import share.model.entity.*;
+import controller.*;
+import model.dao.*;
+import boundary.*;
+import model.entity.*;
 import java.util.Scanner;
 
 public class Main {
@@ -36,9 +36,9 @@ public class Main {
 
         // 2. Smistamento in base al ruolo (Generalizzazione/Polimorfismo)
         if (loggedUser instanceof Admin) {
-            System.out.println("Benvenuto Admin " + loggedUser.getUsername());
+            System.out.println("Benvenuto model.factory.entity.Admin " + loggedUser.getUsername());
             ManageGroupBoundary adminUI = new ManageGroupBoundary();
-            //adminUI.start((Admin) loggedUser); // Cast all'oggetto specifico
+            //adminUI.start((model.factory.entity.Admin) loggedUser); // Cast all'oggetto specifico
         }
         else if (loggedUser instanceof Operator) {
             System.out.println("Benvenuto Operatore " + loggedUser.getUsername());

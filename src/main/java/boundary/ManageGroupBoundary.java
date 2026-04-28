@@ -1,4 +1,4 @@
-package share.boundary;
+package boundary;
 
 public class ManageGroupBoundary {
 }

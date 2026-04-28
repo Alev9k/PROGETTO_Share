@@ -1,4 +1,4 @@
-package share.exceptions;
+package exceptions;
 
 public class UserAlreadyExistsException extends Exception {
     public UserAlreadyExistsException(String username) {

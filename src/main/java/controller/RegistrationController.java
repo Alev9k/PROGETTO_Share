@@ -1,9 +1,9 @@
-package share.controller;
+package controller;
 
-import share.exceptions.UserAlreadyExistsException;
-import share.model.entity.User;
-import share.model.factory.UserFactory;
-import share.model.dao.*;
+import exceptions.UserAlreadyExistsException;
+import model.entity.User;
+import model.factory.UserFactory;
+import model.dao.*;
 
 public class RegistrationController {
     private UserDAO userDao;

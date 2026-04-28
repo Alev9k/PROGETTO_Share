@@ -1,4 +1,4 @@
-package share.model.entity;
+package model.entity;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,10 @@
-package share.model.entity;
+package model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Admin extends User {
-    private List<Group> groupList; // Tutti i gruppi creati da questo Admin [cite: 76]
+    private List<Group> groupList; // Tutti i gruppi creati da questo model.factory.entity.Admin [cite: 76]
     private List<Asset> assetList; // Tutte le tipologie di asset (matrici) definite [cite: 77]
 
     public Admin(String username, String password) {

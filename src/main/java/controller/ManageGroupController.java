@@ -1,6 +1,6 @@
-package share.controller;
+package controller;
 
-import share.model.entity.*;
+import model.entity.*;
 import java.util.List;
 
 /**
@@ -27,7 +27,7 @@ public class ManageGroupController {
         return group.getOperators();
     }
 
-    // --- Logica Gestione Item (Beni) ---
+    // --- Logica Gestione model.factory.entity.Item (Beni) ---
 
     /**
      * Verifica che il nome del nuovo bene sia univoco all'interno del gruppo.
@@ -50,7 +50,7 @@ public class ManageGroupController {
      * Rimuove un bene dal gruppo solo se non è attualmente in uso.
      */
     public void removeItem(Item item, Group group) {
-        // Verifica se l'Item è attualmente utilizzato (Step 9 della gestione Item)
+        // Verifica se l'model.factory.entity.Item è attualmente utilizzato (Step 9 della gestione model.factory.entity.Item)
         if (item.checkActiveness()) {
             // In un'applicazione reale, qui scatterebbe un messaggio di errore verso la UI
             return;
@@ -59,16 +59,16 @@ public class ManageGroupController {
         // Elimina il bene e invalida le sue prenotazioni (Step 10)
         group.removeItem(item);
 
-        // La notifica agli Operator coinvolti verrà gestita tramite il Boundary
+        // La notifica agli model.factory.entity.Operator coinvolti verrà gestita tramite il Boundary
     }
 
-    // --- Logica Gestione Membri (Operator) ---
+    // --- Logica Gestione Membri (model.factory.entity.Operator) ---
 
     /**
      * Gestisce il cambio di stato (Attivo/Bloccato) di un operatore in un gruppo.
      */
     public void toggleOperatorState(Operator operator, Group group) {
-        // Ora il metodo è disponibile nella classe Operator
+        // Ora il metodo è disponibile nella classe model.factory.entity.Operator
         operator.toggleState(group.getGroupID());
 
         // Se l'operatore è stato appena bloccato, cancelliamo le sue prenotazioni

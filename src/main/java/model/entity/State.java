@@ -1,4 +1,4 @@
-package share.model.entity;
+package model.entity;
 
 public class State {
     private int status; // 0: ATTIVO, 1: BLOCCATO

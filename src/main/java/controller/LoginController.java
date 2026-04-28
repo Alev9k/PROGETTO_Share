@@ -1,8 +1,8 @@
-package share.controller;
+package controller;
 
-import share.exceptions.InvalidCredentialsException;
-import share.model.dao.*;
-import share.model.entity.User;
+import exceptions.InvalidCredentialsException;
+import model.dao.*;
+import model.entity.User;
 
 public class LoginController {
     private UserDAO userDao;

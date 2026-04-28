@@ -1,4 +1,4 @@
-package share.model.factory;
+package model.factory;
 
 import share.model.entity.*;
 

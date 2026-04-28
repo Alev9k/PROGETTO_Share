@@ -1,4 +1,4 @@
-package share.model.dao;
+package model.dao;
 
 import share.model.factory.UserFactory;
 import share.model.entity.*;

@@ -1,4 +1,4 @@
-package share.model.entity;
+package model.entity;
 
 public abstract class User {
     protected String username;

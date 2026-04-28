@@ -1,4 +1,4 @@
-package share.model.dao;
+package model.dao;
 
 import share.model.entity.*;
 import java.util.List;

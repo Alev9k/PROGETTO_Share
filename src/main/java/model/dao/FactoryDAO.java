@@ -1,4 +1,4 @@
-package share.model.dao;
+package model.dao;
 
 public class FactoryDAO {
     public enum Context { MEMORY, FILE_SYSTEM }

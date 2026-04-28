@@ -1,34 +1,19 @@
 package share.controller;
 
-import share.model.entity.*;
-import java.util.ArrayList;
-import java.util.List;
+import share.model.dao.*;
+import share.model.entity.User;
 
 public class LoginController {
-    // Simulazione database in memoria
-    private static List<User> userDatabase = new ArrayList<>();
+    private UserDAO userDao;
 
-    public boolean register(String name, String pass, int type) {
-        for (User u : userDatabase) {
-            if (u.getUsername().equalsIgnoreCase(name)) return false;
-        }
-
-        User newUser;
-        switch (type) {
-            case 1 -> newUser = new Admin(name, pass);
-            case 2 -> newUser = new Operator(name, pass);
-            default -> newUser = new Technician(name, pass); // Assumendo classe Technician esistente
-        }
-
-        userDatabase.add(newUser);
-        return true;
+    public LoginController(UserDAO userDao) {
+        this.userDao = userDao;
     }
 
     public User login(String name, String pass) {
-        for (User u : userDatabase) {
-            if (u.getUsername().equals(name) && u.getPassword().equals(pass)) {
-                return u; // Ritorna l'oggetto specifico (Admin, Operator, ecc.)
-            }
+        User u = userDao.findByUsername(name);
+        if (u != null && u.getPassword().equals(pass)) {
+            return u;
         }
         return null;
     }

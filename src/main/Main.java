@@ -24,7 +24,7 @@ public class Main {
         LoginController loginController = new LoginController(selectedDao);
 
         // 3. PASSIAMO TUTTO AL BOUNDARY
-        LoginBoundary boundary = new LoginBoundary(regController, loginController);
+        LoginBoundary loginBoundary = new LoginBoundary(regController, loginController);
 
         // 1. Fase di Autenticazione
         User loggedUser = loginBoundary.start();

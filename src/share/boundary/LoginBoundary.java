@@ -1,5 +1,6 @@
 package share.boundary;
 
+import share.exceptions.*;
 import share.controller.LoginController;
 import share.controller.RegistrationController;
 import share.model.entity.User;
@@ -38,18 +39,32 @@ public class LoginBoundary {
         System.out.println("Tipo: 1.Admin, 2.Operator, 3.Technician");
         int t = scanner.nextInt();
 
-        if (regController.register(u, p, t)) {
-            System.out.println("Registrazione completata con successo!");
-        } else {
-            System.out.println("Errore: Username già esistente.");
+        try {
+            regController.register(u, p, t);
+            System.out.println("Registrazione OK!");
+        } catch (UserAlreadyExistsException e) {
+            // Gestione dell'errore specifica
+            System.out.println("ATTENZIONE: " + e.getMessage());
         }
     }
 
     private User handleLogin() {
         System.out.print("Username: "); String u = scanner.nextLine();
         System.out.print("Password: "); String p = scanner.nextLine();
-        User logged = loginController.login(u, p);
-        if (logged == null) System.out.println("Credenziali errate!");
-        return logged;
+        try {
+            // Chiamata al controller che ora lancia l'eccezione invece di restituire null
+            User logged = loginController.login(u, p);
+            System.out.println("Accesso eseguito con successo!");
+            return logged;
+
+        } catch (InvalidCredentialsException e) {
+            // Gestione dell'eccezione custom
+            // Stampiamo il messaggio d'errore definito nella classe Exception
+            System.out.println("ERRORE DI AUTENTICAZIONE: " + e.getMessage());
+
+            // Restituiamo null per segnalare al metodo start() che il login è fallito
+            // e permettergli di mostrare nuovamente il menu principale.
+            return null;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package share.controller;
 
+import share.exceptions.InvalidCredentialsException;
 import share.model.dao.*;
 import share.model.entity.User;
 
@@ -10,11 +11,11 @@ public class LoginController {
         this.userDao = userDao;
     }
 
-    public User login(String name, String pass) {
+    public User login(String name, String pass) throws InvalidCredentialsException {
         User u = userDao.findByUsername(name);
-        if (u != null && u.getPassword().equals(pass)) {
-            return u;
+        if (u == null || !u.getPassword().equals(pass)) {
+            throw new InvalidCredentialsException();
         }
-        return null;
+        return u;
     }
 }

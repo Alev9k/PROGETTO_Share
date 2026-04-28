@@ -23,5 +23,9 @@ public class Main {
             System.out.println("Benvenuto Operatore " + loggedUser.getUsername());
             // Qui andrebbe il boundary dell'operatore per prenotare
         }
+        else if (loggedUser instanceof Technician) {
+            System.out.println("Benvenuto Tecnico " + loggedUser.getUsername());
+            // Qui andrebbe il boundary del tecnico per prenotare
+        }
     }
 }

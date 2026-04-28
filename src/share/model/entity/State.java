@@ -6,7 +6,7 @@ public class State {
 
     public State(int groupID) {
         this.groupID = groupID;
-        this.status = 0; // Di default l'utente entra come ATTIVO
+        this.status = 1; // Di default l'utente entra come ATTIVO
     }
 
     public int getStatus() { return status; }

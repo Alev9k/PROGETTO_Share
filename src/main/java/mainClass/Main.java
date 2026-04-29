@@ -1,17 +1,23 @@
 package mainClass;
 
+import boundary.javaFX.*;
+import boundary.CLI.*;
 import controller.*;
 import model.dao.*;
-import boundary.*;
 import model.entity.*;
 import java.util.Scanner;
+import javafx.application.Application;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // 1. SCELTA DEL CONTESTO A RUNTIME
-        System.out.println("Seleziona modalità persistenza:\n1. In Memoria (Test)\n2. File System (CSV)");
+        System.out.println("=== CONFIGURAZIONE SISTEMA SHARE ===");
+
+        // 1. SCELTA PERSISTENZA
+        System.out.println("Scegli modalità persistenza:");
+        System.out.println("1. Demo (In-Memory)");
+        System.out.println("2. Full (File System)");
         int contextChoice = scanner.nextInt();
 
         FactoryDAO.Context context = (contextChoice == 1) ?
@@ -19,34 +25,17 @@ public class Main {
 
         UserDAO selectedDao = FactoryDAO.getUserDAO(context);
 
-        // 2. ISTANZIAMO I DUE CONTROLLER SEPARATI
-        RegistrationController regController = new RegistrationController(selectedDao);
-        LoginController loginController = new LoginController(selectedDao);
+        // 2. SCELTA INTERFACCIA
+        System.out.println("\nScegli interfaccia utente:");
+        System.out.println("1. CLI (Terminale)");
+        System.out.println("2. JavaFX (Grafica Frutiger Aero)");
+        int i = scanner.nextInt();
 
-        // 3. PASSIAMO TUTTO AL BOUNDARY
-        LoginBoundary loginBoundary = new LoginBoundary(regController, loginController);
-
-        // 1. Fase di Autenticazione
-        User loggedUser = loginBoundary.start();
-
-        if (loggedUser == null) {
-            System.out.println("Accesso negato.");
-            return;
-        }
-
-        // 2. Smistamento in base al ruolo (Generalizzazione/Polimorfismo)
-        if (loggedUser instanceof Admin) {
-            System.out.println("Benvenuto model.factory.entity.Admin " + loggedUser.getUsername());
-            ManageGroupBoundary adminUI = new ManageGroupBoundary();
-            //adminUI.start((model.factory.entity.Admin) loggedUser); // Cast all'oggetto specifico
-        }
-        else if (loggedUser instanceof Operator) {
-            System.out.println("Benvenuto Operatore " + loggedUser.getUsername());
-            // Qui andrebbe il boundary dell'operatore per prenotare
-        }
-        else if (loggedUser instanceof Technician) {
-            System.out.println("Benvenuto Tecnico " + loggedUser.getUsername());
-            // Qui andrebbe il boundary del tecnico per prenotare
+        if (i == 1) {
+            new FrontControllerCLI(selectedDao).start();
+        } else {
+            MainAppGUI.setDAO(selectedDao);
+            Application.launch(MainAppGUI.class, args);
         }
     }
 }

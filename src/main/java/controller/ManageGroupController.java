@@ -1,13 +1,24 @@
 package controller;
 
+import model.bean.*;
 import model.entity.*;
-import java.util.List;
+import model.dao.*;
+import exceptions.*;
 
+import java.util.List;
 /**
  * Controller per la gestione dei gruppi, dei beni (Items) e dei membri (Operators).
  * Implementa la logica di business definita nel diagramma VOPC e nei casi d'uso.
  */
 public class ManageGroupController {
+    private final UserDAO userDAO; // Per recuperare Admin/Operator
+    private final FileGroupDAO groupDAO; // Per gestire i gruppi (Demo o VFS)
+
+    public ManageGroupController(UserDAO uDao, FileGroupDAO gDao) {
+        this.userDAO = uDao;
+        this.groupDAO = gDao;
+    }
+
 
     // --- Metodi di Recupero Dati ---
 
@@ -49,17 +60,20 @@ public class ManageGroupController {
     /**
      * Rimuove un bene dal gruppo solo se non è attualmente in uso.
      */
-    public void removeItem(Item item, Group group) {
-        // Verifica se l'model.factory.entity.Item è attualmente utilizzato (Step 9 della gestione model.factory.entity.Item)
+    public void removeItem(ItemBean itemBean, GroupBean groupBean)
+            throws ItemInUseException {
+
+        Group group = groupDAO.getGroupById(groupBean.getGroupId());
+        Item item = group.getItemByName(itemBean.getItemName());
+
+        // Step 9: Verifica se l'Item è in uso[cite: 1]
         if (item.checkActiveness()) {
-            // In un'applicazione reale, qui scatterebbe un messaggio di errore verso la UI
-            return;
+            throw new ItemInUseException("Impossibile eliminare: l'oggetto è attualmente in uso.");
         }
 
-        // Elimina il bene e invalida le sue prenotazioni (Step 10)
+        // Step 10: Elimina e invalida prenotazioni[cite: 1]
         group.removeItem(item);
-
-        // La notifica agli model.factory.entity.Operator coinvolti verrà gestita tramite il Boundary
+        groupDAO.updateGroup(group);
     }
 
     // --- Logica Gestione Membri (model.factory.entity.Operator) ---
@@ -67,13 +81,23 @@ public class ManageGroupController {
     /**
      * Gestisce il cambio di stato (Attivo/Bloccato) di un operatore in un gruppo.
      */
-    public void toggleOperatorState(Operator operator, Group group) {
-        // Ora il metodo è disponibile nella classe model.factory.entity.Operator
-        operator.toggleState(group.getGroupID());
+    public void toggleOperatorState(OperatorBean opBean, GroupBean gBean)
+            throws OperatorHasItemException {
 
-        // Se l'operatore è stato appena bloccato, cancelliamo le sue prenotazioni
-        if (!operator.checkActiveness(group.getGroupID())) {
-            operator.cancelGroupBookings(group.getGroupID());
+        Group group = groupDAO.getGroupById(gBean.getGroupId());
+        Operator op = (Operator) userDAO.findByUsername(opBean.getUsername());
+
+        // Step 9: Se vogliamo bloccare (0->1), verifichiamo che non abbia Item[cite: 1]
+        if (op.checkActiveness(group.getGroupID()) && op.hasItemFromGroup(group.getGroupID())) {
+            throw new OperatorHasItemException("L'operatore possiede un bene del gruppo e non può essere bloccato.");
         }
+
+        // Step 10: Cambio stato e cancellazione prenotazioni[cite: 1]
+        op.toggleState(group.getGroupID());
+        if (!op.checkActiveness(group.getGroupID())) {
+            op.cancelGroupBookings(group.getGroupID());
+        }
+
+        userDAO.updateUser(op);
     }
 }

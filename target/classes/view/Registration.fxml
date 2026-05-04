@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boundary.javafx.RegistrationGraphicController">
+    <children>
+        <ImageView fitHeight="600.0" fitWidth="800.0" pickOnBounds="true">
+            <image>
+                <Image url="@../images/liam_12.jpg" />
+            </image>
+        </ImageView>
+
+        <VBox alignment="CENTER" layoutX="225.0" layoutY="50.0" prefHeight="500.0" prefWidth="350.0" spacing="15.0" style="-fx-background-color: rgba(255, 255, 255, 0.4); -fx-background-radius: 20; -fx-border-width: 2; -fx-border-color: white; -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 0);">
+            <children>
+                <ImageView fitHeight="110.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/logo_share.png" />
+                    </image>
+                    <VBox.margin>
+                        <Insets bottom="-10.0" top="10.0" />
+                    </VBox.margin>
+                </ImageView>
+
+                <Label text="Crea Account" textFill="#004b8d">
+                    <font>
+                        <Font name="Segoe UI Bold" size="28.0" />
+                    </font>
+                    <style>-fx-effect: dropshadow(gaussian, white, 10, 0.5, 0, 0);</style>
+                </Label>
+
+                <Label text="Unisciti alla rete di condivisione" textFill="#555555">
+                    <font>
+                        <Font name="Segoe UI Italic" size="13.0" />
+                    </font>
+                </Label>
+
+                <VBox spacing="10.0">
+                    <children>
+                        <TextField fx:id="usernameField" promptText="Username" style="-fx-background-radius: 10; -fx-padding: 8; -fx-background-color: rgba(255,255,255,0.8); -fx-border-color: #abd4eb; -fx-border-radius: 10;" />
+                        <PasswordField fx:id="passwordField" promptText="Password" style="-fx-background-radius: 10; -fx-padding: 8; -fx-background-color: rgba(255,255,255,0.8); -fx-border-color: #abd4eb; -fx-border-radius: 10;" />
+
+                        <Label text="Seleziona il tuo ruolo:" textFill="#004b8d">
+                            <font>
+                                <Font name="Segoe UI Semibold" size="14.0" />
+                            </font>
+                        </Label>
+                        <ChoiceBox fx:id="roleChoiceBox" prefWidth="300.0" style="-fx-background-radius: 10; -fx-background-color: white; -fx-border-color: #abd4eb; -fx-border-radius: 10;" />
+                    </children>
+                    <VBox.margin>
+                        <Insets left="30.0" right="30.0" top="10.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <Button mnemonicParsing="false" onAction="#handleRegistration" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: linear-gradient(#98e046, #5d9e17); -fx-background-radius: 30; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="REGISTRATI">
+                    <effect>
+                        <DropShadow offsetY="2.0" radius="4.5" width="10.0" />
+                    </effect>
+                    <VBox.margin>
+                        <Insets top="5.0" />
+                    </VBox.margin>
+                </Button>
+
+                <Hyperlink onAction="#backToLogin" text="Hai già un account? Accedi" textFill="#0284c7">
+                    <font>
+                        <Font name="Segoe UI Semibold" size="12.0" />
+                    </font>
+                </Hyperlink>
+            </children>
+            <padding>
+                <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
+            </padding>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -7,4 +7,5 @@ public interface UserDAO {
     void save(User user);
     User findByUsername(String username);
     List<User> findAll();
+    void updateUser(User user);
 }

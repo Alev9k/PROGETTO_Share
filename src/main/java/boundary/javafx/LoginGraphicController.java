@@ -12,9 +12,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import controller.LoginController;
 import model.dao.UserDAO;
-import model.entity.User;
 import exceptions.InvalidCredentialsException;
-
+import model.bean.*;
 import java.io.IOException;
 
 public class LoginGraphicController {
@@ -37,7 +36,7 @@ public class LoginGraphicController {
         String p = passwordField.getText();
 
         try {
-            User loggedUser = loginController.login(u, p);
+            UserBean loggedUser = loginController.login(u, p);
             // Se arriviamo qui, il login ha avuto successo
             showInfo("Accesso Eseguito", "Benvenuto " + loggedUser.getUsername() + "!");
             // Qui caricheresti la Dashboard...

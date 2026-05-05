@@ -5,6 +5,7 @@ import model.entity.*;
 import model.dao.*;
 import exceptions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * Controller per la gestione dei gruppi, dei beni (Items) e dei membri (Operators).
@@ -12,9 +13,9 @@ import java.util.List;
  */
 public class ManageGroupController {
     private final UserDAO userDAO; // Per recuperare Admin/Operator
-    private final FileGroupDAO groupDAO; // Per gestire i gruppi (Demo o VFS)
+    private final GroupDAO groupDAO; // Per gestire i gruppi (Demo o VFS)
 
-    public ManageGroupController(UserDAO uDao, FileGroupDAO gDao) {
+    public ManageGroupController(UserDAO uDao, GroupDAO gDao) {
         this.userDAO = uDao;
         this.groupDAO = gDao;
     }
@@ -22,82 +23,38 @@ public class ManageGroupController {
 
     // --- Metodi di Recupero Dati ---
 
-    public List<Group> getGroupList(Admin admin) {
-        return admin.getGroups();
+    public List<GroupBean> getGroupList(String adminUsername){
+        Admin admin = (Admin) userDAO.findByUsername(adminUsername);
+        List<GroupBean> beanList = new ArrayList<>();
+
+        for (Group g : admin.getGroups()) {
+            beanList.add(new GroupBean(g.getName(),g.getGroupID()));
+        }
+        return beanList;
     }
 
-    public List<Item> getItemList(Group group) {
-        return group.getItems();
-    }
+    public void deleteGroup(int groupID) throws Exception {
+        // 1. Recuperiamo il gruppo completo
+        Group group = groupDAO.findGroupById(groupID);
 
-    public List<Asset> getAssetList(Admin admin) {
-        return admin.getAssets();
-    }
-
-    public List<Operator> getOperatorList(Group group) {
-        return group.getOperators();
-    }
-
-    // --- Logica Gestione model.factory.entity.Item (Beni) ---
-
-    /**
-     * Verifica che il nome del nuovo bene sia univoco all'interno del gruppo.
-     */
-    public boolean checkItemName(String name, Group group) {
-        // Requisito: inibire nomi duplicati nello stesso gruppo
+        // 2. Controllo sicurezza: ci sono item in uso?
         for (Item item : group.getItems()) {
-            if (item.getName().equalsIgnoreCase(name)) {
-                return false;
+            if (item.checkActiveness()) { // Stato 1: In Uso
+                throw new Exception("Impossibile eliminare il gruppo: il bene '" +
+                        item.getName() + "' è attualmente in uso.");
             }
         }
-        return true;
-    }
 
-    public void addItem(Item newItem, Group group) {
-        group.addItem(newItem);
-    }
-
-    /**
-     * Rimuove un bene dal gruppo solo se non è attualmente in uso.
-     */
-    public void removeItem(ItemBean itemBean, GroupBean groupBean)
-            throws ItemInUseException {
-
-        Group group = groupDAO.getGroupById(groupBean.getGroupId());
-        Item item = group.getItemByName(itemBean.getItemName());
-
-        // Step 9: Verifica se l'Item è in uso[cite: 1]
-        if (item.checkActiveness()) {
-            throw new ItemInUseException("Impossibile eliminare: l'oggetto è attualmente in uso.");
+        // 3. Pulizia Operatori: dobbiamo rimuovere lo stato e i booking di questo gruppo da ogni utente
+        List<Operator> allOperators = group.getOperators();
+        for (Operator op : allOperators) {
+            op.cancelGroupBookings(groupID);
+            op.removeState(groupID);
+            // NOTA: Va aggiunta un sistema di notifica di eliminazione del gruppo agli operator
+            userDAO.updateUser(op);
         }
 
-        // Step 10: Elimina e invalida prenotazioni[cite: 1]
-        group.removeItem(item);
-        groupDAO.updateGroup(group);
-    }
-
-    // --- Logica Gestione Membri (model.factory.entity.Operator) ---
-
-    /**
-     * Gestisce il cambio di stato (Attivo/Bloccato) di un operatore in un gruppo.
-     */
-    public void toggleOperatorState(OperatorBean opBean, GroupBean gBean)
-            throws OperatorHasItemException {
-
-        Group group = groupDAO.getGroupById(gBean.getGroupId());
-        Operator op = (Operator) userDAO.findByUsername(opBean.getUsername());
-
-        // Step 9: Se vogliamo bloccare (0->1), verifichiamo che non abbia Item[cite: 1]
-        if (op.checkActiveness(group.getGroupID()) && op.hasItemFromGroup(group.getGroupID())) {
-            throw new OperatorHasItemException("L'operatore possiede un bene del gruppo e non può essere bloccato.");
-        }
-
-        // Step 10: Cambio stato e cancellazione prenotazioni[cite: 1]
-        op.toggleState(group.getGroupID());
-        if (!op.checkActiveness(group.getGroupID())) {
-            op.cancelGroupBookings(group.getGroupID());
-        }
-
-        userDAO.updateUser(op);
+        // 4. Eliminazione definitiva
+        groupDAO.delete(groupID);
     }
 }

@@ -4,6 +4,7 @@ import exceptions.InvalidCredentialsException;
 import controller.LoginController;
 import model.entity.User;
 import java.util.Scanner;
+import model.bean.*;
 
 public class LoginBoundaryCLI {
     private final LoginController loginController;
@@ -14,7 +15,7 @@ public class LoginBoundaryCLI {
         this.scanner = scanner;
     }
 
-    public User start() {
+    public UserBean start() {
         System.out.println("\n--- ACCESSO (LOGIN) ---");
         System.out.print("Username: ");
         String u = scanner.nextLine();
@@ -22,7 +23,7 @@ public class LoginBoundaryCLI {
         String p = scanner.nextLine();
 
         try {
-            User logged = loginController.login(u, p);
+            UserBean logged = loginController.login(u, p);
             System.out.println(">>> Accesso eseguito. Benvenuto " + logged.getUsername() + "!");
             return logged;
         } catch (InvalidCredentialsException e) {

@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Booking {
-    private LocalDate date;      // Nel VOPC indicato come int, meglio LocalDate per Java
-    private LocalTime startTime; // Nel VOPC indicato come int, meglio LocalTime
-    private String itemName;
-    private String operatorName;
-    private int groupID;
+    private final LocalDate date;      // Nel VOPC indicato come int, meglio LocalDate per Java
+    private final LocalTime startTime; // Nel VOPC indicato come int, meglio LocalTime
+    private final String itemName;
+    private final String operatorName;
+    private final int groupID;
 
     public Booking(LocalDate date, LocalTime startTime, String itemName, String operatorName, int groupID) {
         this.date = date;

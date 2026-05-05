@@ -8,8 +8,8 @@ import java.util.List;
  * Contiene l'elenco degli operatori e dei beni (Items) assegnati.
  */
 public class Group {
-    private int groupID;                 // Identificativo univoco del gruppo
-    private String name;                // Nome del gruppo
+    private final int groupID;                 // Identificativo univoco del gruppo
+    private final String name;                // Nome del gruppo
     private List<Operator> operatorsList; // Lista degli operatori membri
     private List<Item> itemList;        // Lista dei beni del gruppo
     public Group(int groupID, String name) {
@@ -21,6 +21,17 @@ public class Group {
 
     public List<Item> getItems() {
         return itemList; // Ritorna l'elenco dei beni
+    }
+
+    public Item getSingleItem(String name) {
+        // Cicliamo l'elenco dei beni del gruppo
+        for (Item item : itemList) {
+            // Confrontiamo il nome (ignorando maiuscole/minuscole per sicurezza)
+            if (item.getName().equalsIgnoreCase(name)) {
+                return item; // Trovato!
+            }
+        }
+        return null; // Se non esiste un bene con quel nome nel gruppo
     }
 
     public List<Operator> getOperators() {

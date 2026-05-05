@@ -4,7 +4,6 @@ public class ItemBean {
     private String itemName;
     private String assetName;
 
-    public ItemBean() {}
     public ItemBean(String name, String asset) { this.itemName = name; this.assetName = asset; }
 
     // Getters e Setters

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileGroupDAO implements GroupDAO {
-    private final String fileName = "groups.csv";
+    private static final String fileName = "groups.csv";
 
     @Override
     public List<Group> findAll() throws DAOException {
@@ -57,6 +57,37 @@ public class FileGroupDAO implements GroupDAO {
             }
         } catch (IOException e) {
             throw new DAOException("Errore di aggiornamento VFS.");
+        }
+    }
+
+    @Override
+    public Group findGroupById(int id) throws DAOException {
+        // 1. Recuperiamo tutti i gruppi leggendo il file CSV
+        List<Group> allGroups = findAll();
+
+        // 2. Cerchiamo quello con l'ID corretto
+        for (Group g : allGroups) {
+            if (g.getGroupID() == id) {
+                return g; // Trovato!
+            }
+        }
+
+        return null; // Non trovato
+    }
+
+    @Override
+    public void delete(int groupID) throws DAOException {
+        List<Group> allGroups = findAll();
+        // Rimuoviamo il gruppo con l'ID corrispondente
+        allGroups.removeIf(g -> g.getGroupID() == groupID);
+
+        // Riscriviamo il file senza il gruppo eliminato
+        try (PrintWriter out = new PrintWriter(new FileWriter(fileName, false))) {
+            for (Group g : allGroups) {
+                out.println(g.getGroupID() + "," + g.getName());
+            }
+        } catch (IOException e) {
+            throw new DAOException("Errore durante l'eliminazione del gruppo dal File System.");
         }
     }
 }

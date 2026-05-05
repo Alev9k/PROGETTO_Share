@@ -31,6 +31,7 @@ public class Operator extends User {
             if (s.getGroupID() == groupID) {
                 if (s.getStatus() == 0) {
                     s.setStatus(1); // Diventa BLOCCATO
+                    cancelGroupBookings(groupID);
                 } else {
                     s.setStatus(0); // Ritorna ATTIVO
                 }
@@ -53,5 +54,27 @@ public class Operator extends User {
         return removedBookings;
     }
 
-    // public String getUsername() { return username; }
+    public boolean hasItemFromGroup(int groupID) {
+        // Controlliamo la lista delle prenotazioni dell'operatore[cite: 1]
+        for (Booking booking : bookingsList) {
+            // Se troviamo una prenotazione collegata a questo gruppo
+            if (booking.getGroupID() == groupID) {
+                // In questa logica, la presenza di un booking indica il possesso[cite: 1]
+                return true;
+            }
+        }
+        return false; // L'operatore non ha beni di questo gruppo in carico
+    }
+
+    public void removeBookingByItem(String itemName, int groupID) {
+        // Rimuove dalla lista dell'operatore la prenotazione che corrisponde a quel bene in quel gruppo
+        this.bookingsList.removeIf(b ->
+                b.getItemName().equals(itemName) && b.getGroupID() == groupID
+        );
+    }
+
+    public void removeState(int groupID) {
+        // Rimuoviamo dalla stateList l'oggetto State che ha il groupID corrispondente
+        this.stateList.removeIf(state -> state.getGroupID() == groupID);
+    }
 }

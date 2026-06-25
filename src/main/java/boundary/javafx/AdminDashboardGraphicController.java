@@ -40,7 +40,12 @@ public class AdminDashboardGraphicController {
 
     @FXML
     private void handleCreateGroup(Event event) {
-        showInfo("Nuovo Gruppo", "Funzionalità di creazione gruppo in arrivo!");
+        try {
+            MainAppGUI.replaceScene("/view/CreateGroup.fxml", (CreateGroupGraphicController ctrl) ->
+                    ctrl.initData(factory, adminUsername));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

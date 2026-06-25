@@ -32,4 +32,8 @@ public class ControllerFactory {
     public ManageItemsController createManageItemsController(int groupID) throws Exception {
         return new ManageItemsController(groupID, groupDAO, userDAO);
     }
+
+    public CreateGroupController createCreateGroupController() throws Exception {
+        return new CreateGroupController(groupDAO, userDAO);
+    }
 }

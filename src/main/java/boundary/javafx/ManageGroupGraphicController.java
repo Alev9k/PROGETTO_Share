@@ -95,9 +95,16 @@ public class ManageGroupGraphicController {
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    logicController.deleteGroup(selected.getGroupId());
+                    // 1. Prepariamo il Bean dell'Admin corrente
+                    UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
+
+                    // 2. Passiamo i due Bean al controller logico
+                    logicController.deleteGroup(selected, adminBean);
+
                     showInfo("Successo", "Gruppo eliminato correttamente.");
-                    loadGroups(); // Refresh dinamico
+
+                    // 3. Ricarichiamo la tabella: ora il gruppo rimosso non ci sarà più!
+                    loadGroups();
                 } catch (Exception e) {
                     showError("Errore eliminazione", e.getMessage());
                 }
@@ -119,7 +126,12 @@ public class ManageGroupGraphicController {
 
     @FXML
     private void handleCreateGroup(Event event) {
-        showInfo("Nuovo Gruppo", "Modulo di creazione gruppo in fase di sviluppo.");
+        try {
+            MainAppGUI.replaceScene("/view/CreateGroup.fxml", (CreateGroupGraphicController ctrl) ->
+                    ctrl.initData(factory, adminUsername));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

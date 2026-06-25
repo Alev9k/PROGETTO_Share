@@ -33,28 +33,46 @@ public class ManageGroupController {
         return beanList;
     }
 
-    public void deleteGroup(int groupID) throws Exception {
+    /**
+     * Elimina un gruppo, sganciandolo dagli operatori e dall'amministratore.
+     *
+     * @param groupBean Il bean del gruppo da eliminare
+     * @param adminBean Il bean dell'amministratore che possiede il gruppo
+     */
+    public void deleteGroup(GroupBean groupBean, UserBean adminBean) throws Exception {
+        int groupID = groupBean.getGroupId();
+
         // 1. Recuperiamo il gruppo completo
         Group group = groupDAO.findGroupById(groupID);
+        if (group == null) {
+            throw new Exception("Il gruppo selezionato non esiste più nel sistema.");
+        }
 
         // 2. Controllo sicurezza: ci sono item in uso?
         for (Item item : group.getItems()) {
-            if (item.checkActiveness()) { // Stato 1: In Uso
+            if (item.checkActiveness()) {
                 throw new Exception("Impossibile eliminare il gruppo: il bene '" +
                         item.getName() + "' è attualmente in uso.");
             }
         }
 
-        // 3. Pulizia Operatori: dobbiamo rimuovere lo stato e i booking di questo gruppo da ogni utente
-        List<Operator> allOperators = group.getOperators();
-        for (Operator op : allOperators) {
+        // 3. Pulizia Operatori (Sganciamo il gruppo dagli operatori)
+        for (Operator op : group.getOperators()) {
             op.cancelGroupBookings(groupID);
             op.removeState(groupID);
-            // NOTA: Va aggiunta un sistema di notifica di eliminazione del gruppo agli operator
             userDAO.updateUser(op);
         }
 
-        // 4. Eliminazione definitiva
+        // 4. NOVITÀ: Pulizia Admin (Sganciamo il gruppo dall'Admin)
+        Admin admin = (Admin) userDAO.findByUsername(adminBean.getUsername());
+        if (admin != null) {
+            // Rimuoviamo dalla lista dell'Admin il gruppo con questo ID
+            admin.getGroups().removeIf(g -> g.getGroupID() == groupID);
+            // Aggiorniamo l'Admin nel database/file system
+            userDAO.updateUser(admin);
+        }
+
+        // 5. Eliminazione definitiva dal file groups.csv
         groupDAO.delete(groupID);
     }
 }

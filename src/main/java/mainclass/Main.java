@@ -1,11 +1,11 @@
 package mainclass;
 
-import boundary.javafx.*;
 import boundary.cli.*;
+import controller.ControllerFactory;
 import model.dao.*;
-
-import java.util.Scanner;
+import boundary.javafx.*;
 import javafx.application.Application;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -18,22 +18,32 @@ public class Main {
         System.out.println("1. Demo (In-Memory)");
         System.out.println("2. Full (File System)");
         int contextChoice = scanner.nextInt();
+        scanner.nextLine(); // Pulizia buffer
 
         FactoryDAO.Context context = (contextChoice == 1) ?
                 FactoryDAO.Context.MEMORY : FactoryDAO.Context.FILE_SYSTEM;
 
-        UserDAO selectedDao = FactoryDAO.getUserDAO(context);
+        // Recuperiamo entrambi i DAO necessari per il sistema
+        UserDAO userDAO = FactoryDAO.getUserDAO(context);
+        GroupDAO groupDAO = FactoryDAO.getGroupDAO(context);
 
-        // 2. SCELTA INTERFACCIA
+        // 2. CREAZIONE DELLA CONTROLLER FACTORY
+        // Centralizziamo qui la gestione delle dipendenze
+        ControllerFactory controllerFactory = new ControllerFactory(userDAO, groupDAO);
+
+        // 3. SCELTA INTERFACCIA
         System.out.println("\nScegli interfaccia utente:");
         System.out.println("1. CLI (Terminale)");
-        System.out.println("2. JavaFX (Grafica Frutiger Aero)");
-        int i = scanner.nextInt();
+        System.out.println("2. JavaFX (Grafica)");
+        int interfaceChoice = scanner.nextInt();
+        scanner.nextLine(); // Pulizia buffer
 
-        if (i == 1) {
-            new FrontControllerCLI(selectedDao).start();
+        if (interfaceChoice == 1) {
+            // Passiamo la factory al Front Controller CLI
+            new FrontControllerCLI(controllerFactory).start();
         } else {
-            MainAppGUI.setDAO(selectedDao);
+            // Per JavaFX, potresti passare la factory tramite un setter o costruttore
+            MainAppGUI.setControllerFactory(controllerFactory);
             Application.launch(MainAppGUI.class, args);
         }
     }

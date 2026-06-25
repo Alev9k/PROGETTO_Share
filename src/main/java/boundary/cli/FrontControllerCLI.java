@@ -1,74 +1,113 @@
 package boundary.cli;
 
 import controller.*;
-import model.dao.*;
 import model.bean.*;
 import java.util.Scanner;
 
 public class FrontControllerCLI {
-    private final UserDAO userDAO;
-    private final GroupDAO groupDAO;
-    public FrontControllerCLI(UserDAO selectedUserDAO, GroupDAO selectedGroupDAO) {
-        this.userDAO = selectedUserDAO;
-        this.groupDAO = selectedGroupDAO;
+    private final ControllerFactory factory;
+
+    public FrontControllerCLI(ControllerFactory factory) {
+        this.factory = factory;
     }
 
     public void start() {
         Scanner sc = new Scanner(System.in);
-        LoginController lc = new LoginController(userDAO);
-        RegistrationController rc = new RegistrationController(userDAO);
+        LoginController lc = factory.createLoginController();
+        RegistrationController rc = factory.createRegistrationController();
 
         while (true) {
-            System.out.println("\n--- BENVENUTO IN SHARE ---");
-            System.out.println("1. Registrati\n2. Accedi\n3. Esci");
-            System.out.print("Scelta: ");
-            int choice = sc.nextInt();
-            sc.nextLine(); // Pulisce il buffer
+            try {
+                System.out.println("\n--- BENVENUTO IN SHARE ---");
+                System.out.println("1. Registrati\n2. Accedi\n3. Esci");
+                System.out.print("Scelta: ");
 
-            if (choice == 1) {
-                new RegistrationBoundaryCLI(rc, sc).start();
-            } else if (choice == 2) {
-                // Il login ora restituisce un Bean dell'utente loggato
-                UserBean loggedUser = new LoginBoundaryCLI(lc, sc).start();
+                int choice = Integer.parseInt(sc.nextLine());
 
-                if (loggedUser != null) {
-                    // Se il login ha successo, smistiamo l'utente in base al tipo
-                    dispatchUser(loggedUser, sc);
+                if (choice == 1) {
+                    new RegistrationBoundaryCLI(rc, sc).start();
+                } else if (choice == 2) {
+                    UserBean loggedUser = new LoginBoundaryCLI(lc, sc).start();
+                    if (loggedUser != null) {
+                        dispatchUser(loggedUser, sc);
+                    }
+                } else {
+                    System.out.println("Arrivederci!");
+                    break;
                 }
-            } else {
-                System.out.println("Arrivederci!");
-                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Inserisci un numero valido.");
             }
         }
     }
 
-    /**
-     * Metodo privato per indirizzare l'utente al menu corretto in base al ruolo.
-     */
     private void dispatchUser(UserBean user, Scanner sc) {
         System.out.println("\nAccesso effettuato come: " + user.getUsername());
 
-        // Verifichiamo il ruolo dell'utente contenuto nel Bean
         switch (user.getRole()) {
             case ADMIN:
-                // Avviamo il caso d'uso Gestisci Gruppo che abbiamo implementato
-                ManageGroupController mgc = new ManageGroupController(userDAO, groupDAO);
-                new ManageGroupBoundaryCLI(mgc, user.getUsername()).showMenu();
+                showAdminMenu(user, sc);
                 break;
 
             case OPERATOR:
-                // Placeholder per i futuri use case dell'operatore
                 System.out.println("[MENU OPERATORE] Funzionalità non ancora disponibili.");
                 break;
 
             case TECHNICIAN:
-                // Placeholder per i futuri use case del tecnico
                 System.out.println("[MENU TECNICO] Funzionalità non ancora disponibili.");
                 break;
 
             default:
                 System.out.println("Errore: Ruolo non riconosciuto.");
                 break;
+        }
+    }
+
+    /**
+     * Sotto-menu dedicato alle funzionalità dell'Admin.
+     */
+    private void showAdminMenu(UserBean user, Scanner sc) {
+        boolean exitAdmin = false;
+
+        while (!exitAdmin) {
+            System.out.println("\n--- MENU AMMINISTRATORE ---");
+            System.out.println("1. Crea Nuovo Gruppo");
+            System.out.println("2. Crea Nuovo Asset");
+            System.out.println("3. Gestisci Gruppi Esistenti");
+            System.out.println("0. Logout");
+            System.out.print("Scelta: ");
+
+            try {
+                int choice = Integer.parseInt(sc.nextLine());
+
+                switch (choice) {
+                    case 1:
+                        System.out.println("\n[!] Funzionalità 'Crea Gruppo' non ancora implementata.");
+                        // Resta nel ciclo, quindi torna al menu Admin
+                        break;
+
+                    case 2:
+                        System.out.println("\n[!] Funzionalità 'Crea Asset' non ancora implementata.");
+                        break;
+
+                    case 3:
+                        // Avviamo il caso d'uso già implementato
+                        ManageGroupController mgc = factory.createManageGroupController();
+                        new ManageGroupBoundaryCLI(mgc, factory, user.getUsername(), sc).showMenu();
+                        break;
+
+                    case 0:
+                        System.out.println("Effettuo logout...");
+                        exitAdmin = true;
+                        break;
+
+                    default:
+                        System.out.println("Scelta non valida.");
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Per favore, inserisci un numero.");
+            }
         }
     }
 }

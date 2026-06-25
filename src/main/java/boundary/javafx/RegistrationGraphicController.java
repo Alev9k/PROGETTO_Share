@@ -12,7 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import controller.RegistrationController;
-import model.dao.UserDAO;
+import controller.ControllerFactory; // Importiamo la nostra Factory
 import exceptions.UserAlreadyExistsException;
 
 import java.io.IOException;
@@ -24,25 +24,35 @@ public class RegistrationGraphicController {
     @FXML private ChoiceBox<String> roleChoiceBox;
 
     private RegistrationController registrationController;
-    private UserDAO userDAO;
+    private ControllerFactory factory; // Sostituiamo UserDAO con la Factory
 
     @FXML
     public void initialize() {
-        // Inizializziamo le opzioni del ruolo (stile Frutiger Aero/Windows 7)
+        // Inizializziamo le opzioni del ruolo
         roleChoiceBox.getItems().addAll("Admin", "Operator", "Technician");
         roleChoiceBox.setValue("Operator");
     }
 
-    public void setDAO(UserDAO dao) {
-        this.userDAO = dao;
-        this.registrationController = new RegistrationController(dao);
+    /**
+     * Nuovo metodo di iniezione che segue il pattern Factory.
+     */
+    public void setFactory(ControllerFactory factory) {
+        this.factory = factory;
+        // Chiediamo alla factory di crearci il controller logico per la registrazione
+        this.registrationController = factory.createRegistrationController();
     }
 
     @FXML
     private void handleRegistration(ActionEvent event) {
         String u = usernameField.getText();
         String p = passwordField.getText();
-        // Mappiamo la scelta (1, 2 o 3) in base all'ordine nel ChoiceBox
+
+        if (u.isEmpty() || p.isEmpty()) {
+            showError("Dati Mancanti", "Inserisci tutti i campi prima di procedere.");
+            return;
+        }
+
+        // Mappiamo la scelta (1=Admin, 2=Operator, 3=Technician)
         int type = roleChoiceBox.getSelectionModel().getSelectedIndex() + 1;
 
         try {
@@ -51,6 +61,8 @@ public class RegistrationGraphicController {
             backToLogin(event);
         } catch (UserAlreadyExistsException e) {
             showError("Errore", e.getMessage());
+        } catch (Exception e) {
+            showError("Errore Sistema", "Si è verificato un problema durante la registrazione.");
         }
     }
 
@@ -60,10 +72,15 @@ public class RegistrationGraphicController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Login.fxml"));
             Parent root = loader.load();
 
+            // Passiamo la factory al controller del login per mantenere il flusso
             LoginGraphicController loginCtrl = loader.getController();
-            loginCtrl.setDAO(userDAO);
+            loginCtrl.setFactory(factory);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Applichiamo la protezione per il layout anche qui
+            stage.setResizable(false);
+
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {

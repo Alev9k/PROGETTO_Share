@@ -11,7 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import controller.LoginController;
-import model.dao.UserDAO;
+import controller.ControllerFactory; // Nuova importazione
 import exceptions.InvalidCredentialsException;
 import model.bean.*;
 import java.io.IOException;
@@ -22,12 +22,16 @@ public class LoginGraphicController {
     @FXML private PasswordField passwordField;
 
     private LoginController loginController;
-    private UserDAO userDAO;
+    private ControllerFactory factory; // Sostituiamo il DAO con la Factory
 
-    // Metodo fondamentale per iniettare il DAO dal MainAppGUI
-    public void setDAO(UserDAO dao) {
-        this.userDAO = dao;
-        this.loginController = new LoginController(dao);
+    /**
+     * Metodo per iniettare la Factory.
+     * È il cuore del disaccoppiamento: la GUI non sa nulla di database o file.
+     */
+    public void setFactory(ControllerFactory factory) {
+        this.factory = factory;
+        // Chiediamo alla factory di crearci il controller logico per il login
+        this.loginController = factory.createLoginController();
     }
 
     @FXML
@@ -35,14 +39,20 @@ public class LoginGraphicController {
         String u = usernameField.getText();
         String p = passwordField.getText();
 
+        if (u.isEmpty() || p.isEmpty()) {
+            showError("Campi Vuoti", "Per favore, inserisci username e password.");
+            return;
+        }
+
         try {
             UserBean loggedUser = loginController.login(u, p);
-            // Se arriviamo qui, il login ha avuto successo
             showInfo("Accesso Eseguito", "Benvenuto " + loggedUser.getUsername() + "!");
-            // Qui caricheresti la Dashboard...
+            MainAppGUI.showDashboard(loggedUser);
 
         } catch (InvalidCredentialsException e) {
             showError("Errore Login", e.getMessage());
+        } catch (Exception e) {
+            showError("Errore Sistema", "Si è verificato un errore imprevisto.");
         }
     }
 
@@ -52,11 +62,15 @@ public class LoginGraphicController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Registration.fxml"));
             Parent root = loader.load();
 
-            // Passiamo il DAO anche al controller della registrazione!
+            // Passiamo la Factory al controller della registrazione
             RegistrationGraphicController regCtrl = loader.getController();
-            regCtrl.setDAO(userDAO);
+            regCtrl.setFactory(factory);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Manteniamo la finestra non ridimensionabile anche per la registrazione
+            stage.setResizable(false);
+
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {

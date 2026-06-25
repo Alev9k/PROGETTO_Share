@@ -1,5 +1,6 @@
 package model.entity;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +11,15 @@ import java.util.List;
 public class Group {
     private final int groupID;                 // Identificativo univoco del gruppo
     private final String name;                // Nome del gruppo
+    private LocalTime openTime;
+    private LocalTime closeTime;
     private List<Operator> operatorsList; // Lista degli operatori membri
     private List<Item> itemList;        // Lista dei beni del gruppo
-    public Group(int groupID, String name) {
+    public Group(int groupID, String name, LocalTime openTime, LocalTime closeTime) {
         this.groupID = groupID;
         this.name = name;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
         this.operatorsList = new ArrayList<>();
         this.itemList = new ArrayList<>();
     }
@@ -54,5 +59,13 @@ public class Group {
 
     public String getName() {
         return name;
+    }
+
+    public LocalTime getOpenTime() {
+        return openTime;
+    }
+
+    public LocalTime getCloseTime() {
+        return closeTime;
     }
 }

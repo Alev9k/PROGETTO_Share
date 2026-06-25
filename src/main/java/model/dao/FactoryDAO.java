@@ -9,4 +9,11 @@ public class FactoryDAO {
             case FILE_SYSTEM -> new FileUserDAO();
         };
     }
+
+    public static GroupDAO getGroupDAO(Context context) {
+        return switch (context) {
+            case MEMORY -> new InMemoryGroupDAO();
+            case FILE_SYSTEM -> new FileGroupDAO();
+        };
+    }
 }

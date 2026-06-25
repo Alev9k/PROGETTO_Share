@@ -22,7 +22,4 @@ public class Admin extends User {
         return assetList;
     }
 
-    /*public String getUsername() {
-        return username;
-    }*/
 }

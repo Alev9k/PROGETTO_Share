@@ -8,7 +8,7 @@ import exceptions.*;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Controller per la gestione dei gruppi, dei beni (Items) e dei membri (Operators).
+ * Controller per la gestione dei gruppi.
  * Implementa la logica di business definita nel diagramma VOPC e nei casi d'uso.
  */
 public class ManageGroupController {

@@ -39,6 +39,15 @@ public class Group {
         return null; // Se non esiste un bene con quel nome nel gruppo
     }
 
+    public Item getSingleItemById(int itemID) {
+        for (Item item : itemList) {
+            if (item.getItemID() == itemID) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public List<Operator> getOperators() {
         return operatorsList; // Ritorna l'elenco degli operatori
     }

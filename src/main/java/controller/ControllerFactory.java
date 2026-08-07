@@ -29,9 +29,9 @@ public class ControllerFactory {
         return new ManageOperatorsController(groupID, userDAO, groupDAO);
     }
 
-    public ManageItemsController createManageItemsController(int groupID) throws Exception {
+    /*public ManageItemsController createManageItemsController(int groupID) throws Exception {
         return new ManageItemsController(groupID, groupDAO, userDAO);
-    }
+    }*/
 
     public CreateGroupController createCreateGroupController() throws Exception {
         return new CreateGroupController(groupDAO, userDAO);

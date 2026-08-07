@@ -12,8 +12,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.java.libraries>target/**/*.jar</sonar.java.libraries>
+
+        <!-- PROPRIETÀ SONARCLOUD DA AGGIUNGERE -->
+        <sonar.organization>alev9k</sonar.organization>
+        <sonar.projectKey>Alev9k_PROGETTO_Share</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <!-- Rimosse le properties sonar.java.binaries e libraries: Maven le calcola in automatico e forzarle a volte crea problemi -->
     </properties>
 
     <dependencies>
@@ -45,11 +50,14 @@
                     <mainClass>main.mainclass.Main</mainClass>
                 </configuration>
             </plugin>
+
+            <!-- PLUGIN SONAR AGGIORNATO PER JAVA 21 -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.10.0.2594</version>
+                <version>5.7.0.6970</version>
             </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

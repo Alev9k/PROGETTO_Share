@@ -47,19 +47,23 @@ public class ManageItemsBoundaryCLI {
         }
         System.out.println("\nElenco beni:");
         for (int i = 0; i < items.size(); i++) {
-            System.out.println((i + 1) + ". " + items.get(i).getItemName() +
-                    " (Tipo: " + items.get(i).getAssetName() + ")");
+            ItemBean item = items.get(i);
+            System.out.println((i + 1) + ". " + item.getItemName()
+                    + " | priorit\u00e0: " + item.getPriority()
+                    + " | uso massimo: " + item.getMaxUsageTime() + " minuti");
         }
     }
 
     private void addNewItem() {
         System.out.print("Inserisci il nome del nuovo bene: ");
         String name = scanner.nextLine();
-        System.out.print("Inserisci la tipologia (Asset): ");
-        String assetName = scanner.nextLine();
+        System.out.print("Inserisci la priorit\u00e0 (1-5): ");
+        int priority = Integer.parseInt(scanner.nextLine());
+        System.out.print("Inserisci il tempo massimo di utilizzo in minuti: ");
+        int maxUsageTime = Integer.parseInt(scanner.nextLine());
 
         try {
-            ItemBean newBean = new ItemBean(name, assetName);
+            ItemBean newBean = new ItemBean(name, priority, maxUsageTime);
             controller.addNewItem(newBean);
             System.out.println("Bene aggiunto con successo!");
         } catch (Exception e) {

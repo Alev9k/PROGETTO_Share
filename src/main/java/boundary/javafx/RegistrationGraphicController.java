@@ -2,20 +2,13 @@ package boundary.javafx;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import controller.RegistrationController;
 import controller.ControllerFactory; // Importiamo la nostra Factory
 import exceptions.UserAlreadyExistsException;
-
-import java.io.IOException;
 
 public class RegistrationGraphicController {
 
@@ -58,7 +51,7 @@ public class RegistrationGraphicController {
         try {
             registrationController.register(u, p, type);
             showInfo("Registrazione OK", "Account creato con successo! Torna al login per accedere.");
-            backToLogin(event);
+            backToLogin();
         } catch (UserAlreadyExistsException e) {
             showError("Errore", e.getMessage());
         } catch (Exception e) {
@@ -67,23 +60,10 @@ public class RegistrationGraphicController {
     }
 
     @FXML
-    private void backToLogin(ActionEvent event) {
+    private void backToLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Login.fxml"));
-            Parent root = loader.load();
-
-            // Passiamo la factory al controller del login per mantenere il flusso
-            LoginGraphicController loginCtrl = loader.getController();
-            loginCtrl.setFactory(factory);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Applichiamo la protezione per il layout anche qui
-            stage.setResizable(false);
-
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
+            MainAppGUI.showLogin();
+        } catch (Exception e) {
             showError("Errore", "Ritorno al login fallito.");
         }
     }

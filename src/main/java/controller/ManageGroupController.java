@@ -24,10 +24,14 @@ public class ManageGroupController {
     // --- Metodi di Recupero Dati ---
 
     public List<GroupBean> getGroupList(String adminUsername){
-        Admin admin = (Admin) userDAO.findByUsername(adminUsername);
+        User admin = userDAO.findByUsername(adminUsername);
         List<GroupBean> beanList = new ArrayList<>();
 
-        for (Group g : admin.getGroups()) {
+        if (admin == null || !admin.canManageGroups()) {
+            throw new IllegalArgumentException("Utente non autorizzato alla gestione dei gruppi.");
+        }
+
+        for (Group g : admin.getManagedGroups()) {
             beanList.add(new GroupBean(g.getName(),g.getGroupID()));
         }
         return beanList;
@@ -64,13 +68,12 @@ public class ManageGroupController {
         }
 
         // 4. NOVITÀ: Pulizia Admin (Sganciamo il gruppo dall'Admin)
-        Admin admin = (Admin) userDAO.findByUsername(adminBean.getUsername());
-        if (admin != null) {
-            // Rimuoviamo dalla lista dell'Admin il gruppo con questo ID
-            admin.getGroups().removeIf(g -> g.getGroupID() == groupID);
-            // Aggiorniamo l'Admin nel database/file system
-            userDAO.updateUser(admin);
+        User admin = userDAO.findByUsername(adminBean.getUsername());
+        if (admin == null || !admin.canManageGroups()) {
+            throw new IllegalArgumentException("Utente non autorizzato alla gestione dei gruppi.");
         }
+        admin.removeManagedGroup(groupID);
+        userDAO.updateUser(admin);
 
         // 5. Eliminazione definitiva dal file groups.csv
         groupDAO.delete(groupID);

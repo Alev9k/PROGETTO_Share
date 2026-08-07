@@ -28,12 +28,22 @@ public class ManageItemsController {
     public List<ItemBean> getItemList() {
         List<ItemBean> beanList = new ArrayList<>();
         for (Item item : contextGroup.getItems()) {
-            beanList.add(new ItemBean(item.getName(), item.getAssetName()));
+            beanList.add(new ItemBean(item.getName(), item.getPriority(), item.getMaxUsageTime()));
         }
         return beanList;
     }
 
     public void addNewItem(ItemBean bean) throws DAOException, DuplicateItemNameException {
+        if (bean == null || bean.getItemName() == null || bean.getItemName().isBlank()) {
+            throw new IllegalArgumentException("Il nome dell'item non pu\u00f2 essere vuoto.");
+        }
+        if (bean.getPriority() < 1 || bean.getPriority() > 5) {
+            throw new IllegalArgumentException("La priorit\u00e0 deve essere compresa tra 1 e 5.");
+        }
+        if (bean.getMaxUsageTime() <= 0) {
+            throw new IllegalArgumentException("Il tempo massimo di utilizzo deve essere positivo.");
+        }
+
         // Step 11a: Verifica unicità nome
         for (Item existing : contextGroup.getItems()) {
             if (existing.getName().equalsIgnoreCase(bean.getItemName())) {
@@ -41,13 +51,21 @@ public class ManageItemsController {
             }
         }
 
-        Item newItem = new Item(bean.getItemName(), bean.getAssetName());
+        int nextItemId = contextGroup.getItems().stream()
+                .mapToInt(Item::getItemID)
+                .max()
+                .orElse(0) + 1;
+        Item newItem = new Item(nextItemId, bean.getItemName().trim(), contextGroup.getGroupID(),
+                bean.getPriority(), bean.getMaxUsageTime());
         contextGroup.addItem(newItem); // Step 12a
         groupDAO.update(contextGroup);
     }
 
     public void removeItem(ItemBean itemBean) throws Exception {
         Item item = contextGroup.getSingleItem(itemBean.getItemName());
+        if (item == null) {
+            throw new IllegalArgumentException("L'item selezionato non esiste nel gruppo.");
+        }
 
         // Step 9: Verifica se l'Item è in uso
         if (item.checkActiveness()) {
@@ -55,9 +73,9 @@ public class ManageItemsController {
         }
 
         // Step 10: Pulizia prenotazioni
-        List<Booking> bookingsToRemove = item.getBookings();
+        List<Booking> bookingsToRemove = new ArrayList<>(item.getBookings());
         for (Booking b : bookingsToRemove) {
-            Operator op = (Operator) userDAO.findByUsername(b.getOperatorName());
+            Operator op = contextGroup.findOperatorByUsername(b.getOperatorName());
             if (op != null) {
                 op.removeBookingByItem(item.getName(), contextGroup.getGroupID());
                 userDAO.updateUser(op);

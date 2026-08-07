@@ -12,6 +12,15 @@ public class Operator extends User {
         this.stateList = new ArrayList<>();
     }
 
+    @Override
+    public void joinGroup(Group group) {
+        if (group.findOperatorByUsername(username) != null) {
+            throw new IllegalStateException("L'operatore e gia iscritto al gruppo.");
+        }
+        group.addOperator(this);
+        stateList.add(new State(group.getGroupID()));
+    }
+
     // Verifica se l'operatore è attivo in un determinato gruppo
     public boolean checkActiveness(int groupID) {
         for (State s : stateList) {
@@ -31,7 +40,6 @@ public class Operator extends User {
             if (s.getGroupID() == groupID) {
                 if (s.getStatus() == 0) {
                     s.setStatus(1); // Diventa BLOCCATO
-                    cancelGroupBookings(groupID);
                 } else {
                     s.setStatus(0); // Ritorna ATTIVO
                 }

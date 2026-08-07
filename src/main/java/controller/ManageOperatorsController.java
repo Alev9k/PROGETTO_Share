@@ -35,7 +35,10 @@ public class ManageOperatorsController {
     }
 
     public void toggleBlock(OperatorBean opBean) throws DAOException, OperatorHasItemException {
-        Operator op = (Operator) userDAO.findByUsername(opBean.getUsername());
+        Operator op = contextGroup.findOperatorByUsername(opBean.getUsername());
+        if (op == null) {
+            throw new DAOException("Operatore non presente nel gruppo.");
+        }
         int gID = contextGroup.getGroupID();
 
         // Step 9: Verifica possesso Item

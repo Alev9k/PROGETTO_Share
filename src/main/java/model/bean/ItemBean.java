@@ -1,14 +1,17 @@
 package model.bean;
 
 public class ItemBean {
-    private String itemName;
-    private String assetName;
+    private final String itemName;
+    private final int priority;
+    private final int maxUsageTime;
 
-    public ItemBean(String name, String asset) { this.itemName = name; this.assetName = asset; }
+    public ItemBean(String itemName, int priority, int maxUsageTime) {
+        this.itemName = itemName;
+        this.priority = priority;
+        this.maxUsageTime = maxUsageTime;
+    }
 
-    // Getters e Setters
     public String getItemName() { return itemName; }
-    public void setItemName(String n) { this.itemName = n; }
-    public String getAssetName() { return assetName; }
-    public void setAssetName(String a) { this.assetName = a; }
+    public int getPriority() { return priority; }
+    public int getMaxUsageTime() { return maxUsageTime; }
 }

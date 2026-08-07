@@ -49,7 +49,21 @@ public class Group {
     }
 
     public List<Operator> getOperators() {
-        return operatorsList; // Ritorna l'elenco degli operatori
+        return List.copyOf(operatorsList);
+    }
+
+    public void addOperator(Operator operator) {
+        if (findOperatorByUsername(operator.getUsername()) != null) {
+            throw new IllegalStateException("L'operatore e gia presente nel gruppo.");
+        }
+        operatorsList.add(operator);
+    }
+
+    public Operator findOperatorByUsername(String username) {
+        return operatorsList.stream()
+                .filter(operator -> operator.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addItem(Item item) {

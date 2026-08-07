@@ -6,7 +6,6 @@ import java.util.List;
 public class Item {
     private final int itemID;            // ID univoco dell'oggetto fisico
     private final String name;           // Nome univoco nel gruppo (es. "PC-Lab-01")
-    private final int assetID;           // Riferimento al catalogo (Type Object)
     private final int groupID;
     // Nuovi parametri fisici
     private int priority;                // Es. 1 (Bassa) a 5 (Alta)
@@ -15,11 +14,10 @@ public class Item {
     private int status;                  // 0: Disponibile, 1: In Uso, 2: Guasto
     private List<Booking> bookingsList;  // Elenco prenotazioni dell'oggetto
 
-    public Item(int itemID, String name, int groupID, int assetID, int priority, int maxUsageTime) {
+    public Item(int itemID, String name, int groupID, int priority, int maxUsageTime) {
         this.itemID = itemID;
         this.name = name;
         this.groupID = groupID;
-        this.assetID = assetID;
         this.priority = priority;
         this.maxUsageTime = maxUsageTime;
         this.status = 0; // 0 = Disponibile di default
@@ -38,7 +36,6 @@ public class Item {
     public int getItemID() { return itemID; }
     public String getName() { return name; }
     public int getGroupID() { return groupID; }
-    public int getAssetID() { return assetID; }
     public int getPriority() { return priority; }
     public int getMaxUsageTime() { return maxUsageTime; }
     public int getStatus() { return status; }

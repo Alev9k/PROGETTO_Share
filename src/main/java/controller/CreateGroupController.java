@@ -2,8 +2,8 @@ package controller;
 
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
-import model.entity.Admin;
 import model.entity.Group;
+import model.entity.User;
 import model.bean.GroupBean;
 import model.bean.UserBean;
 
@@ -63,12 +63,11 @@ public class CreateGroupController {
         groupDAO.save(newGroup);
 
         // 5. Associazione all'Admin
-        Admin admin = (Admin) userDAO.findByUsername(adminUsername);
-        if (admin != null) {
-            admin.getGroups().add(newGroup);
-            userDAO.updateUser(admin);
-        } else {
+        User admin = userDAO.findByUsername(adminUsername);
+        if (admin == null || !admin.canManageGroups()) {
             throw new Exception("Errore critico: Amministratore '" + adminUsername + "' non trovato.");
         }
+        admin.addManagedGroup(newGroup);
+        userDAO.updateUser(admin);
     }
 }

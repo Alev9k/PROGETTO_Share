@@ -77,8 +77,8 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i beni.");
             return;
         }
-        // Prossimo Step: Caricamento scena ManageItems tramite MainAppGUI
-        System.out.println("Navigazione verso beni del gruppo: " + selected.getGroupName());
+        MainAppGUI.replaceScene("/view/ManageItems.fxml", (ManageItemsGraphicController ctrl) ->
+                ctrl.initData(factory, selected, adminUsername));
     }
 
     @FXML

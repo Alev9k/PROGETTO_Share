@@ -2,14 +2,9 @@ package boundary.javafx;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import controller.LoginController;
 import controller.ControllerFactory; // Nuova importazione
 import exceptions.InvalidCredentialsException;
@@ -57,23 +52,11 @@ public class LoginGraphicController {
     }
 
     @FXML
-    private void goToRegistration(ActionEvent event) {
+    private void goToRegistration() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Registration.fxml"));
-            Parent root = loader.load();
-
-            // Passiamo la Factory al controller della registrazione
-            RegistrationGraphicController regCtrl = loader.getController();
-            regCtrl.setFactory(factory);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Manteniamo la finestra non ridimensionabile anche per la registrazione
-            stage.setResizable(false);
-
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
+            MainAppGUI.replaceScene("/view/Registration.fxml",
+                    (RegistrationGraphicController controller) -> controller.setFactory(factory));
+        } catch (Exception e) {
             showError("Errore Sistema", "Impossibile caricare la pagina di registrazione.");
         }
     }

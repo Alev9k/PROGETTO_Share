@@ -31,7 +31,13 @@ public class ManageGroupController {
             throw new IllegalArgumentException("Utente non autorizzato alla gestione dei gruppi.");
         }
 
-        for (Group g : admin.getManagedGroups()) {
+        List<Group> managedGroups = groupDAO.findGroupsByOwnerUsername(adminUsername);
+        if (managedGroups.isEmpty()) {
+            // Compatibilità con gruppi creati prima dell'introduzione del proprietario persistente.
+            managedGroups = admin.getManagedGroups();
+        }
+
+        for (Group g : managedGroups) {
             beanList.add(new GroupBean(g.getName(),g.getGroupID()));
         }
         return beanList;

@@ -79,9 +79,12 @@ public class CreateGroupGraphicController {
             UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
 
             // 2. PASSIAMO I BEAN AL CONTROLLER LOGICO
-            logicController.createGroup(newGroupBean, adminBean);
+            GroupBean createdGroup = logicController.createGroup(newGroupBean, adminBean);
 
-            showInfo("Successo", "Gruppo '" + name + "' creato correttamente!");
+            showInfo("Gruppo creato",
+                    "Gruppo '" + name + "' creato correttamente!\n\n" +
+                    "Token di accesso: " + createdGroup.getAccessToken() + "\n\n" +
+                    "Comunica questo token agli operatori che vuoi invitare.");
             handleManageGroups(event);
 
         } catch (java.time.format.DateTimeParseException e) {

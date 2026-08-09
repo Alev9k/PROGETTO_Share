@@ -43,7 +43,8 @@ public class MainAppGUI extends Application {
                         (AdminDashboardGraphicController ctrl) -> ctrl.initData(controllerFactory, user.getUsername()));
 
                 case OPERATOR -> replaceScene("/view/OperatorDashboard.fxml",
-                        (OperatorDashboardGraphicController ctrl) -> System.out.println("Init Operator..."));
+                        (OperatorDashboardGraphicController ctrl) ->
+                                ctrl.initData(controllerFactory, user.getUsername()));
 
                 case TECHNICIAN -> replaceScene("/view/TechnicianDashboard.fxml",
                         (TechnicianDashboardGraphicController ctrl) -> System.out.println("Init Tech..."));

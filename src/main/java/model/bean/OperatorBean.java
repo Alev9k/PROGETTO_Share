@@ -16,4 +16,5 @@ public class OperatorBean {
     public void setUsername(String n) { this.username = n; }
     public int getStatus() { return status; }
     public void setStatus(int s) { this.status = s; }
+    public String getStatusLabel() { return status == 0 ? "Attivo" : "Bloccato"; }
 }

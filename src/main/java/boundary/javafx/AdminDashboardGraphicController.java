@@ -9,6 +9,7 @@ import javafx.event.Event;
 public class AdminDashboardGraphicController {
 
     @FXML private Label welcomeLabel;
+    @FXML private Label pendingRequestsLabel;
 
     private ControllerFactory factory;
     private String adminUsername;
@@ -22,6 +23,15 @@ public class AdminDashboardGraphicController {
 
         // CORREZIONE 1: Testo di benvenuto
         this.welcomeLabel.setText("Bentornato, " + username + "!");
+        try {
+            long pendingCount = factory.createAccessNotificationController()
+                    .countPendingForAdmin(new model.bean.UserBean(username, model.bean.Role.ADMIN));
+            this.pendingRequestsLabel.setText(pendingCount == 1
+                    ? "Hai 1 richiesta di accesso in attesa."
+                    : "Hai " + pendingCount + " richieste di accesso in attesa.");
+        } catch (Exception e) {
+            this.pendingRequestsLabel.setText("Impossibile caricare le notifiche.");
+        }
     }
 
     // CORREZIONE 2: Usiamo "Event" invece di "ActionEvent" così

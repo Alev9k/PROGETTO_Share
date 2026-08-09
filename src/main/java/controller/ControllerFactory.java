@@ -5,10 +5,13 @@ import model.dao.*;
 public class ControllerFactory {
     private final UserDAO userDAO;
     private final GroupDAO groupDAO;
+    private final MembershipRequestDAO membershipRequestDAO;
 
-    public ControllerFactory(UserDAO userDAO, GroupDAO groupDAO) {
+    public ControllerFactory(UserDAO userDAO, GroupDAO groupDAO,
+                             MembershipRequestDAO membershipRequestDAO) {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
+        this.membershipRequestDAO = membershipRequestDAO;
     }
 
     // Nuovi metodi per il FrontController
@@ -26,7 +29,7 @@ public class ControllerFactory {
 
     // Metodi per le sotto-boundary (già definiti)
     public ManageOperatorsController createManageOperatorsController(int groupID) throws Exception {
-        return new ManageOperatorsController(groupID, userDAO, groupDAO);
+        return new ManageOperatorsController(groupID, userDAO, groupDAO, membershipRequestDAO);
     }
 
     public ManageItemsController createManageItemsController(int groupID) throws Exception {
@@ -35,5 +38,13 @@ public class ControllerFactory {
 
     public CreateGroupController createCreateGroupController() throws Exception {
         return new CreateGroupController(groupDAO, userDAO);
+    }
+
+    public JoinGroupController createJoinGroupController() {
+        return new JoinGroupController(groupDAO, userDAO, membershipRequestDAO);
+    }
+
+    public AccessNotificationController createAccessNotificationController() {
+        return new AccessNotificationController(userDAO, groupDAO, membershipRequestDAO);
     }
 }

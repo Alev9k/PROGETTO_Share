@@ -16,4 +16,11 @@ public class FactoryDAO {
             case FILE_SYSTEM -> new FileGroupDAO();
         };
     }
+
+    public static MembershipRequestDAO getMembershipRequestDAO(Context context) {
+        return switch (context) {
+            case MEMORY -> new InMemoryMembershipRequestDAO();
+            case FILE_SYSTEM -> new FileMembershipRequestDAO();
+        };
+    }
 }

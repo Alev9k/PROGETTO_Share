@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="720.0" prefWidth="1080.0" style="-fx-background-color: #f4f7fb;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boundary.javafx.ManageItemsGraphicController">
+    <left>
+        <VBox prefWidth="240.0" style="-fx-background-color: #0f172a;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Share System" textFill="WHITE"><font><Font name="System Bold" size="24.0" /></font><VBox.margin><Insets bottom="40.0" left="20.0" top="30.0" /></VBox.margin></Label>
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleBack" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8;" text="Gestione gruppi"><padding><Insets left="25.0" /></padding></Button>
+                <VBox VBox.vgrow="ALWAYS" />
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleLogout" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #ef4444;" text="Logout"><padding><Insets left="25.0" /></padding></Button>
+            </children>
+        </VBox>
+    </left>
+    <center>
+        <VBox spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: white;"><children><Label fx:id="groupNameLabel" textFill="#1e293b"><font><Font name="System Bold" size="20.0" /></font></Label></children><padding><Insets left="30.0" /></padding></HBox>
+                <VBox spacing="15.0"><padding><Insets bottom="30.0" left="30.0" right="30.0" /></padding><children>
+                    <TableView fx:id="itemsTable" prefHeight="350.0" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="nameColumn" prefWidth="360.0" text="Nome" /><TableColumn fx:id="priorityColumn" prefWidth="160.0" text="Priorità" /><TableColumn fx:id="maxUsageTimeColumn" prefWidth="220.0" text="Uso massimo (min)" /></columns></TableView>
+                    <Label text="Aggiungi item" textFill="#64748b"><font><Font name="System Bold" size="16.0" /></font></Label>
+                    <GridPane hgap="10.0" vgap="10.0"><children>
+                        <TextField fx:id="itemNameField" promptText="Nome item" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="priorityField" promptText="Priorità 1-5" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TextField fx:id="maxUsageTimeField" promptText="Tempo massimo (min)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <Button mnemonicParsing="false" onAction="#handleAddItem" style="-fx-background-color: #0f172a; -fx-text-fill: white;" text="Aggiungi" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                    </children></GridPane>
+                    <HBox alignment="CENTER_RIGHT"><children><Button mnemonicParsing="false" onAction="#handleRemoveItem" style="-fx-background-color: #ef4444; -fx-text-fill: white;" text="Rimuovi selezionato" /></children></HBox>
+                </children></VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

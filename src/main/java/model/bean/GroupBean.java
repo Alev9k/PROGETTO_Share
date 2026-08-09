@@ -10,13 +10,22 @@ public class GroupBean {
     private String groupName;
     private LocalTime openTime;
     private LocalTime closeTime;
+    private String accessToken;
+    private String ownerUsername;
 
     // Costruttore completo (usato per la lettura)
     public GroupBean(int groupId, String groupName, LocalTime openTime, LocalTime closeTime) {
+        this(groupId, groupName, openTime, closeTime, null, null);
+    }
+
+    public GroupBean(int groupId, String groupName, LocalTime openTime, LocalTime closeTime,
+                     String accessToken, String ownerUsername) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.openTime = openTime;
         this.closeTime = closeTime;
+        this.accessToken = accessToken;
+        this.ownerUsername = ownerUsername;
     }
 
     // Costruttore senza ID (usato dalla Boundary quando crea un nuovo gruppo)
@@ -37,4 +46,6 @@ public class GroupBean {
     public String getGroupName() { return groupName; }
     public LocalTime getOpenTime() { return openTime; }
     public LocalTime getCloseTime() { return closeTime; }
+    public String getAccessToken() { return accessToken; }
+    public String getOwnerUsername() { return ownerUsername; }
 }

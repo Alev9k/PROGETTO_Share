@@ -21,20 +21,21 @@ public class FileGroupDAO implements GroupDAO {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                // Ora ci aspettiamo 4 parametri: ID, Nome, OpenTime, CloseTime
-                if (parts.length == 4) {
+                // Formato corrente: ID, Nome, OpenTime, CloseTime, Token, Proprietario.
+                // Le righe storiche a 4 campi restano leggibili.
+                if (parts.length == 4 || parts.length == 6) {
                     int id = Integer.parseInt(parts[0]);
                     String name = parts[1];
                     String openTime = parts[2];
                     String closeTime = parts[3];
+                    String accessToken = parts.length == 6 ? parts[4] : "";
+                    String ownerUsername = parts.length == 6 ? parts[5] : "";
 
-                    /* * Se nel costruttore di Group hai usato LocalTime invece di String, usa:
-                     * groups.add(new Group(id, name, LocalTime.parse(openTime), LocalTime.parse(closeTime)));
-                     */
-                    groups.add(new Group(id, name,  LocalTime.parse(openTime), LocalTime.parse(closeTime)));
+                    groups.add(new Group(id, name, LocalTime.parse(openTime),
+                            LocalTime.parse(closeTime), accessToken, ownerUsername));
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             throw new DAOException("Errore di lettura VFS: impossibile caricare i gruppi.");
         }
         return groups;
@@ -43,11 +44,7 @@ public class FileGroupDAO implements GroupDAO {
     @Override
     public void save(Group group) throws DAOException {
         try (PrintWriter out = new PrintWriter(new FileWriter(fileName, true))) {
-            // Aggiungiamo gli orari separati da virgola
-            out.println(group.getGroupID() + "," +
-                    group.getName() + "," +
-                    group.getOpenTime() + "," +
-                    group.getCloseTime());
+            writeGroup(out, group);
         } catch (IOException e) {
             throw new DAOException("Errore di scrittura VFS: impossibile salvare il gruppo.");
         }
@@ -64,13 +61,9 @@ public class FileGroupDAO implements GroupDAO {
             }
         }
 
-        // Riscriviamo il file aggiornato con tutti i 4 campi
         try (PrintWriter out = new PrintWriter(new FileWriter(fileName, false))) {
             for (Group g : allGroups) {
-                out.println(g.getGroupID() + "," +
-                        g.getName() + "," +
-                        g.getOpenTime() + "," +
-                        g.getCloseTime());
+                writeGroup(out, g);
             }
         } catch (IOException e) {
             throw new DAOException("Errore di aggiornamento VFS.");
@@ -96,13 +89,19 @@ public class FileGroupDAO implements GroupDAO {
         // Riscriviamo il file senza il gruppo eliminato (sempre con 4 campi)
         try (PrintWriter out = new PrintWriter(new FileWriter(fileName, false))) {
             for (Group g : allGroups) {
-                out.println(g.getGroupID() + "," +
-                        g.getName() + "," +
-                        g.getOpenTime() + "," +
-                        g.getCloseTime());
+                writeGroup(out, g);
             }
         } catch (IOException e) {
             throw new DAOException("Errore durante l'eliminazione del gruppo dal File System.");
         }
+    }
+
+    private void writeGroup(PrintWriter out, Group group) {
+        out.println(group.getGroupID() + "," +
+                group.getName() + "," +
+                group.getOpenTime() + "," +
+                group.getCloseTime() + "," +
+                group.getAccessToken() + "," +
+                group.getOwnerUsername());
     }
 }

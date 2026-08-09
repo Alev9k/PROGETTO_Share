@@ -66,8 +66,8 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i membri.");
             return;
         }
-        // Prossimo Step: Caricamento scena ManageOperators tramite MainAppGUI
-        System.out.println("Navigazione verso operatori del gruppo: " + selected.getGroupName());
+        MainAppGUI.replaceScene("/view/ManageOperators.fxml", (ManageOperatorsGraphicController ctrl) ->
+                ctrl.initData(factory, selected, adminUsername));
     }
 
     @FXML

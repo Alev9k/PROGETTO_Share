@@ -6,6 +6,7 @@ import model.entity.Group;
 import model.entity.User;
 import model.bean.GroupBean;
 import model.bean.UserBean;
+import model.factory.AccessTokenGenerator;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -14,10 +15,16 @@ public class CreateGroupController {
 
     private final GroupDAO groupDAO;
     private final UserDAO userDAO;
+    private final AccessTokenGenerator tokenGenerator;
 
     public CreateGroupController(GroupDAO groupDAO, UserDAO userDAO) {
+        this(groupDAO, userDAO, new AccessTokenGenerator());
+    }
+
+    CreateGroupController(GroupDAO groupDAO, UserDAO userDAO, AccessTokenGenerator tokenGenerator) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
+        this.tokenGenerator = tokenGenerator;
     }
 
     /**
@@ -26,7 +33,7 @@ public class CreateGroupController {
      * @param groupBean Il bean contenente i dati inseriti nella view.
      * @param adminBean Il bean dell'utente loggato.
      */
-    public void createGroup(GroupBean groupBean, UserBean adminBean) throws Exception {
+    public GroupBean createGroup(GroupBean groupBean, UserBean adminBean) throws Exception {
 
         // 1. Estrazione dai Bean
         String groupName = groupBean.getGroupName();
@@ -58,16 +65,27 @@ public class CreateGroupController {
             }
         }
 
-        // 4. Creazione dell'entità reale e salvataggio
-        Group newGroup = new Group(newId, groupName.trim(), openTime, closeTime);
-        groupDAO.save(newGroup);
-
-        // 5. Associazione all'Admin
         User admin = userDAO.findByUsername(adminUsername);
         if (admin == null || !admin.canManageGroups()) {
             throw new Exception("Errore critico: Amministratore '" + adminUsername + "' non trovato.");
         }
+
+        // 4. Creazione dell'entità reale e salvataggio
+        String accessToken;
+        do {
+            accessToken = tokenGenerator.generate();
+        } while (groupDAO.findGroupByAccessToken(accessToken) != null);
+
+        Group newGroup = new Group(newId, groupName.trim(), openTime, closeTime,
+                accessToken, adminUsername);
+        groupDAO.save(newGroup);
+
+        // 5. Associazione all'Admin
         admin.addManagedGroup(newGroup);
         userDAO.updateUser(admin);
+
+        return new GroupBean(newGroup.getGroupID(), newGroup.getName(),
+                newGroup.getOpenTime(), newGroup.getCloseTime(),
+                newGroup.getAccessToken(), newGroup.getOwnerUsername());
     }
 }

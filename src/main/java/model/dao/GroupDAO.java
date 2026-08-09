@@ -10,4 +10,20 @@ public interface GroupDAO {
     void update(Group group) throws DAOException;
     Group findGroupById(int id) throws DAOException;
     void delete(int groupID) throws DAOException;
+
+    default Group findGroupByAccessToken(String token) throws DAOException {
+        if (token == null) {
+            return null;
+        }
+        return findAll().stream()
+                .filter(group -> group.matchesAccessToken(token))
+                .findFirst()
+                .orElse(null);
+    }
+
+    default List<Group> findGroupsByOwnerUsername(String username) throws DAOException {
+        return findAll().stream()
+                .filter(group -> group.isManagedBy(username))
+                .toList();
+    }
 }

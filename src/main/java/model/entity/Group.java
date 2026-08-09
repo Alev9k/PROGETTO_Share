@@ -13,13 +13,22 @@ public class Group {
     private final String name;                // Nome del gruppo
     private LocalTime openTime;
     private LocalTime closeTime;
+    private final String accessToken;
+    private final String ownerUsername;
     private List<Operator> operatorsList; // Lista degli operatori membri
     private List<Item> itemList;        // Lista dei beni del gruppo
     public Group(int groupID, String name, LocalTime openTime, LocalTime closeTime) {
+        this(groupID, name, openTime, closeTime, "", "");
+    }
+
+    public Group(int groupID, String name, LocalTime openTime, LocalTime closeTime,
+                 String accessToken, String ownerUsername) {
         this.groupID = groupID;
         this.name = name;
         this.openTime = openTime;
         this.closeTime = closeTime;
+        this.accessToken = accessToken;
+        this.ownerUsername = ownerUsername;
         this.operatorsList = new ArrayList<>();
         this.itemList = new ArrayList<>();
     }
@@ -90,5 +99,23 @@ public class Group {
 
     public LocalTime getCloseTime() {
         return closeTime;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
+    public boolean matchesAccessToken(String candidateToken) {
+        return candidateToken != null
+                && !accessToken.isBlank()
+                && accessToken.equalsIgnoreCase(candidateToken.trim());
+    }
+
+    public boolean isManagedBy(String username) {
+        return username != null && ownerUsername.equals(username);
     }
 }

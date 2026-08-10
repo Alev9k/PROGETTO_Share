@@ -7,6 +7,7 @@ import model.dao.*;
 import model.entity.*;
 import exceptions.DAOException;
 import exceptions.OperatorHasItemException;
+import exceptions.UnauthorizedOperationException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +49,8 @@ public class ManageOperatorsController {
         return new ArrayList<>(members.values());
     }
 
-    public List<MembershipRequestBean> getPendingRequests(UserBean adminBean) {
+    public List<MembershipRequestBean> getPendingRequests(UserBean adminBean)
+            throws UnauthorizedOperationException {
         requireAuthorizedAdmin(adminBean);
         return requestDAO.findByGroupId(contextGroup.getGroupID()).stream()
                 .filter(request -> request.getStatus() == MembershipRequestStatus.PENDING)
@@ -56,7 +58,8 @@ public class ManageOperatorsController {
                 .toList();
     }
 
-    public void acceptRequest(MembershipRequestBean requestBean, UserBean adminBean) {
+    public void acceptRequest(MembershipRequestBean requestBean, UserBean adminBean)
+            throws UnauthorizedOperationException {
         requireAuthorizedAdmin(adminBean);
         MembershipRequest request = requirePendingRequest(requestBean);
         User user = userDAO.findByUsername(request.getOperatorUsername());
@@ -74,7 +77,8 @@ public class ManageOperatorsController {
         requestDAO.update(request);
     }
 
-    public void rejectRequest(MembershipRequestBean requestBean, UserBean adminBean) {
+    public void rejectRequest(MembershipRequestBean requestBean, UserBean adminBean)
+            throws UnauthorizedOperationException {
         requireAuthorizedAdmin(adminBean);
         MembershipRequest request = requirePendingRequest(requestBean);
         request.reject();
@@ -124,17 +128,19 @@ public class ManageOperatorsController {
         return request;
     }
 
-    private void requireAuthorizedAdmin(UserBean adminBean) {
+    private void requireAuthorizedAdmin(UserBean adminBean)
+            throws UnauthorizedOperationException {
         User admin = adminBean == null ? null : userDAO.findByUsername(adminBean.getUsername());
         if (admin == null || !admin.canManageGroups()) {
-            throw new IllegalArgumentException("Amministratore non autorizzato.");
+            throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }
 
         boolean ownsGroup = contextGroup.isManagedBy(admin.getUsername())
                 || admin.getManagedGroups().stream()
                 .anyMatch(group -> group.getGroupID() == contextGroup.getGroupID());
         if (!ownsGroup) {
-            throw new IllegalArgumentException("Non puoi gestire le richieste di questo gruppo.");
+            throw new UnauthorizedOperationException(
+                    "Non puoi gestire le richieste di questo gruppo.");
         }
     }
 

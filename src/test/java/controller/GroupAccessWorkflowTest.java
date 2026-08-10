@@ -10,6 +10,7 @@ import model.dao.InMemoryUserDAO;
 import model.entity.Admin;
 import model.entity.MembershipRequestStatus;
 import model.entity.Operator;
+import exceptions.UnauthorizedOperationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +50,7 @@ class GroupAccessWorkflowTest {
     }
 
     @Test
-    void acceptedRequestAddsMemberAndNotifiesOperator() {
+    void acceptedRequestAddsMemberAndNotifiesOperator() throws Exception {
         JoinGroupController joinController =
                 new JoinGroupController(groupDAO, userDAO, requestDAO);
         MembershipRequestBean request = joinController.requestAccess(
@@ -79,7 +80,7 @@ class GroupAccessWorkflowTest {
     }
 
     @Test
-    void rejectedRequestDoesNotAddMemberAndNotifiesOperator() {
+    void rejectedRequestDoesNotAddMemberAndNotifiesOperator() throws Exception {
         JoinGroupController joinController =
                 new JoinGroupController(groupDAO, userDAO, requestDAO);
         MembershipRequestBean request = joinController.requestAccess(
@@ -109,7 +110,7 @@ class GroupAccessWorkflowTest {
     }
 
     @Test
-    void adminCannotManageRequestsOfAnotherAdminsGroup() {
+    void adminCannotManageRequestsOfAnotherAdminsGroup() throws Exception {
         String otherAdminUsername = "other-admin-" + UUID.randomUUID();
         userDAO.save(new Admin(otherAdminUsername, "password"));
         UserBean otherAdmin = new UserBean(otherAdminUsername, Role.ADMIN);
@@ -121,7 +122,7 @@ class GroupAccessWorkflowTest {
         ManageOperatorsController manageController = new ManageOperatorsController(
                 createdGroup.getGroupId(), userDAO, groupDAO, requestDAO);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UnauthorizedOperationException.class,
                 () -> manageController.acceptRequest(request, otherAdmin));
         assertEquals(1, manageController.getPendingRequests(adminBean).size());
     }

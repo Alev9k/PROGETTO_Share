@@ -9,7 +9,6 @@ public interface GroupDAO {
     void save(Group group) throws DAOException;
     void update(Group group) throws DAOException;
     Group findGroupById(int id) throws DAOException;
-    void delete(int groupID) throws DAOException;
 
     default Group findGroupByAccessToken(String token) throws DAOException {
         if (token == null) {

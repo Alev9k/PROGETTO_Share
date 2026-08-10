@@ -81,37 +81,6 @@ public class ManageGroupGraphicController {
         navigator.showManageItems(selected, adminUsername);
     }
 
-    @FXML
-    private void handleDeleteGroup(Event event) {
-        GroupBean selected = groupsTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showWarning("Selezione mancante", "Seleziona un gruppo da eliminare.");
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Sei sicuro di voler eliminare il gruppo " + selected.getGroupName() + "?");
-        confirm.setTitle("Conferma Eliminazione");
-        confirm.setHeaderText(null);
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    // 1. Prepariamo il Bean dell'Admin corrente
-                    UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
-
-                    // 2. Passiamo i due Bean al controller logico
-                    logicController.deleteGroup(selected, adminBean);
-
-                    showInfo("Successo", "Gruppo eliminato correttamente.");
-
-                    // 3. Ricarichiamo la tabella: ora il gruppo rimosso non ci sarà più!
-                    loadGroups();
-                } catch (Exception e) {
-                    showError("Errore eliminazione", e.getMessage());
-                }
-            }
-        });
-    }
-
     // --- AZIONI DELLA SIDEBAR (Navigazione) ---
 
     @FXML

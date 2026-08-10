@@ -1,21 +1,26 @@
 package controller;
 
-import exceptions.ItemInUseException;
-import model.bean.ItemBean;
-import model.dao.GroupDAO;
-import model.dao.UserDAO;
-import model.entity.*;
 import exceptions.DAOException;
 import exceptions.DuplicateItemNameException;
-import java.util.ArrayList;
+import exceptions.UnauthorizedOperationException;
+import model.bean.CreateItemBean;
+import model.bean.ItemBean;
+import model.bean.UserBean;
+import model.dao.GroupDAO;
+import model.dao.UserDAO;
+import model.entity.Group;
+import model.entity.Item;
+import model.entity.User;
+
 import java.util.List;
 
+/** Controller del caso d'uso di visualizzazione e creazione degli item. */
 public class ManageItemsController {
     private final GroupDAO groupDAO;
     private final UserDAO userDAO;
     private final Group contextGroup;
 
-    public ManageItemsController(int groupID, GroupDAO groupDAO, UserDAO userDAO) throws DAOException {
+    public ManageItemsController(int groupID, GroupDAO groupDAO, UserDAO userDAO) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
         this.contextGroup = groupDAO.findGroupById(groupID);
@@ -25,64 +30,65 @@ public class ManageItemsController {
         }
     }
 
-    public List<ItemBean> getItemList() {
-        List<ItemBean> beanList = new ArrayList<>();
-        for (Item item : contextGroup.getItems()) {
-            beanList.add(new ItemBean(item.getName(), item.getPriority(), item.getMaxUsageTime()));
-        }
-        return beanList;
+    public List<ItemBean> getItemList(UserBean adminBean)
+            throws UnauthorizedOperationException {
+        requireAuthorizedAdmin(adminBean);
+        return contextGroup.getItems().stream()
+                .map(this::toBean)
+                .toList();
     }
 
-    public void addNewItem(ItemBean bean) throws DAOException, DuplicateItemNameException {
-        if (bean == null || bean.getItemName() == null || bean.getItemName().isBlank()) {
-            throw new IllegalArgumentException("Il nome dell'item non pu\u00f2 essere vuoto.");
-        }
-        if (bean.getPriority() < 1 || bean.getPriority() > 5) {
-            throw new IllegalArgumentException("La priorit\u00e0 deve essere compresa tra 1 e 5.");
-        }
-        if (bean.getMaxUsageTime() <= 0) {
-            throw new IllegalArgumentException("Il tempo massimo di utilizzo deve essere positivo.");
-        }
-
-        // Step 11a: Verifica unicità nome
-        for (Item existing : contextGroup.getItems()) {
-            if (existing.getName().equalsIgnoreCase(bean.getItemName())) {
-                throw new DuplicateItemNameException("Nome item già esistente nel gruppo.");
-            }
-        }
+    public ItemBean createItem(CreateItemBean bean, UserBean adminBean)
+            throws DuplicateItemNameException, UnauthorizedOperationException {
+        requireAuthorizedAdmin(adminBean);
+        validate(bean);
 
         int nextItemId = contextGroup.getItems().stream()
                 .mapToInt(Item::getItemID)
                 .max()
                 .orElse(0) + 1;
-        Item newItem = new Item(nextItemId, bean.getItemName().trim(), contextGroup.getGroupID(),
-                bean.getPriority(), bean.getMaxUsageTime());
-        contextGroup.addItem(newItem); // Step 12a
+        Item newItem = new Item(nextItemId, bean.getItemName().trim(),
+                contextGroup.getGroupID(), bean.getPriority(), bean.getMaxUsageTime());
+
+        contextGroup.addItem(newItem);
         groupDAO.update(contextGroup);
+        return toBean(newItem);
     }
 
-    public void removeItem(ItemBean itemBean) throws Exception {
-        Item item = contextGroup.getSingleItem(itemBean.getItemName());
-        if (item == null) {
-            throw new IllegalArgumentException("L'item selezionato non esiste nel gruppo.");
+    private void validate(CreateItemBean bean) {
+        if (bean == null || bean.getItemName() == null || bean.getItemName().isBlank()) {
+            throw new IllegalArgumentException("Il nome dell'item non può essere vuoto.");
+        }
+        if (bean.getItemName().indexOf('\n') >= 0 || bean.getItemName().indexOf('\r') >= 0) {
+            throw new IllegalArgumentException("Il nome dell'item deve occupare una sola riga.");
+        }
+        if (bean.getPriority() < 1 || bean.getPriority() > 5) {
+            throw new IllegalArgumentException("La priorità deve essere compresa tra 1 e 5.");
+        }
+        if (bean.getMaxUsageTime() <= 0) {
+            throw new IllegalArgumentException(
+                    "Il tempo massimo di utilizzo deve essere positivo.");
+        }
+    }
+
+    private void requireAuthorizedAdmin(UserBean adminBean)
+            throws UnauthorizedOperationException {
+        User admin = adminBean == null ? null : userDAO.findByUsername(adminBean.getUsername());
+        if (admin == null || !admin.canManageGroups()) {
+            throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }
 
-        // Step 9: Verifica se l'Item è in uso
-        if (item.checkActiveness()) {
-            throw new ItemInUseException("Impossibile eliminare: l'oggetto è attualmente in uso.");
+        boolean ownsGroup = contextGroup.isManagedBy(admin.getUsername())
+                || admin.getManagedGroups().stream()
+                .anyMatch(group -> group.getGroupID() == contextGroup.getGroupID());
+        if (!ownsGroup) {
+            throw new UnauthorizedOperationException(
+                    "Non puoi gestire gli item di questo gruppo.");
         }
+    }
 
-        // Step 10: Pulizia prenotazioni
-        List<Booking> bookingsToRemove = new ArrayList<>(item.getBookings());
-        for (Booking b : bookingsToRemove) {
-            Operator op = contextGroup.findOperatorByUsername(b.getOperatorName());
-            if (op != null) {
-                op.removeBookingByItem(item.getName(), contextGroup.getGroupID());
-                userDAO.updateUser(op);
-            }
-        }
-
-        contextGroup.removeItem(item);
-        groupDAO.update(contextGroup);
+    private ItemBean toBean(Item item) {
+        return new ItemBean(item.getItemID(), item.getName(), item.getPriority(),
+                item.getMaxUsageTime(), item.getStatus());
     }
 }

@@ -125,11 +125,6 @@
                                         <Insets left="15.0" right="15.0" />
                                     </padding>
                                 </Button>
-                                <Button mnemonicParsing="false" onAction="#handleDeleteGroup" prefHeight="40.0" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;" text="🗑️ Elimina Gruppo">
-                                    <padding>
-                                        <Insets left="15.0" right="15.0" />
-                                    </padding>
-                                </Button>
                             </children>
                             <VBox.margin>
                                 <Insets top="10.0" />

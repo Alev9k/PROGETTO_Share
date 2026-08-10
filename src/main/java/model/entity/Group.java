@@ -1,5 +1,7 @@
 package model.entity;
 
+import exceptions.DuplicateItemNameException;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +17,8 @@ public class Group {
     private LocalTime closeTime;
     private final String accessToken;
     private final String ownerUsername;
-    private List<Operator> operatorsList; // Lista degli operatori membri
-    private List<Item> itemList;        // Lista dei beni del gruppo
+    private final List<Operator> operatorsList; // Lista degli operatori membri
+    private final List<Item> itemList;        // Lista dei beni del gruppo
     public Group(int groupID, String name, LocalTime openTime, LocalTime closeTime) {
         this(groupID, name, openTime, closeTime, "", "");
     }
@@ -34,7 +36,7 @@ public class Group {
     }
 
     public List<Item> getItems() {
-        return itemList; // Ritorna l'elenco dei beni
+        return List.copyOf(itemList);
     }
 
     public Item getSingleItem(String name) {
@@ -75,12 +77,15 @@ public class Group {
                 .orElse(null);
     }
 
-    public void addItem(Item item) {
-        this.itemList.add(item); // Aggiunge un bene al gruppo
-    }
-
-    public void removeItem(Item item) {
-        this.itemList.remove(item); // Rimuove un bene dal gruppo
+    public void addItem(Item item) throws DuplicateItemNameException {
+        if (item == null || item.getGroupID() != groupID) {
+            throw new IllegalArgumentException("L'item non appartiene a questo gruppo.");
+        }
+        if (getSingleItem(item.getName()) != null) {
+            throw new DuplicateItemNameException(
+                    "Esiste già un item con questo nome nel gruppo.");
+        }
+        itemList.add(item);
     }
 
     // --- Getters aggiuntivi per la gestione ---

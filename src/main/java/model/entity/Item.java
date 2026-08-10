@@ -2,17 +2,16 @@ package model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Item {
-    private final int itemID;            // ID univoco dell'oggetto fisico
-    private final String name;           // Nome univoco nel gruppo (es. "PC-Lab-01")
+    private final int itemID;
+    private final String name;
     private final int groupID;
-    // Nuovi parametri fisici
-    private int priority;                // Es. 1 (Bassa) a 5 (Alta)
-    private int maxUsageTime;            // Tempo massimo in minuti (o ore)
-
-    private int status;                  // 0: Disponibile, 1: In Uso, 2: Guasto
-    private List<Booking> bookingsList;  // Elenco prenotazioni dell'oggetto
+    private int priority;
+    private int maxUsageTime;
+    private ItemStatus status;
+    private final List<Booking> bookingsList;
 
     public Item(int itemID, String name, int groupID, int priority, int maxUsageTime) {
         this.itemID = itemID;
@@ -20,29 +19,55 @@ public class Item {
         this.groupID = groupID;
         this.priority = priority;
         this.maxUsageTime = maxUsageTime;
-        this.status = 0; // 0 = Disponibile di default
+        this.status = ItemStatus.AVAILABLE;
         this.bookingsList = new ArrayList<>();
     }
 
-    public boolean checkActiveness() {
-        return this.status == 1; // Ritorna true se lo stato è "In Uso"
+    public boolean isInUse() {
+        return status == ItemStatus.IN_USE;
     }
 
     public void removeBooking(Booking booking) {
-        this.bookingsList.remove(booking);
+        bookingsList.remove(booking);
     }
 
-    // --- Getters ---
-    public int getItemID() { return itemID; }
-    public String getName() { return name; }
-    public int getGroupID() { return groupID; }
-    public int getPriority() { return priority; }
-    public int getMaxUsageTime() { return maxUsageTime; }
-    public int getStatus() { return status; }
-    public List<Booking> getBookings() { return bookingsList; }
+    public int getItemID() {
+        return itemID;
+    }
 
-    // --- Setters (per permettere aggiornamenti fisici e riparazioni) ---
-    public void setStatus(int status) { this.status = status; }
-    public void setPriority(int priority) { this.priority = priority; }
-    public void setMaxUsageTime(int maxUsageTime) { this.maxUsageTime = maxUsageTime; }
+    public String getName() {
+        return name;
+    }
+
+    public int getGroupID() {
+        return groupID;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public int getMaxUsageTime() {
+        return maxUsageTime;
+    }
+
+    public ItemStatus getStatus() {
+        return status;
+    }
+
+    public List<Booking> getBookings() {
+        return List.copyOf(bookingsList);
+    }
+
+    public void setStatus(ItemStatus status) {
+        this.status = Objects.requireNonNull(status);
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public void setMaxUsageTime(int maxUsageTime) {
+        this.maxUsageTime = maxUsageTime;
+    }
 }

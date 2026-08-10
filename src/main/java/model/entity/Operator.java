@@ -74,15 +74,4 @@ public class Operator extends User {
         return false; // L'operatore non ha beni di questo gruppo in carico
     }
 
-    public void removeBookingByItem(String itemName, int groupID) {
-        // Rimuove dalla lista dell'operatore la prenotazione che corrisponde a quel bene in quel gruppo
-        this.bookingsList.removeIf(b ->
-                b.getItemName().equals(itemName) && b.getGroupID() == groupID
-        );
-    }
-
-    public void removeState(int groupID) {
-        // Rimuoviamo dalla stateList l'oggetto State che ha il groupID corrispondente
-        this.stateList.removeIf(state -> state.getGroupID() == groupID);
-    }
 }

@@ -6,23 +6,30 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import model.bean.CreateItemBean;
 import model.bean.GroupBean;
 import model.bean.ItemBean;
+import model.bean.Role;
+import model.bean.UserBean;
 
-/** Boundary JavaFX del caso d'uso di gestione degli item di un gruppo. */
+/** Boundary JavaFX del caso d'uso di visualizzazione e creazione degli item. */
 public class ManageItemsGraphicController {
     @FXML private Label groupNameLabel;
     @FXML private TableView<ItemBean> itemsTable;
+    @FXML private TableColumn<ItemBean, Integer> idColumn;
     @FXML private TableColumn<ItemBean, String> nameColumn;
     @FXML private TableColumn<ItemBean, Integer> priorityColumn;
     @FXML private TableColumn<ItemBean, Integer> maxUsageTimeColumn;
+    @FXML private TableColumn<ItemBean, String> statusColumn;
     @FXML private TextField itemNameField;
-    @FXML private TextField priorityField;
-    @FXML private TextField maxUsageTimeField;
+    @FXML private Spinner<Integer> prioritySpinner;
+    @FXML private Spinner<Integer> maxUsageTimeSpinner;
 
     private SceneNavigator navigator;
     private String adminUsername;
@@ -35,52 +42,51 @@ public class ManageItemsGraphicController {
         this.logicController = logicController;
         this.navigator = navigator;
         this.adminUsername = adminUsername;
-        this.groupNameLabel.setText("Item del gruppo: " + group.getGroupName());
+        groupNameLabel.setText("Item del gruppo: " + group.getGroupName());
 
+        configureInputs();
         configureTable();
         loadItems();
     }
 
+    private void configureInputs() {
+        prioritySpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
+        maxUsageTimeSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                        1, Integer.MAX_VALUE, 60, 15));
+    }
+
     private void configureTable() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("itemId"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
         maxUsageTimeColumn.setCellValueFactory(new PropertyValueFactory<>("maxUsageTime"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("statusLabel"));
         itemsTable.setPlaceholder(new Label("Non ci sono item in questo gruppo."));
     }
 
     private void loadItems() {
-        itemsTable.setItems(FXCollections.observableArrayList(logicController.getItemList()));
+        try {
+            itemsTable.setItems(FXCollections.observableArrayList(
+                    logicController.getItemList(adminBean())));
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Impossibile caricare gli item", e.getMessage());
+        }
     }
 
     @FXML
     private void handleAddItem() {
         try {
-            int priority = Integer.parseInt(priorityField.getText().trim());
-            int maxUsageTime = Integer.parseInt(maxUsageTimeField.getText().trim());
-            logicController.addNewItem(new ItemBean(itemNameField.getText(), priority, maxUsageTime));
+            CreateItemBean item = new CreateItemBean(
+                    itemNameField.getText(),
+                    prioritySpinner.getValue(),
+                    maxUsageTimeSpinner.getValue());
+            logicController.createItem(item, adminBean());
             itemNameField.clear();
-            priorityField.clear();
-            maxUsageTimeField.clear();
-            loadItems();
-        } catch (NumberFormatException e) {
-            showWarning("Dati non validi", "Priorit\u00e0 e tempo massimo devono essere numeri interi.");
-        } catch (Exception e) {
-            showError("Impossibile aggiungere l'item", e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleRemoveItem() {
-        ItemBean selected = itemsTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showWarning("Selezione mancante", "Seleziona un item da rimuovere.");
-            return;
-        }
-        try {
-            logicController.removeItem(selected);
             loadItems();
         } catch (Exception e) {
-            showError("Impossibile rimuovere l'item", e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Impossibile aggiungere l'item", e.getMessage());
         }
     }
 
@@ -94,12 +100,8 @@ public class ManageItemsGraphicController {
         navigator.showLogin();
     }
 
-    private void showWarning(String title, String message) {
-        showAlert(Alert.AlertType.WARNING, title, message);
-    }
-
-    private void showError(String title, String message) {
-        showAlert(Alert.AlertType.ERROR, title, message);
+    private UserBean adminBean() {
+        return new UserBean(adminUsername, Role.ADMIN);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

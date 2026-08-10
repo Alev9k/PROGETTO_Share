@@ -1,17 +1,45 @@
 package model.bean;
 
-public class ItemBean {
+import model.entity.ItemStatus;
+
+/** Rappresentazione in sola lettura di un item esposto alle boundary. */
+public final class ItemBean {
+    private final int itemId;
     private final String itemName;
     private final int priority;
     private final int maxUsageTime;
+    private final ItemStatus status;
 
-    public ItemBean(String itemName, int priority, int maxUsageTime) {
+    public ItemBean(int itemId, String itemName, int priority,
+                    int maxUsageTime, ItemStatus status) {
+        this.itemId = itemId;
         this.itemName = itemName;
         this.priority = priority;
         this.maxUsageTime = maxUsageTime;
+        this.status = status;
     }
 
-    public String getItemName() { return itemName; }
-    public int getPriority() { return priority; }
-    public int getMaxUsageTime() { return maxUsageTime; }
+    public int getItemId() {
+        return itemId;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public int getMaxUsageTime() {
+        return maxUsageTime;
+    }
+
+    public ItemStatus getStatus() {
+        return status;
+    }
+
+    public String getStatusLabel() {
+        return status.getLabel();
+    }
 }

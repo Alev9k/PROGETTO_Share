@@ -8,22 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileUserDAO implements UserDAO {
-    private static final String FileName = "users.csv";
+    private static final String FILE_NAME = "users.csv";
 
     @Override
     public void save(User user) throws DAOException {
-        try (PrintWriter out = new PrintWriter(new FileWriter(FileName, true))) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(FILE_NAME, true))) {
             writeUserToFile(out, user);
         } catch (IOException e) {
             // Invece di stampare, lanciamo l'eccezione specifica
-            throw new DAOException("Impossibile scrivere sul file " + FileName);
+            throw new DAOException("Impossibile scrivere sul file " + FILE_NAME);
         }
     }
 
     @Override
     public List<User> findAll() throws DAOException {
         List<User> users = new ArrayList<>();
-        File file = new File(FileName);
+        File file = new File(FILE_NAME);
 
         if (!file.exists()) return users;
 
@@ -62,7 +62,7 @@ public class FileUserDAO implements UserDAO {
     }
 
     private void rewriteFile(List<User> users) throws DAOException {
-        try (PrintWriter out = new PrintWriter(new FileWriter(FileName, false))) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(FILE_NAME, false))) {
             for (User u : users) {
                 writeUserToFile(out, u);
             }

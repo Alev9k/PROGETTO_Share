@@ -26,11 +26,6 @@ public class Admin extends User {
         groupList.add(group);
     }
 
-    @Override
-    public void removeManagedGroup(int groupID) {
-        groupList.removeIf(group -> group.getGroupID() == groupID);
-    }
-
     // Compatibilita con il codice esistente: usare preferibilmente getManagedGroups().
     public List<Group> getGroups() {
         return groupList;

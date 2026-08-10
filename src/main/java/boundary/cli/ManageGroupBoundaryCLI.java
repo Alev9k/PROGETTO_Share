@@ -61,7 +61,7 @@ public class ManageGroupBoundaryCLI {
 
     private void handleSubMenu(GroupBean group) {
         System.out.println("\nGruppo selezionato: " + group.getGroupName());
-        System.out.println("1. Gestisci Membri\n2. Gestisci Beni\n3. Elimina Gruppo\n0. Indietro");
+        System.out.println("1. Gestisci Membri\n2. Gestisci Beni\n0. Indietro");
         System.out.print("Scelta: ");
 
         try {
@@ -73,24 +73,8 @@ public class ManageGroupBoundaryCLI {
                 }
                 case 2 -> {
                     ManageItemsController mic = factory.createManageItemsController(group.getGroupId());
-                    new ManageItemsBoundaryCLI(mic, scanner).start();
-                }
-                case 3 -> {
-                    // Chiediamo conferma prima di distruggere i dati
-                    System.out.print("Sei sicuro di voler eliminare il gruppo '" + group.getGroupName() + "'? (s/n): ");
-                    String confirm = scanner.nextLine();
-
-                    if (confirm.equalsIgnoreCase("s")) {
-                        // 1. Creiamo lo UserBean come richiesto dalla nuova logica BCE
-                        UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
-
-                        // 2. Chiamiamo il controller logico passando i due Bean
-                        controller.deleteGroup(group, adminBean);
-
-                        System.out.println("--> Gruppo eliminato con successo!");
-                    } else {
-                        System.out.println("--> Eliminazione annullata.");
-                    }
+                    UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
+                    new ManageItemsBoundaryCLI(mic, adminBean, scanner).start();
                 }
                 case 0 -> System.out.println("Ritorno alla lista gruppi...");
                 default -> System.out.println("[!] Scelta non valida.");

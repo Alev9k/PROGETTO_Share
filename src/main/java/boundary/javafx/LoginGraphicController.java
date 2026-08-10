@@ -1,15 +1,14 @@
 package boundary.javafx;
 
+import boundary.javafx.navigation.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import controller.LoginController;
-import controller.ControllerFactory; // Nuova importazione
 import exceptions.InvalidCredentialsException;
 import model.bean.*;
-import java.io.IOException;
 
 public class LoginGraphicController {
 
@@ -17,16 +16,12 @@ public class LoginGraphicController {
     @FXML private PasswordField passwordField;
 
     private LoginController loginController;
-    private ControllerFactory factory; // Sostituiamo il DAO con la Factory
+    private SceneNavigator navigator;
 
-    /**
-     * Metodo per iniettare la Factory.
-     * È il cuore del disaccoppiamento: la GUI non sa nulla di database o file.
-     */
-    public void setFactory(ControllerFactory factory) {
-        this.factory = factory;
-        // Chiediamo alla factory di crearci il controller logico per il login
-        this.loginController = factory.createLoginController();
+    /** Inietta il controller del caso d'uso e il contratto di navigazione. */
+    public void initData(LoginController loginController, SceneNavigator navigator) {
+        this.loginController = loginController;
+        this.navigator = navigator;
     }
 
     @FXML
@@ -42,7 +37,7 @@ public class LoginGraphicController {
         try {
             UserBean loggedUser = loginController.login(u, p);
             showInfo("Accesso Eseguito", "Benvenuto " + loggedUser.getUsername() + "!");
-            MainAppGUI.showDashboard(loggedUser);
+            navigator.showDashboard(loggedUser);
 
         } catch (InvalidCredentialsException e) {
             showError("Errore Login", e.getMessage());
@@ -54,8 +49,7 @@ public class LoginGraphicController {
     @FXML
     private void goToRegistration() {
         try {
-            MainAppGUI.replaceScene("/view/Registration.fxml",
-                    (RegistrationGraphicController controller) -> controller.setFactory(factory));
+            navigator.showRegistration();
         } catch (Exception e) {
             showError("Errore Sistema", "Impossibile caricare la pagina di registrazione.");
         }

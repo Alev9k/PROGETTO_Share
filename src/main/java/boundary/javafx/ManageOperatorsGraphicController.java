@@ -1,6 +1,6 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
 import controller.ManageOperatorsController;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -25,24 +25,21 @@ public class ManageOperatorsGraphicController {
     @FXML private TableColumn<OperatorBean, String> memberUsernameColumn;
     @FXML private TableColumn<OperatorBean, String> memberStatusColumn;
 
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private ManageOperatorsController logicController;
-    private GroupBean group;
     private String adminUsername;
 
-    public void initData(ControllerFactory factory, GroupBean group, String adminUsername) {
-        this.factory = factory;
-        this.group = group;
+    public void initData(ManageOperatorsController logicController,
+                         SceneNavigator navigator,
+                         GroupBean group,
+                         String adminUsername) {
+        this.logicController = logicController;
+        this.navigator = navigator;
         this.adminUsername = adminUsername;
         this.groupNameLabel.setText("Gestione membri: " + group.getGroupName());
 
-        try {
-            this.logicController = factory.createManageOperatorsController(group.getGroupId());
-            configureTables();
-            reloadData();
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di inizializzazione", e.getMessage());
-        }
+        configureTables();
+        reloadData();
     }
 
     private void configureTables() {
@@ -122,28 +119,22 @@ public class ManageOperatorsGraphicController {
 
     @FXML
     private void handleBackToGroups(Event event) {
-        MainAppGUI.replaceScene("/view/ManageGroup.fxml", (ManageGroupGraphicController ctrl) ->
-                ctrl.initData(factory, adminUsername));
+        navigator.showManageGroups(adminUsername);
     }
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        MainAppGUI.showDashboard(adminBean());
+        navigator.showDashboard(adminBean());
     }
 
     @FXML
     private void handleCreateGroup(Event event) {
-        MainAppGUI.replaceScene("/view/CreateGroup.fxml", (CreateGroupGraphicController ctrl) ->
-                ctrl.initData(factory, adminUsername));
+        navigator.showCreateGroup(adminUsername);
     }
 
     @FXML
     private void handleLogout(Event event) {
-        try {
-            MainAppGUI.showLogin();
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Errore", "Impossibile effettuare il logout.");
-        }
+        navigator.showLogin();
     }
 
     private UserBean adminBean() {

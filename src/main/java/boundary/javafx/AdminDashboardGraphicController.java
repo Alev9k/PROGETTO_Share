@@ -1,31 +1,35 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
+import controller.AccessNotificationController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.event.Event;
+import model.bean.Role;
+import model.bean.UserBean;
 
 public class AdminDashboardGraphicController {
 
     @FXML private Label welcomeLabel;
     @FXML private Label pendingRequestsLabel;
 
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private String adminUsername;
 
     /**
      * Inizializza la Dashboard.
      */
-    public void initData(ControllerFactory factory, String username) {
-        this.factory = factory;
+    public void initData(AccessNotificationController notificationController,
+                         SceneNavigator navigator, String username) {
+        this.navigator = navigator;
         this.adminUsername = username;
 
         // CORREZIONE 1: Testo di benvenuto
         this.welcomeLabel.setText("Bentornato, " + username + "!");
         try {
-            long pendingCount = factory.createAccessNotificationController()
-                    .countPendingForAdmin(new model.bean.UserBean(username, model.bean.Role.ADMIN));
+            long pendingCount = notificationController.countPendingForAdmin(
+                    new UserBean(username, Role.ADMIN));
             this.pendingRequestsLabel.setText(pendingCount == 1
                     ? "Hai 1 richiesta di accesso in attesa."
                     : "Hai " + pendingCount + " richieste di accesso in attesa.");
@@ -39,9 +43,7 @@ public class AdminDashboardGraphicController {
     @FXML
     private void handleManageGroups(Event event) {
         try {
-            MainAppGUI.replaceScene("/view/ManageGroup.fxml", (ManageGroupGraphicController ctrl) ->
-                    ctrl.initData(factory, adminUsername)
-            );
+            navigator.showManageGroups(adminUsername);
         } catch (Exception e) {
             showError("Errore", "Impossibile caricare la gestione gruppi.");
             e.printStackTrace();
@@ -51,8 +53,7 @@ public class AdminDashboardGraphicController {
     @FXML
     private void handleCreateGroup(Event event) {
         try {
-            MainAppGUI.replaceScene("/view/CreateGroup.fxml", (CreateGroupGraphicController ctrl) ->
-                    ctrl.initData(factory, adminUsername));
+            navigator.showCreateGroup(adminUsername);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,7 +67,7 @@ public class AdminDashboardGraphicController {
     @FXML
     private void handleLogout(Event event) {
         try {
-            MainAppGUI.showLogin();
+            navigator.showLogin();
         } catch (Exception e) {
             showError("Errore", "Impossibile tornare al login.");
         }

@@ -1,6 +1,6 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
 import controller.CreateGroupController;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -21,7 +21,7 @@ public class CreateGroupGraphicController {
     @FXML private ChoiceBox<String> closeTimeChoice;
 
     private CreateGroupController logicController;
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private String adminUsername;
 
     /**
@@ -43,19 +43,13 @@ public class CreateGroupGraphicController {
     }
 
     /**
-     * Chiamato da MainAppGUI per iniettare i dati.
+     * Chiamato dal navigatore per iniettare controller logico e contesto.
      */
-    public void initData(ControllerFactory factory, String username) {
-        this.factory = factory;
+    public void initData(CreateGroupController logicController,
+                         SceneNavigator navigator, String username) {
+        this.logicController = logicController;
+        this.navigator = navigator;
         this.adminUsername = username;
-
-        try {
-            // Chiediamo alla factory di creare il controller applicativo
-            this.logicController = factory.createCreateGroupController();
-        } catch (Exception e) {
-            e.printStackTrace(); // Stampa l'errore tecnico in console
-            showError("Errore di Inizializzazione", "Impossibile caricare i dati del sistema: " + e.getMessage());
-        }
     }
     // --- AZIONE PRINCIPALE ---
 
@@ -99,7 +93,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleBackToDashboard(Event event) {
         try {
-            MainAppGUI.showDashboard(new UserBean(adminUsername, Role.ADMIN));
+            navigator.showDashboard(new UserBean(adminUsername, Role.ADMIN));
         } catch (Exception e) {
             showError("Errore Navigazione", "Impossibile tornare alla Dashboard.");
         }
@@ -108,8 +102,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleManageGroups(Event event) {
         try {
-            MainAppGUI.replaceScene("/view/ManageGroup.fxml", (ManageGroupGraphicController ctrl) ->
-                    ctrl.initData(factory, adminUsername));
+            navigator.showManageGroups(adminUsername);
         } catch (Exception e) {
             showError("Errore Navigazione", "Impossibile caricare la gestione gruppi.");
         }
@@ -123,7 +116,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleLogout(Event event) {
         try {
-            MainAppGUI.showLogin();
+            navigator.showLogin();
         } catch (Exception e) {
             showError("Errore", "Impossibile effettuare il logout.");
         }

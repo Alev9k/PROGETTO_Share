@@ -1,6 +1,6 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
 import controller.ManageGroupController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,17 +20,19 @@ public class ManageGroupGraphicController {
     @FXML private TableColumn<GroupBean, Integer> idColumn;
 
     private ManageGroupController logicController;
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private String adminUsername;
 
     /**
      * Inizializza il controller grafico.
-     * Viene chiamato dal View Handler centrale (MainAppGUI).
+     * Viene chiamato dal navigatore centrale.
      */
-    public void initData(ControllerFactory factory, String username) {
-        this.factory = factory;
+    public void initData(ManageGroupController logicController,
+                         SceneNavigator navigator,
+                         String username) {
+        this.logicController = logicController;
+        this.navigator = navigator;
         this.adminUsername = username;
-        this.logicController = factory.createManageGroupController();
 
         setupTable();
         loadGroups();
@@ -66,8 +68,7 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i membri.");
             return;
         }
-        MainAppGUI.replaceScene("/view/ManageOperators.fxml", (ManageOperatorsGraphicController ctrl) ->
-                ctrl.initData(factory, selected, adminUsername));
+        navigator.showManageOperators(selected, adminUsername);
     }
 
     @FXML
@@ -77,8 +78,7 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i beni.");
             return;
         }
-        MainAppGUI.replaceScene("/view/ManageItems.fxml", (ManageItemsGraphicController ctrl) ->
-                ctrl.initData(factory, selected, adminUsername));
+        navigator.showManageItems(selected, adminUsername);
     }
 
     @FXML
@@ -116,22 +116,12 @@ public class ManageGroupGraphicController {
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        try {
-            // Sfruttiamo il View Handler centralizzato per tornare alla Home dell'admin
-            MainAppGUI.showDashboard(new UserBean(adminUsername, Role.ADMIN));
-        } catch (Exception e) {
-            showError("Errore Navigazione", "Impossibile tornare alla Dashboard.");
-        }
+        navigator.showDashboard(new UserBean(adminUsername, Role.ADMIN));
     }
 
     @FXML
     private void handleCreateGroup(Event event) {
-        try {
-            MainAppGUI.replaceScene("/view/CreateGroup.fxml", (CreateGroupGraphicController ctrl) ->
-                    ctrl.initData(factory, adminUsername));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        navigator.showCreateGroup(adminUsername);
     }
 
     @FXML
@@ -141,11 +131,7 @@ public class ManageGroupGraphicController {
 
     @FXML
     private void handleLogout(Event event) {
-        try {
-            MainAppGUI.showLogin();
-        } catch (Exception e) {
-            showError("Errore", "Impossibile tornare alla schermata di login.");
-        }
+        navigator.showLogin();
     }
 
     // --- Utility per i Dialogs ---

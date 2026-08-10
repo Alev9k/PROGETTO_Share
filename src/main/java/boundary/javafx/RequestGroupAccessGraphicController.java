@@ -1,6 +1,6 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
 import controller.JoinGroupController;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -22,14 +22,16 @@ public class RequestGroupAccessGraphicController {
     @FXML private TableColumn<MembershipRequestBean, String> statusColumn;
     @FXML private TableColumn<MembershipRequestBean, String> dateColumn;
 
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private JoinGroupController logicController;
     private String operatorUsername;
 
-    public void initData(ControllerFactory factory, String operatorUsername) {
-        this.factory = factory;
+    public void initData(JoinGroupController logicController,
+                         SceneNavigator navigator,
+                         String operatorUsername) {
+        this.logicController = logicController;
+        this.navigator = navigator;
         this.operatorUsername = operatorUsername;
-        this.logicController = factory.createJoinGroupController();
         configureTable();
         loadRequests();
     }
@@ -68,7 +70,7 @@ public class RequestGroupAccessGraphicController {
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        MainAppGUI.showDashboard(operatorBean());
+        navigator.showDashboard(operatorBean());
     }
 
     @FXML
@@ -85,11 +87,7 @@ public class RequestGroupAccessGraphicController {
 
     @FXML
     private void handleLogout(Event event) {
-        try {
-            MainAppGUI.showLogin();
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Errore", "Impossibile effettuare il logout.");
-        }
+        navigator.showLogin();
     }
 
     private UserBean operatorBean() {

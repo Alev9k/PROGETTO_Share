@@ -1,6 +1,6 @@
 package boundary.javafx;
 
-import controller.ControllerFactory;
+import boundary.javafx.navigation.SceneNavigator;
 import controller.ManageItemsController;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -24,24 +24,21 @@ public class ManageItemsGraphicController {
     @FXML private TextField priorityField;
     @FXML private TextField maxUsageTimeField;
 
-    private ControllerFactory factory;
-    private GroupBean group;
+    private SceneNavigator navigator;
     private String adminUsername;
     private ManageItemsController logicController;
 
-    public void initData(ControllerFactory factory, GroupBean group, String adminUsername) {
-        this.factory = factory;
-        this.group = group;
+    public void initData(ManageItemsController logicController,
+                         SceneNavigator navigator,
+                         GroupBean group,
+                         String adminUsername) {
+        this.logicController = logicController;
+        this.navigator = navigator;
         this.adminUsername = adminUsername;
         this.groupNameLabel.setText("Item del gruppo: " + group.getGroupName());
 
-        try {
-            this.logicController = factory.createManageItemsController(group.getGroupId());
-            configureTable();
-            loadItems();
-        } catch (Exception e) {
-            showError("Errore", "Impossibile aprire la gestione item: " + e.getMessage());
-        }
+        configureTable();
+        loadItems();
     }
 
     private void configureTable() {
@@ -89,17 +86,12 @@ public class ManageItemsGraphicController {
 
     @FXML
     private void handleBack() {
-        MainAppGUI.replaceScene("/view/ManageGroup.fxml", (ManageGroupGraphicController ctrl) ->
-                ctrl.initData(factory, adminUsername));
+        navigator.showManageGroups(adminUsername);
     }
 
     @FXML
     private void handleLogout() {
-        try {
-            MainAppGUI.showLogin();
-        } catch (Exception e) {
-            showError("Errore", "Impossibile tornare al login.");
-        }
+        navigator.showLogin();
     }
 
     private void showWarning(String title, String message) {

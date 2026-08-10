@@ -28,15 +28,15 @@ public class ControllerFactory {
     }
 
     // Metodi per le sotto-boundary (già definiti)
-    public ManageOperatorsController createManageOperatorsController(int groupID) throws Exception {
+    public ManageOperatorsController createManageOperatorsController(int groupID) {
         return new ManageOperatorsController(groupID, userDAO, groupDAO, membershipRequestDAO);
     }
 
-    public ManageItemsController createManageItemsController(int groupID) throws Exception {
+    public ManageItemsController createManageItemsController(int groupID) {
         return new ManageItemsController(groupID, groupDAO, userDAO);
     }
 
-    public CreateGroupController createCreateGroupController() throws Exception {
+    public CreateGroupController createCreateGroupController() {
         return new CreateGroupController(groupDAO, userDAO);
     }
 

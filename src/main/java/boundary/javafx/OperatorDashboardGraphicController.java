@@ -1,7 +1,7 @@
 package boundary.javafx;
 
+import boundary.javafx.navigation.SceneNavigator;
 import controller.AccessNotificationController;
-import controller.ControllerFactory;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -17,15 +17,17 @@ public class OperatorDashboardGraphicController {
     @FXML private Label welcomeLabel;
     @FXML private Label notificationLabel;
 
-    private ControllerFactory factory;
+    private SceneNavigator navigator;
     private String operatorUsername;
     private AccessNotificationController notificationController;
 
     /** Inizializza la dashboard con l'operatore autenticato. */
-    public void initData(ControllerFactory factory, String username) {
-        this.factory = factory;
+    public void initData(AccessNotificationController notificationController,
+                         SceneNavigator navigator,
+                         String username) {
+        this.notificationController = notificationController;
+        this.navigator = navigator;
         this.operatorUsername = username;
-        this.notificationController = factory.createAccessNotificationController();
         this.welcomeLabel.setText("Bentornato, " + username + "!");
         Platform.runLater(this::showAccessNotifications);
     }
@@ -40,9 +42,7 @@ public class OperatorDashboardGraphicController {
 
     @FXML
     private void handleJoinGroup(Event event) {
-        MainAppGUI.replaceScene("/view/RequestGroupAccess.fxml",
-                (RequestGroupAccessGraphicController ctrl) ->
-                        ctrl.initData(factory, operatorUsername));
+        navigator.showRequestGroupAccess(operatorUsername);
     }
 
     @FXML
@@ -55,12 +55,7 @@ public class OperatorDashboardGraphicController {
 
     @FXML
     private void handleLogout(Event event) {
-        try {
-            MainAppGUI.showLogin();
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Errore",
-                    "Impossibile tornare alla schermata di login.");
-        }
+        navigator.showLogin();
     }
 
     private void showAccessNotifications() {

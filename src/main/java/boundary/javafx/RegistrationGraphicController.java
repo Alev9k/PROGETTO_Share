@@ -1,5 +1,6 @@
 package boundary.javafx;
 
+import boundary.javafx.navigation.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,7 +8,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import controller.RegistrationController;
-import controller.ControllerFactory; // Importiamo la nostra Factory
 import exceptions.UserAlreadyExistsException;
 
 public class RegistrationGraphicController {
@@ -17,7 +17,7 @@ public class RegistrationGraphicController {
     @FXML private ChoiceBox<String> roleChoiceBox;
 
     private RegistrationController registrationController;
-    private ControllerFactory factory; // Sostituiamo UserDAO con la Factory
+    private SceneNavigator navigator;
 
     @FXML
     public void initialize() {
@@ -26,13 +26,11 @@ public class RegistrationGraphicController {
         roleChoiceBox.setValue("Operator");
     }
 
-    /**
-     * Nuovo metodo di iniezione che segue il pattern Factory.
-     */
-    public void setFactory(ControllerFactory factory) {
-        this.factory = factory;
-        // Chiediamo alla factory di crearci il controller logico per la registrazione
-        this.registrationController = factory.createRegistrationController();
+    /** Inietta il controller del caso d'uso e il contratto di navigazione. */
+    public void initData(RegistrationController registrationController,
+                         SceneNavigator navigator) {
+        this.registrationController = registrationController;
+        this.navigator = navigator;
     }
 
     @FXML
@@ -62,7 +60,7 @@ public class RegistrationGraphicController {
     @FXML
     private void backToLogin() {
         try {
-            MainAppGUI.showLogin();
+            navigator.showLogin();
         } catch (Exception e) {
             showError("Errore", "Ritorno al login fallito.");
         }

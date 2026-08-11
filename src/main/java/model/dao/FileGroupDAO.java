@@ -3,8 +3,10 @@ package model.dao;
 import exceptions.DAOException;
 import exceptions.DuplicateItemNameException;
 import model.entity.Group;
+import model.entity.GroupMembership;
 import model.entity.Item;
 import model.entity.ItemStatus;
+import model.entity.MembershipStatus;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,21 +21,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** Persistenza su file dell'aggregato Group e dei relativi item. */
+/** Persistenza su file dell'aggregato Group, dei relativi item e delle membership. */
 public class FileGroupDAO implements GroupDAO {
     private static final Path DEFAULT_GROUPS_FILE = Path.of("groups.csv");
     private static final Path DEFAULT_ITEMS_FILE = Path.of("items.csv");
+    private static final Path DEFAULT_MEMBERSHIPS_FILE = Path.of("memberships.csv");
 
     private final Path groupsFile;
     private final Path itemsFile;
+    private final Path membershipsFile;
 
     public FileGroupDAO() {
-        this(DEFAULT_GROUPS_FILE, DEFAULT_ITEMS_FILE);
+        this(DEFAULT_GROUPS_FILE, DEFAULT_ITEMS_FILE, DEFAULT_MEMBERSHIPS_FILE);
     }
 
     public FileGroupDAO(Path groupsFile, Path itemsFile) {
+        this(groupsFile, itemsFile, groupsFile.resolveSibling("memberships.csv"));
+    }
+
+    public FileGroupDAO(Path groupsFile, Path itemsFile, Path membershipsFile) {
         this.groupsFile = Objects.requireNonNull(groupsFile);
         this.itemsFile = Objects.requireNonNull(itemsFile);
+        this.membershipsFile = Objects.requireNonNull(membershipsFile);
     }
 
     @Override
@@ -50,9 +59,11 @@ public class FileGroupDAO implements GroupDAO {
                 }
             }
             hydrateItems(groupsById);
+            hydrateMemberships(groupsById);
             return new ArrayList<>(groupsById.values());
-        } catch (IOException | IllegalArgumentException | DuplicateItemNameException e) {
-            throw new DAOException("Impossibile leggere gruppi e item dalla persistenza.");
+        } catch (IOException | RuntimeException | DuplicateItemNameException e) {
+            throw new DAOException(
+                    "Impossibile leggere gruppi, item e membership dalla persistenza.");
         }
     }
 
@@ -81,6 +92,17 @@ public class FileGroupDAO implements GroupDAO {
                     }
                 }
             }
+
+            if (!group.getMemberships().isEmpty()) {
+                ensureParentDirectory(membershipsFile);
+                try (BufferedWriter writer = Files.newBufferedWriter(membershipsFile,
+                        StandardCharsets.UTF_8, StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND)) {
+                    for (GroupMembership membership : group.getMemberships()) {
+                        writeMembership(writer, group.getGroupID(), membership);
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new DAOException("Impossibile salvare il gruppo.");
         }
@@ -105,8 +127,9 @@ public class FileGroupDAO implements GroupDAO {
         try {
             rewriteGroups(groups);
             rewriteItems(groups);
+            rewriteMemberships(groups);
         } catch (IOException e) {
-            throw new DAOException("Impossibile aggiornare gruppi e item.");
+            throw new DAOException("Impossibile aggiornare gruppi, item e membership.");
         }
     }
 
@@ -147,6 +170,31 @@ public class FileGroupDAO implements GroupDAO {
         }
     }
 
+    private void hydrateMemberships(Map<Integer, Group> groupsById) throws IOException {
+        if (!Files.exists(membershipsFile)) {
+            return;
+        }
+
+        for (String line : Files.readAllLines(membershipsFile, StandardCharsets.UTF_8)) {
+            if (line.isBlank()) {
+                continue;
+            }
+            List<String> fields = parseCsvLine(line);
+            if (fields.size() != 3) {
+                throw new IllegalArgumentException("Riga membership non valida.");
+            }
+
+            int groupId = Integer.parseInt(fields.get(0));
+            Group group = groupsById.get(groupId);
+            if (group == null) {
+                throw new IllegalArgumentException(
+                        "Membership associata a un gruppo inesistente.");
+            }
+            group.addMembership(new GroupMembership(
+                    fields.get(1), MembershipStatus.valueOf(fields.get(2))));
+        }
+    }
+
     private Group parseGroup(String line) {
         List<String> fields = parseCsvLine(line);
         if (fields.size() != 4 && fields.size() != 6) {
@@ -184,6 +232,19 @@ public class FileGroupDAO implements GroupDAO {
         }
     }
 
+    private void rewriteMemberships(List<Group> groups) throws IOException {
+        ensureParentDirectory(membershipsFile);
+        try (BufferedWriter writer = Files.newBufferedWriter(membershipsFile,
+                StandardCharsets.UTF_8, StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (Group group : groups) {
+                for (GroupMembership membership : group.getMemberships()) {
+                    writeMembership(writer, group.getGroupID(), membership);
+                }
+            }
+        }
+    }
+
     private void writeGroup(BufferedWriter writer, Group group) throws IOException {
         writeCsvRecord(writer, List.of(
                 Integer.toString(group.getGroupID()),
@@ -203,6 +264,15 @@ public class FileGroupDAO implements GroupDAO {
                 Integer.toString(item.getPriority()),
                 Integer.toString(item.getMaxUsageTime()),
                 item.getStatus().name()
+        ));
+    }
+
+    private void writeMembership(BufferedWriter writer, int groupId,
+                                 GroupMembership membership) throws IOException {
+        writeCsvRecord(writer, List.of(
+                Integer.toString(groupId),
+                membership.getOperatorUsername(),
+                membership.getStatus().name()
         ));
     }
 

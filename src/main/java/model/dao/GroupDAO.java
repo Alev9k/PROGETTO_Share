@@ -25,4 +25,16 @@ public interface GroupDAO {
                 .filter(group -> group.isManagedBy(username))
                 .toList();
     }
+
+    default List<Group> findGroupsByMemberUsername(String username) throws DAOException {
+        return findAll().stream()
+                .filter(group -> group.hasMember(username))
+                .toList();
+    }
+
+    default List<Group> findGroupsByActiveMemberUsername(String username) throws DAOException {
+        return findAll().stream()
+                .filter(group -> group.isActiveMember(username))
+                .toList();
+    }
 }

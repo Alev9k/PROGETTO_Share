@@ -27,11 +27,12 @@ public class Main {
         UserDAO userDAO = FactoryDAO.getUserDAO(context);
         GroupDAO groupDAO = FactoryDAO.getGroupDAO(context);
         MembershipRequestDAO membershipRequestDAO = FactoryDAO.getMembershipRequestDAO(context);
+        BookingDAO bookingDAO = FactoryDAO.getBookingDAO(context);
 
         // 2. CREAZIONE DELLA CONTROLLER FACTORY
         // Centralizziamo qui la gestione delle dipendenze
         ControllerFactory controllerFactory = new ControllerFactory(
-                userDAO, groupDAO, membershipRequestDAO);
+                userDAO, groupDAO, membershipRequestDAO, bookingDAO);
 
         // 3. SCELTA INTERFACCIA
         System.out.println("\nScegli interfaccia utente:");

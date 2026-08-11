@@ -72,8 +72,7 @@ public class FrontControllerCLI {
         while (!exitAdmin) {
             System.out.println("\n--- MENU AMMINISTRATORE ---");
             System.out.println("1. Crea Nuovo Gruppo");
-            System.out.println("2. Crea Nuovo Asset");
-            System.out.println("3. Gestisci Gruppi Esistenti");
+            System.out.println("2. Gestisci Gruppi Esistenti");
             System.out.println("0. Logout");
             System.out.print("Scelta: ");
 
@@ -87,10 +86,6 @@ public class FrontControllerCLI {
                         break;
 
                     case 2:
-                        System.out.println("\n[!] Funzionalità 'Crea Asset' non ancora implementata.");
-                        break;
-
-                    case 3:
                         // Avviamo il caso d'uso già implementato
                         ManageGroupController mgc = factory.createManageGroupController();
                         new ManageGroupBoundaryCLI(mgc, factory, user.getUsername(), sc).showMenu();

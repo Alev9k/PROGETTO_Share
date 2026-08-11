@@ -6,6 +6,7 @@ import boundary.javafx.LoginGraphicController;
 import boundary.javafx.ManageGroupGraphicController;
 import boundary.javafx.ManageItemsGraphicController;
 import boundary.javafx.ManageOperatorsGraphicController;
+import boundary.javafx.MyGroupsGraphicController;
 import boundary.javafx.OperatorDashboardGraphicController;
 import boundary.javafx.RegistrationGraphicController;
 import boundary.javafx.RequestGroupAccessGraphicController;
@@ -105,6 +106,13 @@ public final class JavaFxSceneNavigator implements SceneNavigator {
         loadScene("/view/RequestGroupAccess.fxml",
                 (RequestGroupAccessGraphicController controller) -> controller.initData(
                         controllerFactory.createJoinGroupController(), this, operatorUsername));
+    }
+
+    @Override
+    public void showMyGroups(String operatorUsername) {
+        loadScene("/view/MyGroups.fxml", (MyGroupsGraphicController controller) ->
+                controller.initData(controllerFactory.createBookItemController(), this,
+                        operatorUsername));
     }
 
     private <T> void loadScene(String fxmlPath, Consumer<T> controllerInitializer) {

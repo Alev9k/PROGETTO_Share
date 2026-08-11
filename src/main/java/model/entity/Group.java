@@ -17,7 +17,7 @@ public class Group {
     private LocalTime closeTime;
     private final String accessToken;
     private final String ownerUsername;
-    private final List<Operator> operatorsList; // Lista degli operatori membri
+    private final List<GroupMembership> memberships;
     private final List<Item> itemList;        // Lista dei beni del gruppo
     public Group(int groupID, String name, LocalTime openTime, LocalTime closeTime) {
         this(groupID, name, openTime, closeTime, "", "");
@@ -31,7 +31,7 @@ public class Group {
         this.closeTime = closeTime;
         this.accessToken = accessToken;
         this.ownerUsername = ownerUsername;
-        this.operatorsList = new ArrayList<>();
+        this.memberships = new ArrayList<>();
         this.itemList = new ArrayList<>();
     }
 
@@ -59,22 +59,50 @@ public class Group {
         return null;
     }
 
-    public List<Operator> getOperators() {
-        return List.copyOf(operatorsList);
+    public List<GroupMembership> getMemberships() {
+        return List.copyOf(memberships);
     }
 
-    public void addOperator(Operator operator) {
-        if (findOperatorByUsername(operator.getUsername()) != null) {
+    public void addMember(String operatorUsername) {
+        addMembership(new GroupMembership(operatorUsername));
+    }
+
+    public void addMembership(GroupMembership membership) {
+        if (membership == null) {
+            throw new IllegalArgumentException("La membership è obbligatoria.");
+        }
+        if (findMembership(membership.getOperatorUsername()) != null) {
             throw new IllegalStateException("L'operatore e gia presente nel gruppo.");
         }
-        operatorsList.add(operator);
+        memberships.add(membership);
     }
 
-    public Operator findOperatorByUsername(String username) {
-        return operatorsList.stream()
-                .filter(operator -> operator.getUsername().equals(username))
+    public GroupMembership findMembership(String operatorUsername) {
+        if (operatorUsername == null) {
+            return null;
+        }
+        return memberships.stream()
+                .filter(membership -> membership.getOperatorUsername().equals(operatorUsername))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean hasMember(String operatorUsername) {
+        return findMembership(operatorUsername) != null;
+    }
+
+    public boolean isActiveMember(String operatorUsername) {
+        GroupMembership membership = findMembership(operatorUsername);
+        return membership != null && membership.isActive();
+    }
+
+    public MembershipStatus toggleMemberStatus(String operatorUsername) {
+        GroupMembership membership = findMembership(operatorUsername);
+        if (membership == null) {
+            throw new IllegalArgumentException("L'operatore non appartiene al gruppo.");
+        }
+        membership.toggleStatus();
+        return membership.getStatus();
     }
 
     public void addItem(Item item) throws DuplicateItemNameException {

@@ -54,7 +54,7 @@ public class ManageItemsGraphicController {
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
         maxUsageTimeSpinner.setValueFactory(
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(
-                        1, Integer.MAX_VALUE, 60, 15));
+                        30, Integer.MAX_VALUE, 60, 30));
     }
 
     private void configureTable() {
@@ -91,8 +91,18 @@ public class ManageItemsGraphicController {
     }
 
     @FXML
-    private void handleBack() {
+    private void handleBackToDashboard() {
+        navigator.showDashboard(adminBean());
+    }
+
+    @FXML
+    private void handleManageGroups() {
         navigator.showManageGroups(adminUsername);
+    }
+
+    @FXML
+    private void handleCreateGroup() {
+        navigator.showCreateGroup(adminUsername);
     }
 
     @FXML

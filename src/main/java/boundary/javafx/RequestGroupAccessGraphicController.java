@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.MembershipRequestBean;
 import model.bean.Role;
@@ -32,8 +33,14 @@ public class RequestGroupAccessGraphicController {
         this.logicController = logicController;
         this.navigator = navigator;
         this.operatorUsername = operatorUsername;
+        configureTokenField();
         configureTable();
         loadRequests();
+    }
+
+    private void configureTokenField() {
+        tokenField.setTextFormatter(new TextFormatter<>(change ->
+                change.getControlNewText().matches("\\d{0,6}") ? change : null));
     }
 
     private void configureTable() {
@@ -75,8 +82,7 @@ public class RequestGroupAccessGraphicController {
 
     @FXML
     private void handleMyGroups(Event event) {
-        showAlert(Alert.AlertType.INFORMATION, "I miei gruppi",
-                "La consultazione dei gruppi sarà collegata nel prossimo caso d'uso.");
+        navigator.showMyGroups(operatorUsername);
     }
 
     @FXML

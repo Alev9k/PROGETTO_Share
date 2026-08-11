@@ -109,11 +109,6 @@ public class CreateGroupGraphicController {
     }
 
     @FXML
-    private void handleCreateAsset(Event event) {
-        showInfo("Nuovo Asset", "Funzionalità in fase di sviluppo.");
-    }
-
-    @FXML
     private void handleLogout(Event event) {
         try {
             navigator.showLogin();

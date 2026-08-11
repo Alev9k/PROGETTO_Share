@@ -94,11 +94,6 @@ public class ManageGroupGraphicController {
     }
 
     @FXML
-    private void handleCreateAsset(Event event) {
-        showInfo("Nuovo Asset", "Modulo di definizione dei beni in fase di sviluppo.");
-    }
-
-    @FXML
     private void handleLogout(Event event) {
         navigator.showLogin();
     }
@@ -118,10 +113,4 @@ public class ManageGroupGraphicController {
         alert.showAndWait();
     }
 
-    private void showInfo(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, content);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
 }

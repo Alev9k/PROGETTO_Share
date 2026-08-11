@@ -23,7 +23,7 @@
                     </VBox.margin>
                 </Label>
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: hand;" text="🏠 Dashboard">
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: default;" text="Dashboard">
                     <padding>
                         <Insets left="25.0" />
                     </padding>
@@ -32,7 +32,7 @@
                     </font>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleManageGroups" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="👥 Gestione Gruppi">
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleManageGroups" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="Gestione gruppi">
                     <padding>
                         <Insets left="25.0" />
                     </padding>
@@ -41,16 +41,7 @@
                     </font>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleCreateGroup" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="➕ Crea Gruppo">
-                    <padding>
-                        <Insets left="25.0" />
-                    </padding>
-                    <font>
-                        <Font size="14.0" />
-                    </font>
-                </Button>
-
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleCreateAsset" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="📦 Crea Asset">
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleCreateGroup" prefHeight="45.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="Crea gruppo">
                     <padding>
                         <Insets left="25.0" />
                     </padding>
@@ -61,7 +52,7 @@
 
                 <VBox VBox.vgrow="ALWAYS" /> <Separator opacity="0.1" prefWidth="200.0" />
 
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleLogout" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-cursor: hand;" text="🚪 Logout">
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleLogout" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-cursor: hand;" text="Logout">
                     <padding>
                         <Insets left="25.0" />
                     </padding>
@@ -100,7 +91,7 @@
 
                 <VBox spacing="20.0">
                     <children>
-                        <Label text="Azioni Rapide" textFill="#64748b">
+                        <Label text="Azioni rapide" textFill="#64748b">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -108,11 +99,11 @@
 
                         <HBox spacing="20.0">
                             <children>
-                                <VBox onMouseClicked="#handleManageGroups" prefHeight="160.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-cursor: hand;">
+                                <VBox onMouseClicked="#handleManageGroups" prefHeight="170.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-cursor: hand;">
                                     <children>
-                                        <Label text="👥" font="$x1">
+                                        <Label text="GRUPPI" textFill="#0ea5e9">
                                             <font>
-                                                <Font size="30.0" fx:id="x1" />
+                                                <Font name="System Bold" size="13.0" />
                                             </font>
                                         </Label>
                                         <Label text="Gestisci Gruppi" textFill="#1e293b">
@@ -120,7 +111,7 @@
                                                 <Font name="System Bold" size="18.0" />
                                             </font>
                                             <VBox.margin>
-                                                <Insets top="10.0" />
+                                                <Insets top="18.0" />
                                             </VBox.margin>
                                         </Label>
                                         <Label text="Visualizza e modifica i gruppi attivi" textFill="#94a3b8" wrapText="true" />
@@ -130,15 +121,19 @@
                                     </padding>
                                 </VBox>
 
-                                <VBox onMouseClicked="#handleCreateGroup" prefHeight="160.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-cursor: hand;">
+                                <VBox onMouseClicked="#handleCreateGroup" prefHeight="170.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-cursor: hand;">
                                     <children>
-                                        <Label text="🏗️" font="$x1" />
+                                        <Label text="CREAZIONE" textFill="#0ea5e9">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
                                         <Label text="Nuovo Gruppo" textFill="#1e293b">
                                             <font>
                                                 <Font name="System Bold" size="18.0" />
                                             </font>
                                             <VBox.margin>
-                                                <Insets top="10.0" />
+                                                <Insets top="18.0" />
                                             </VBox.margin>
                                         </Label>
                                         <Label text="Crea una nuova area collaborativa" textFill="#94a3b8" wrapText="true" />
@@ -148,23 +143,6 @@
                                     </padding>
                                 </VBox>
 
-                                <VBox onMouseClicked="#handleCreateAsset" prefHeight="160.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-cursor: hand;">
-                                    <children>
-                                        <Label text="📦" font="$x1" />
-                                        <Label text="Nuovo Asset" textFill="#1e293b">
-                                            <font>
-                                                <Font name="System Bold" size="18.0" />
-                                            </font>
-                                            <VBox.margin>
-                                                <Insets top="10.0" />
-                                            </VBox.margin>
-                                        </Label>
-                                        <Label text="Definisci nuovi beni per il sistema" textFill="#94a3b8" wrapText="true" />
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                                    </padding>
-                                </VBox>
                             </children>
                         </HBox>
                     </children>

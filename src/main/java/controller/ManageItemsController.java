@@ -65,9 +65,9 @@ public class ManageItemsController {
         if (bean.getPriority() < 1 || bean.getPriority() > 5) {
             throw new IllegalArgumentException("La priorità deve essere compresa tra 1 e 5.");
         }
-        if (bean.getMaxUsageTime() <= 0) {
+        if (bean.getMaxUsageTime() < 30 || bean.getMaxUsageTime() % 30 != 0) {
             throw new IllegalArgumentException(
-                    "Il tempo massimo di utilizzo deve essere positivo.");
+                    "Il tempo massimo di utilizzo deve essere un multiplo di 30 minuti.");
         }
     }
 

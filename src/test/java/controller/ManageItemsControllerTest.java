@@ -82,6 +82,15 @@ class ManageItemsControllerTest {
     }
 
     @Test
+    void rejectsMaximumUsageThatIsNotAMultipleOfHalfAnHour() {
+        ManageItemsController controller =
+                new ManageItemsController(group.getGroupID(), groupDAO, userDAO);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                controller.createItem(new CreateItemBean("Trapano", 3, 45), adminBean));
+    }
+
+    @Test
     void persistsAndReloadsItemsFromFiles(@TempDir Path tempDirectory) throws Exception {
         Path groupsFile = tempDirectory.resolve("groups.csv");
         Path itemsFile = tempDirectory.resolve("items.csv");

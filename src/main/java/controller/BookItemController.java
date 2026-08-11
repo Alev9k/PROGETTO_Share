@@ -1,0 +1,153 @@
+package controller;
+
+import model.bean.BookingBean;
+import model.bean.BookingAvailabilityBean;
+import model.bean.BookingRequestBean;
+import model.bean.ItemBean;
+import model.bean.OperatorGroupBean;
+import model.bean.UserBean;
+import model.dao.BookingDAO;
+import model.dao.GroupDAO;
+import model.dao.UserDAO;
+import model.entity.Booking;
+import model.entity.BookingSchedule;
+import model.entity.Group;
+import model.entity.Item;
+import model.entity.ItemStatus;
+import model.entity.Operator;
+import model.entity.User;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+/** Controller applicativo del caso d'uso "Prenota item". */
+public class BookItemController {
+    private final GroupDAO groupDAO;
+    private final UserDAO userDAO;
+    private final BookingDAO bookingDAO;
+    private final Clock clock;
+
+    public BookItemController(GroupDAO groupDAO, UserDAO userDAO, BookingDAO bookingDAO) {
+        this(groupDAO, userDAO, bookingDAO, Clock.systemDefaultZone());
+    }
+
+    BookItemController(GroupDAO groupDAO, UserDAO userDAO,
+                       BookingDAO bookingDAO, Clock clock) {
+        this.groupDAO = Objects.requireNonNull(groupDAO);
+        this.userDAO = Objects.requireNonNull(userDAO);
+        this.bookingDAO = Objects.requireNonNull(bookingDAO);
+        this.clock = Objects.requireNonNull(clock);
+    }
+
+    public List<OperatorGroupBean> getMyGroups(UserBean operatorBean) {
+        Operator operator = requireOperator(operatorBean);
+        return groupDAO.findGroupsByMemberUsername(operator.getUsername()).stream()
+                .map(group -> toOperatorGroupBean(group, operator.getUsername()))
+                .toList();
+    }
+
+    public List<LocalDate> getBookableDates() {
+        LocalDate today = LocalDate.now(clock);
+        return List.of(today, today.plusDays(1));
+    }
+
+    public List<ItemBean> getBookableItems(int groupId, UserBean operatorBean) {
+        Operator operator = requireOperator(operatorBean);
+        Group group = requireActiveMembership(groupId, operator.getUsername());
+        return group.getItems().stream()
+                .filter(item -> item.getStatus() != ItemStatus.BROKEN)
+                .sorted(Comparator.comparingInt(Item::getPriority).reversed()
+                        .thenComparing(Item::getName, String.CASE_INSENSITIVE_ORDER))
+                .map(this::toItemBean)
+                .toList();
+    }
+
+    public BookingAvailabilityBean getAvailability(int groupId, int itemId,
+                                                   LocalDate date, UserBean operatorBean) {
+        Operator operator = requireOperator(operatorBean);
+        BookingSchedule schedule = buildSchedule(groupId, itemId, date,
+                operator.getUsername());
+        return new BookingAvailabilityBean(groupId, itemId, date,
+                schedule.getAvailableDurationsByStart(operator.getUsername()));
+    }
+
+    public BookingBean createBooking(BookingRequestBean request, UserBean operatorBean) {
+        if (request == null) {
+            throw new IllegalArgumentException("I dati della prenotazione sono obbligatori.");
+        }
+        Operator operator = requireOperator(operatorBean);
+        validateDate(request.getDate());
+        Group group = requireActiveMembership(request.getGroupId(), operator.getUsername());
+        Item item = requireItem(group, request.getItemId());
+        Booking booking = new Booking(UUID.randomUUID().toString(), group.getGroupID(),
+                item.getItemID(), operator.getUsername(), request.getDate(),
+                request.getStartTime(), request.getDurationMinutes());
+
+        BookingSchedule schedule = new BookingSchedule(group, item, request.getDate(),
+                List.of(), clock);
+        schedule.validate(booking);
+        bookingDAO.save(booking);
+        return new BookingBean(booking.getBookingId(), group.getName(), item.getName(),
+                booking.getDate(), booking.getStartTime(), booking.getEndTime());
+    }
+
+    private BookingSchedule buildSchedule(int groupId, int itemId, LocalDate date,
+                                          String operatorUsername) {
+        validateDate(date);
+        Group group = requireActiveMembership(groupId, operatorUsername);
+        Item item = requireItem(group, itemId);
+        return new BookingSchedule(group, item, date, bookingDAO.findByDate(date), clock);
+    }
+
+    private void validateDate(LocalDate date) {
+        LocalDate today = LocalDate.now(clock);
+        if (date == null || (!date.equals(today) && !date.equals(today.plusDays(1)))) {
+            throw new IllegalArgumentException("Puoi prenotare solamente per oggi o domani.");
+        }
+    }
+
+    private Operator requireOperator(UserBean operatorBean) {
+        User user = operatorBean == null || operatorBean.getUsername() == null
+                ? null : userDAO.findByUsername(operatorBean.getUsername());
+        if (!(user instanceof Operator operator)) {
+            throw new IllegalArgumentException("Operatore non valido.");
+        }
+        return operator;
+    }
+
+    private Group requireActiveMembership(int groupId, String operatorUsername) {
+        Group group = groupDAO.findGroupById(groupId);
+        if (group == null) {
+            throw new IllegalArgumentException("Gruppo non trovato.");
+        }
+        if (!group.isActiveMember(operatorUsername)) {
+            throw new IllegalStateException("Non sei un membro attivo di questo gruppo.");
+        }
+        return group;
+    }
+
+    private Item requireItem(Group group, int itemId) {
+        Item item = group.getSingleItemById(itemId);
+        if (item == null) {
+            throw new IllegalArgumentException("Item non trovato nel gruppo selezionato.");
+        }
+        if (item.getStatus() == ItemStatus.BROKEN) {
+            throw new IllegalStateException("L'item selezionato è guasto.");
+        }
+        return item;
+    }
+
+    private OperatorGroupBean toOperatorGroupBean(Group group, String operatorUsername) {
+        return new OperatorGroupBean(group.getGroupID(), group.getName(), group.getOpenTime(),
+                group.getCloseTime(), group.isActiveMember(operatorUsername));
+    }
+
+    private ItemBean toItemBean(Item item) {
+        return new ItemBean(item.getItemID(), item.getName(), item.getPriority(),
+                item.getMaxUsageTime(), item.getStatus());
+    }
+}

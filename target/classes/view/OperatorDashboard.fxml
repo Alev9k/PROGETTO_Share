@@ -28,7 +28,7 @@
 
                 <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0"
                         prefWidth="240.0"
-                        style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: hand;"
+                        style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: default;"
                         text="Dashboard">
                     <padding>
                         <Insets left="25.0" />
@@ -108,7 +108,8 @@
                                         <Font name="System Bold" size="20.0" />
                                     </font>
                                 </Label>
-                                <Label text="Gestisci i tuoi gruppi e le prenotazioni dei beni condivisi"
+                                <Label fx:id="notificationLabel"
+                                       text="Non hai nuove notifiche sulle richieste di accesso."
                                        textFill="#64748b" />
                             </children>
                         </VBox>
@@ -202,26 +203,6 @@
                             </children>
                         </HBox>
 
-                        <HBox prefHeight="105.0"
-                              style="-fx-background-color: #e0f2fe; -fx-background-radius: 15;">
-                            <children>
-                                <VBox spacing="6.0">
-                                    <children>
-                                        <Label text="Area operatore" textFill="#0369a1">
-                                            <font>
-                                                <Font name="System Bold" size="16.0" />
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="notificationLabel"
-                                               text="Non hai nuove notifiche sulle richieste di accesso."
-                                               textFill="#0c4a6e" />
-                                    </children>
-                                </VBox>
-                            </children>
-                            <padding>
-                                <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
-                            </padding>
-                        </HBox>
                     </children>
                     <padding>
                         <Insets left="30.0" right="30.0" />

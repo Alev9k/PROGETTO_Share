@@ -91,7 +91,7 @@
                         <HBox spacing="12.0">
                             <children>
                                 <TextField fx:id="tokenField" prefHeight="42.0" prefWidth="520.0"
-                                           promptText="Es. ABCD-EFGH-2345"
+                                           promptText="Es. 042731"
                                            style="-fx-background-radius: 6; -fx-border-color: #cbd5e1; -fx-border-radius: 6;" />
                                 <Button mnemonicParsing="false" onAction="#handleSubmit" prefHeight="42.0"
                                         prefWidth="170.0"

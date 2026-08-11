@@ -26,7 +26,4 @@ public abstract class User {
         throw new IllegalStateException("Questo utente non puo gestire gruppi.");
     }
 
-    public void joinGroup(Group group) {
-        throw new IllegalStateException("Questo utente non puo unirsi ai gruppi come operatore.");
-    }
 }

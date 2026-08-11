@@ -31,7 +31,7 @@
                 </Button>
                 <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#handleBackToGroups"
                         prefHeight="45.0" prefWidth="240.0"
-                        style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: hand;"
+                        style="-fx-background-color: #1e293b; -fx-text-fill: #38bdf8; -fx-cursor: default;"
                         text="Gestione gruppi">
                     <padding><Insets left="25.0" /></padding>
                     <font><Font name="System Bold" size="14.0" /></font>

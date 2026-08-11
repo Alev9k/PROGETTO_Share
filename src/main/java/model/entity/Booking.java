@@ -1,52 +1,112 @@
 package model.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class Booking {
-    private final LocalDate date;      // Nel VOPC indicato come int, meglio LocalDate per Java
-    private final LocalTime startTime; // Nel VOPC indicato come int, meglio LocalTime
-    private final String itemName;
-    private final String operatorName;
-    private final int groupID;
+    private final String bookingId;
+    private final int groupId;
+    private final int itemId;
+    private final String operatorUsername;
+    private final LocalDate date;
+    private final LocalTime startTime;
+    private final int durationMinutes;
+    private BookingStatus status;
 
-    public Booking(LocalDate date, LocalTime startTime, String itemName, String operatorName, int groupID) {
-        this.date = date;
-        this.startTime = startTime;
-        this.itemName = itemName;
-        this.operatorName = operatorName;
-        this.groupID = groupID;
+    public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
+                   LocalDate date, LocalTime startTime, int durationMinutes) {
+        this(bookingId, groupId, itemId, operatorUsername, date, startTime,
+                durationMinutes, BookingStatus.ACTIVE);
     }
 
-    // --- Metodi richiesti dal VOPC ---
-
-    public String getOperatorName() {
-        return operatorName;
+    public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
+                   LocalDate date, LocalTime startTime, int durationMinutes,
+                   BookingStatus status) {
+        if (bookingId == null || bookingId.isBlank()) {
+            throw new IllegalArgumentException("L'identificativo della prenotazione è obbligatorio.");
+        }
+        if (groupId <= 0 || itemId <= 0) {
+            throw new IllegalArgumentException("Gruppo e item della prenotazione non sono validi.");
+        }
+        if (operatorUsername == null || operatorUsername.isBlank()) {
+            throw new IllegalArgumentException("L'operatore della prenotazione è obbligatorio.");
+        }
+        if (durationMinutes <= 0 || durationMinutes % BookingSchedule.SLOT_MINUTES != 0) {
+            throw new IllegalArgumentException("La durata deve essere un multiplo di 30 minuti.");
+        }
+        LocalDate validDate = Objects.requireNonNull(date, "La data è obbligatoria.");
+        LocalTime validStartTime = Objects.requireNonNull(
+                startTime, "L'orario iniziale è obbligatorio.");
+        if (validStartTime.getMinute() % BookingSchedule.SLOT_MINUTES != 0
+                || validStartTime.getSecond() != 0 || validStartTime.getNano() != 0) {
+            throw new IllegalArgumentException(
+                    "L'orario iniziale deve coincidere con uno slot di 30 minuti.");
+        }
+        this.bookingId = bookingId;
+        this.groupId = groupId;
+        this.itemId = itemId;
+        this.operatorUsername = operatorUsername.trim();
+        this.date = validDate;
+        this.startTime = validStartTime;
+        this.durationMinutes = durationMinutes;
+        this.status = Objects.requireNonNull(status, "Lo stato è obbligatorio.");
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getBookingId() { return bookingId; }
+    public int getGroupId() { return groupId; }
+    public int getItemId() { return itemId; }
+    public String getOperatorUsername() { return operatorUsername; }
+    public LocalDate getDate() { return date; }
+    public LocalTime getStartTime() { return startTime; }
+    public int getDurationMinutes() { return durationMinutes; }
+    public BookingStatus getStatus() { return status; }
+
+    public LocalTime getEndTime() {
+        return startTime.plusMinutes(durationMinutes);
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
+    public boolean isActive() {
+        return status == BookingStatus.ACTIVE;
     }
 
-    public String getItemName() {
-        return itemName;
+    /** Verifica il conflitto tra due prenotazioni attive sullo stesso item o operatore. */
+    public boolean conflictsWith(Booking other) {
+        Objects.requireNonNull(other);
+        return other.isActive() && conflictsWith(other.operatorUsername, other.groupId,
+                other.itemId, other.date, other.startTime, other.getEndTime());
     }
 
-    public int getGroupID() {
-        return groupID;
+    public boolean overlaps(LocalDate candidateDate, LocalTime candidateStart,
+                            LocalTime candidateEnd) {
+        return date.equals(candidateDate)
+                && startTime.isBefore(candidateEnd)
+                && candidateStart.isBefore(getEndTime());
     }
 
-    /**
-     * Verifica la validità temporale (Requisito Funzionale n. 5)
-     * "Limite alla giornata corrente e quella successiva"
-     */
-    public boolean isWithinAllowedTimeframe() {
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        return date.equals(today) || date.equals(tomorrow);
+    boolean conflictsWith(String candidateOperator, int candidateGroupId,
+                          int candidateItemId, LocalDate candidateDate,
+                          LocalTime candidateStart, LocalTime candidateEnd) {
+        boolean sameItem = groupId == candidateGroupId && itemId == candidateItemId;
+        boolean sameOperator = operatorUsername.equals(candidateOperator);
+        return isActive() && (sameItem || sameOperator)
+                && overlaps(candidateDate, candidateStart, candidateEnd);
+    }
+
+    public boolean isInProgress(LocalDateTime moment) {
+        if (!isActive() || !date.equals(moment.toLocalDate())) {
+            return false;
+        }
+        LocalTime time = moment.toLocalTime();
+        return !time.isBefore(startTime) && time.isBefore(getEndTime());
+    }
+
+    public boolean startsAfter(LocalDateTime moment) {
+        return isActive() && LocalDateTime.of(date, startTime).isAfter(moment);
+    }
+
+    public void cancel() {
+        status = BookingStatus.CANCELLED;
     }
 }

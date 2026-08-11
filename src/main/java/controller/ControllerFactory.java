@@ -6,12 +6,15 @@ public class ControllerFactory {
     private final UserDAO userDAO;
     private final GroupDAO groupDAO;
     private final MembershipRequestDAO membershipRequestDAO;
+    private final BookingDAO bookingDAO;
 
     public ControllerFactory(UserDAO userDAO, GroupDAO groupDAO,
-                             MembershipRequestDAO membershipRequestDAO) {
+                             MembershipRequestDAO membershipRequestDAO,
+                             BookingDAO bookingDAO) {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.membershipRequestDAO = membershipRequestDAO;
+        this.bookingDAO = bookingDAO;
     }
 
     // Nuovi metodi per il FrontController
@@ -29,7 +32,8 @@ public class ControllerFactory {
 
     // Metodi per le sotto-boundary (già definiti)
     public ManageOperatorsController createManageOperatorsController(int groupID) {
-        return new ManageOperatorsController(groupID, userDAO, groupDAO, membershipRequestDAO);
+        return new ManageOperatorsController(groupID, userDAO, groupDAO,
+                membershipRequestDAO, bookingDAO);
     }
 
     public ManageItemsController createManageItemsController(int groupID) {
@@ -46,5 +50,9 @@ public class ControllerFactory {
 
     public AccessNotificationController createAccessNotificationController() {
         return new AccessNotificationController(userDAO, groupDAO, membershipRequestDAO);
+    }
+
+    public BookItemController createBookItemController() {
+        return new BookItemController(groupDAO, userDAO, bookingDAO);
     }
 }

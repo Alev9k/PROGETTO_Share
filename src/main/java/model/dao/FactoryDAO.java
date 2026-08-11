@@ -23,4 +23,11 @@ public class FactoryDAO {
             case FILE_SYSTEM -> new FileMembershipRequestDAO();
         };
     }
+
+    public static BookingDAO getBookingDAO(Context context) {
+        return switch (context) {
+            case MEMORY -> new InMemoryBookingDAO();
+            case FILE_SYSTEM -> new FileBookingDAO();
+        };
+    }
 }

@@ -60,25 +60,12 @@ public class AdminDashboardGraphicController {
     }
 
     @FXML
-    private void handleCreateAsset(Event event) {
-        showInfo("Nuovo Asset", "Funzionalità di creazione asset in arrivo!");
-    }
-
-    @FXML
     private void handleLogout(Event event) {
         try {
             navigator.showLogin();
         } catch (Exception e) {
             showError("Errore", "Impossibile tornare al login.");
         }
-    }
-
-    private void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     private void showError(String title, String message) {

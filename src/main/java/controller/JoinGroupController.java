@@ -30,6 +30,10 @@ public class JoinGroupController {
         if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalArgumentException("Inserisci il token di accesso.");
         }
+        String normalizedToken = accessToken.trim();
+        if (!normalizedToken.matches("\\d{6}")) {
+            throw new IllegalArgumentException("Il token deve contenere esattamente 6 cifre.");
+        }
         if (operatorBean == null || operatorBean.getUsername() == null) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
@@ -38,12 +42,11 @@ public class JoinGroupController {
             throw new IllegalArgumentException("Solo un operatore può richiedere l'accesso a un gruppo.");
         }
 
-        Group group = groupDAO.findGroupByAccessToken(accessToken.trim());
+        Group group = groupDAO.findGroupByAccessToken(normalizedToken);
         if (group == null) {
             throw new IllegalArgumentException("Token non valido: nessun gruppo trovato.");
         }
-        if (group.findOperatorByUsername(operator.getUsername()) != null
-                || requestDAO.hasAcceptedRequest(group.getGroupID(), operator.getUsername())) {
+        if (group.hasMember(operator.getUsername())) {
             throw new IllegalStateException("Sei già membro di questo gruppo.");
         }
         if (requestDAO.findPending(group.getGroupID(), operator.getUsername()) != null) {

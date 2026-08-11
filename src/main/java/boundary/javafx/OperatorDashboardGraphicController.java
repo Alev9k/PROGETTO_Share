@@ -34,10 +34,7 @@ public class OperatorDashboardGraphicController {
 
     @FXML
     private void handleMyGroups(Event event) {
-        showFeatureInProgress(
-                "I miei gruppi",
-                "Qui potrai visualizzare i gruppi ai quali sei iscritto e i beni che puoi prenotare."
-        );
+        navigator.showMyGroups(operatorUsername);
     }
 
     @FXML

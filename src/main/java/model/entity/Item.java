@@ -1,7 +1,5 @@
 package model.entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class Item {
@@ -11,7 +9,6 @@ public class Item {
     private int priority;
     private int maxUsageTime;
     private ItemStatus status;
-    private final List<Booking> bookingsList;
 
     public Item(int itemID, String name, int groupID, int priority, int maxUsageTime) {
         this.itemID = itemID;
@@ -20,15 +17,6 @@ public class Item {
         this.priority = priority;
         this.maxUsageTime = maxUsageTime;
         this.status = ItemStatus.AVAILABLE;
-        this.bookingsList = new ArrayList<>();
-    }
-
-    public boolean isInUse() {
-        return status == ItemStatus.IN_USE;
-    }
-
-    public void removeBooking(Booking booking) {
-        bookingsList.remove(booking);
     }
 
     public int getItemID() {
@@ -53,10 +41,6 @@ public class Item {
 
     public ItemStatus getStatus() {
         return status;
-    }
-
-    public List<Booking> getBookings() {
-        return List.copyOf(bookingsList);
     }
 
     public void setStatus(ItemStatus status) {

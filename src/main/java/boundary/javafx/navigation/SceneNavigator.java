@@ -14,4 +14,5 @@ public interface SceneNavigator {
     void showManageOperators(GroupBean group, String adminUsername);
     void showRequestGroupAccess(String operatorUsername);
     void showMyGroups(String operatorUsername);
+    void showMyBookings(String operatorUsername);
 }

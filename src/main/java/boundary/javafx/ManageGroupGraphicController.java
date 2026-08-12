@@ -17,7 +17,7 @@ public class ManageGroupGraphicController {
 
     @FXML private TableView<GroupBean> groupsTable;
     @FXML private TableColumn<GroupBean, String> nameColumn;
-    @FXML private TableColumn<GroupBean, Integer> idColumn;
+    @FXML private TableColumn<GroupBean, String> tokenColumn;
 
     private ManageGroupController logicController;
     private SceneNavigator navigator;
@@ -41,7 +41,7 @@ public class ManageGroupGraphicController {
     private void setupTable() {
         // Colleghiamo le colonne ai campi del GroupBean
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("groupName"));
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("groupId"));
+        tokenColumn.setCellValueFactory(new PropertyValueFactory<>("accessToken"));
 
         // Gestione lista vuota tramite segnaposto grafico
         Label emptyLabel = new Label("Non ci sono gruppi associati al tuo account.");

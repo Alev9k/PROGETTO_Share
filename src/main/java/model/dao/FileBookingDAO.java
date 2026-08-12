@@ -2,7 +2,6 @@ package model.dao;
 
 import exceptions.DAOException;
 import model.entity.Booking;
-import model.entity.BookingStatus;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,8 +12,11 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class FileBookingDAO implements BookingDAO {
     private static final Path DEFAULT_FILE = Path.of("bookings.csv");
@@ -53,21 +55,20 @@ public class FileBookingDAO implements BookingDAO {
     }
 
     @Override
-    public void update(Booking updatedBooking) {
-        Objects.requireNonNull(updatedBooking);
+    public void deleteByIds(Collection<String> bookingIds) {
+        Set<String> ids = new HashSet<>(Objects.requireNonNull(bookingIds));
+        if (ids.isEmpty()) {
+            return;
+        }
         synchronized (FILE_LOCK) {
             List<Booking> bookings = findAll();
-            boolean found = false;
-            for (int i = 0; i < bookings.size(); i++) {
-                if (bookings.get(i).getBookingId().equals(updatedBooking.getBookingId())) {
-                    bookings.set(i, updatedBooking);
-                    found = true;
-                    break;
-                }
+            long found = bookings.stream()
+                    .filter(booking -> ids.contains(booking.getBookingId()))
+                    .count();
+            if (found != ids.size()) {
+                throw new DAOException("Una o più prenotazioni non sono state trovate.");
             }
-            if (!found) {
-                throw new DAOException("Prenotazione non trovata.");
-            }
+            bookings.removeIf(booking -> ids.contains(booking.getBookingId()));
             rewrite(bookings);
         }
     }
@@ -92,13 +93,13 @@ public class FileBookingDAO implements BookingDAO {
 
     private Booking parseBooking(String line) {
         List<String> fields = parseCsvLine(line);
-        if (fields.size() != 8) {
+        if (fields.size() != 7) {
             throw new IllegalArgumentException("Riga prenotazione non valida.");
         }
         return new Booking(fields.get(0), Integer.parseInt(fields.get(1)),
                 Integer.parseInt(fields.get(2)), fields.get(3),
                 LocalDate.parse(fields.get(4)), LocalTime.parse(fields.get(5)),
-                Integer.parseInt(fields.get(6)), BookingStatus.valueOf(fields.get(7)));
+                Integer.parseInt(fields.get(6)));
     }
 
     private void rewrite(List<Booking> bookings) {
@@ -124,8 +125,7 @@ public class FileBookingDAO implements BookingDAO {
                 booking.getOperatorUsername(),
                 booking.getDate().toString(),
                 booking.getStartTime().toString(),
-                Integer.toString(booking.getDurationMinutes()),
-                booking.getStatus().name()
+                Integer.toString(booking.getDurationMinutes())
         ));
     }
 

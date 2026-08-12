@@ -55,4 +55,8 @@ public class ControllerFactory {
     public BookItemController createBookItemController() {
         return new BookItemController(groupDAO, userDAO, bookingDAO);
     }
+
+    public MyBookingsController createMyBookingsController() {
+        return new MyBookingsController(userDAO, groupDAO, bookingDAO);
+    }
 }

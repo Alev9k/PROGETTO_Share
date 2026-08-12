@@ -19,9 +19,11 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <!-- ESCLUSIONE REGOLA SYSTEM.OUT (java:S106) PER LA CARTELLA CLI -->
-        <sonar.issue.ignore.multicriteria>cli</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria>cli,mainclass</sonar.issue.ignore.multicriteria>
         <sonar.issue.ignore.multicriteria.cli.ruleKey>java:S106</sonar.issue.ignore.multicriteria.cli.ruleKey>
         <sonar.issue.ignore.multicriteria.cli.resourceKey>src/main/java/boundary/cli/**/*</sonar.issue.ignore.multicriteria.cli.resourceKey>
+        <sonar.issue.ignore.multicriteria.mainclass.ruleKey>java:S106</sonar.issue.ignore.multicriteria.mainclass.ruleKey>
+        <sonar.issue.ignore.multicriteria.mainclass.resourceKey>src/main/java/mainclass/**/*</sonar.issue.ignore.multicriteria.mainclass.resourceKey>
 
         <!-- Rimosse le properties sonar.java.binaries e libraries: Maven le calcola in automatico e forzarle a volte crea problemi -->
     </properties>

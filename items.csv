@@ -1,2 +1,5 @@
-1,1,Saldatore,5,60,AVAILABLE
-2,1,computer1,4,60,AVAILABLE
+1,1,Computer1,5,180,AVAILABLE
+2,1,Computer 2,3,90,AVAILABLE
+3,1,Computer 3,2,60,AVAILABLE
+1,2,Trapano 1,2,60,AVAILABLE
+2,2,Area Comune 1,5,630,AVAILABLE

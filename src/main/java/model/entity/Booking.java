@@ -13,17 +13,9 @@ public class Booking {
     private final LocalDate date;
     private final LocalTime startTime;
     private final int durationMinutes;
-    private BookingStatus status;
 
     public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
                    LocalDate date, LocalTime startTime, int durationMinutes) {
-        this(bookingId, groupId, itemId, operatorUsername, date, startTime,
-                durationMinutes, BookingStatus.ACTIVE);
-    }
-
-    public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
-                   LocalDate date, LocalTime startTime, int durationMinutes,
-                   BookingStatus status) {
         if (bookingId == null || bookingId.isBlank()) {
             throw new IllegalArgumentException("L'identificativo della prenotazione è obbligatorio.");
         }
@@ -51,7 +43,6 @@ public class Booking {
         this.date = validDate;
         this.startTime = validStartTime;
         this.durationMinutes = durationMinutes;
-        this.status = Objects.requireNonNull(status, "Lo stato è obbligatorio.");
     }
 
     public String getBookingId() { return bookingId; }
@@ -61,20 +52,15 @@ public class Booking {
     public LocalDate getDate() { return date; }
     public LocalTime getStartTime() { return startTime; }
     public int getDurationMinutes() { return durationMinutes; }
-    public BookingStatus getStatus() { return status; }
 
     public LocalTime getEndTime() {
         return startTime.plusMinutes(durationMinutes);
     }
 
-    public boolean isActive() {
-        return status == BookingStatus.ACTIVE;
-    }
-
-    /** Verifica il conflitto tra due prenotazioni attive sullo stesso item o operatore. */
+    /** Verifica il conflitto tra due prenotazioni persistenti sullo stesso item o operatore. */
     public boolean conflictsWith(Booking other) {
         Objects.requireNonNull(other);
-        return other.isActive() && conflictsWith(other.operatorUsername, other.groupId,
+        return conflictsWith(other.operatorUsername, other.groupId,
                 other.itemId, other.date, other.startTime, other.getEndTime());
     }
 
@@ -90,12 +76,13 @@ public class Booking {
                           LocalTime candidateStart, LocalTime candidateEnd) {
         boolean sameItem = groupId == candidateGroupId && itemId == candidateItemId;
         boolean sameOperator = operatorUsername.equals(candidateOperator);
-        return isActive() && (sameItem || sameOperator)
+        return (sameItem || sameOperator)
                 && overlaps(candidateDate, candidateStart, candidateEnd);
     }
 
     public boolean isInProgress(LocalDateTime moment) {
-        if (!isActive() || !date.equals(moment.toLocalDate())) {
+        Objects.requireNonNull(moment);
+        if (!date.equals(moment.toLocalDate())) {
             return false;
         }
         LocalTime time = moment.toLocalTime();
@@ -103,10 +90,11 @@ public class Booking {
     }
 
     public boolean startsAfter(LocalDateTime moment) {
-        return isActive() && LocalDateTime.of(date, startTime).isAfter(moment);
+        return LocalDateTime.of(date, startTime).isAfter(Objects.requireNonNull(moment));
     }
 
-    public void cancel() {
-        status = BookingStatus.CANCELLED;
+    /** Una prenotazione è eliminabile solo prima che inizi l'utilizzo dell'item. */
+    public boolean canBeDeletedAt(LocalDateTime moment) {
+        return startsAfter(moment);
     }
 }

@@ -4,11 +4,12 @@ import exceptions.BookingConflictException;
 import model.entity.Booking;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 public interface BookingDAO {
     void save(Booking booking);
-    void update(Booking booking);
+    void deleteByIds(Collection<String> bookingIds);
     List<Booking> findAll();
 
     default Booking findById(String bookingId) {
@@ -24,9 +25,14 @@ public interface BookingDAO {
                 .toList();
     }
 
-    default List<Booking> findActiveByOperatorAndGroup(String username, int groupId) {
+    default List<Booking> findByOperator(String username) {
         return findAll().stream()
-                .filter(Booking::isActive)
+                .filter(booking -> booking.getOperatorUsername().equals(username))
+                .toList();
+    }
+
+    default List<Booking> findByOperatorAndGroup(String username, int groupId) {
+        return findAll().stream()
                 .filter(booking -> booking.getGroupId() == groupId)
                 .filter(booking -> booking.getOperatorUsername().equals(username))
                 .toList();

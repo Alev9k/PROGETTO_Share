@@ -276,8 +276,7 @@ public class MyGroupsGraphicController {
 
     @FXML
     private void handleBookings(Event event) {
-        showAlert(Alert.AlertType.INFORMATION, "Le mie prenotazioni",
-                "La consultazione delle prenotazioni sarà realizzata nel relativo caso d'uso.");
+        navigator.showMyBookings(operatorUsername);
     }
 
     @FXML

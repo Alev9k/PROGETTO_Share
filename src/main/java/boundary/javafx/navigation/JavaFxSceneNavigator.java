@@ -7,6 +7,7 @@ import boundary.javafx.ManageGroupGraphicController;
 import boundary.javafx.ManageItemsGraphicController;
 import boundary.javafx.ManageOperatorsGraphicController;
 import boundary.javafx.MyGroupsGraphicController;
+import boundary.javafx.MyBookingsGraphicController;
 import boundary.javafx.OperatorDashboardGraphicController;
 import boundary.javafx.RegistrationGraphicController;
 import boundary.javafx.RequestGroupAccessGraphicController;
@@ -23,7 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /** Implementazione JavaFX che possiede lo Stage e centralizza tutte le route. */
-public final class JavaFxSceneNavigator implements SceneNavigator {
+public class JavaFxSceneNavigator implements SceneNavigator {
     private final Stage stage;
     private final ControllerFactory controllerFactory;
 
@@ -112,6 +113,13 @@ public final class JavaFxSceneNavigator implements SceneNavigator {
     public void showMyGroups(String operatorUsername) {
         loadScene("/view/MyGroups.fxml", (MyGroupsGraphicController controller) ->
                 controller.initData(controllerFactory.createBookItemController(), this,
+                        operatorUsername));
+    }
+
+    @Override
+    public void showMyBookings(String operatorUsername) {
+        loadScene("/view/MyBookings.fxml", (MyBookingsGraphicController controller) ->
+                controller.initData(controllerFactory.createMyBookingsController(), this,
                         operatorUsername));
     }
 

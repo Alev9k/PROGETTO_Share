@@ -3,7 +3,7 @@ package model.bean;
 import model.entity.ItemStatus;
 
 /** Rappresentazione in sola lettura di un item esposto alle boundary. */
-public final class ItemBean {
+public class ItemBean {
     private final int itemId;
     private final String itemName;
     private final int priority;

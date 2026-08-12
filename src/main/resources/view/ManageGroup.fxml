@@ -96,8 +96,8 @@
 
                         <TableView fx:id="groupsTable" prefHeight="420.0" prefWidth="780.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="idColumn" prefWidth="150.0" text="ID Gruppo" />
                                 <TableColumn fx:id="nameColumn" prefWidth="450.0" text="Nome Gruppo" />
+                                <TableColumn fx:id="tokenColumn" prefWidth="250.0" text="Token di accesso" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

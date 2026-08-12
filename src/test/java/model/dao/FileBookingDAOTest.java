@@ -2,7 +2,6 @@ package model.dao;
 
 import exceptions.BookingConflictException;
 import model.entity.Booking;
-import model.entity.BookingStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -11,11 +10,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FileBookingDAOTest {
     @Test
-    void persistsAndUpdatesBookingStatus(@TempDir Path tempDirectory) {
+    void persistsAndPhysicallyDeletesBooking(@TempDir Path tempDirectory) {
         Path file = tempDirectory.resolve("bookings.csv");
         FileBookingDAO dao = new FileBookingDAO(file);
         Booking booking = booking("one", 1, 1, "operator", LocalTime.of(10, 0), 60);
@@ -23,12 +23,8 @@ class FileBookingDAOTest {
 
         FileBookingDAO restarted = new FileBookingDAO(file);
         assertEquals(1, restarted.findAll().size());
-        assertEquals(BookingStatus.ACTIVE, restarted.findById("one").getStatus());
-
-        booking.cancel();
-        restarted.update(booking);
-        assertEquals(BookingStatus.CANCELLED,
-                new FileBookingDAO(file).findById("one").getStatus());
+        restarted.deleteByIds(java.util.List.of("one"));
+        assertNull(new FileBookingDAO(file).findById("one"));
     }
 
     @Test

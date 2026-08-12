@@ -106,22 +106,21 @@ public class ManageOperatorsController {
         }
 
         LocalDateTime now = LocalDateTime.now(clock);
-        List<Booking> activeBookings = bookingDAO.findActiveByOperatorAndGroup(
+        List<Booking> operatorBookings = bookingDAO.findByOperatorAndGroup(
                 opBean.getUsername(), contextGroup.getGroupID());
 
         if (membership.isActive()
-                && activeBookings.stream().anyMatch(booking -> booking.isInProgress(now))) {
+                && operatorBookings.stream().anyMatch(booking -> booking.isInProgress(now))) {
             throw new OperatorHasItemException(
                     "L'operatore sta utilizzando un item e non può essere bloccato.");
         }
 
         if (membership.isActive()) {
-            activeBookings.stream()
+            List<String> futureBookingIds = operatorBookings.stream()
                     .filter(booking -> booking.startsAfter(now))
-                    .forEach(booking -> {
-                        booking.cancel();
-                        bookingDAO.update(booking);
-                    });
+                    .map(Booking::getBookingId)
+                    .toList();
+            bookingDAO.deleteByIds(futureBookingIds);
         }
 
         contextGroup.toggleMemberStatus(opBean.getUsername());

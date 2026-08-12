@@ -3,7 +3,7 @@ package model.bean;
 import java.time.LocalTime;
 
 /** Gruppo visto dall'operatore, comprensivo dello stato della sua membership. */
-public final class OperatorGroupBean {
+public class OperatorGroupBean {
     private final int groupId;
     private final String groupName;
     private final LocalTime openTime;

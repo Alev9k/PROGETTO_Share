@@ -3,7 +3,7 @@ package model.entity;
 import java.util.Objects;
 
 /** Associazione tra un gruppo e un operatore, parte dell'aggregato Group. */
-public final class GroupMembership {
+public class GroupMembership {
     private final String operatorUsername;
     private MembershipStatus status;
 

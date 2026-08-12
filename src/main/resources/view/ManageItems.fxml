@@ -64,10 +64,13 @@
                     <TableView fx:id="itemsTable" prefHeight="350.0" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="idColumn" prefWidth="80.0" text="ID" /><TableColumn fx:id="nameColumn" prefWidth="280.0" text="Nome" /><TableColumn fx:id="priorityColumn" prefWidth="120.0" text="Priorità" /><TableColumn fx:id="maxUsageTimeColumn" prefWidth="180.0" text="Uso massimo (min)" /><TableColumn fx:id="statusColumn" prefWidth="150.0" text="Stato" /></columns></TableView>
                     <Label text="Aggiungi item" textFill="#64748b"><font><Font name="System Bold" size="16.0" /></font></Label>
                     <GridPane hgap="10.0" vgap="10.0"><children>
-                        <TextField fx:id="itemNameField" promptText="Nome item" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Spinner fx:id="prioritySpinner" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Spinner fx:id="maxUsageTimeSpinner" editable="true" prefWidth="180.0" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                        <Button mnemonicParsing="false" onAction="#handleAddItem" style="-fx-background-color: #0f172a; -fx-text-fill: white;" text="Aggiungi" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        <Label text="Nome" textFill="#475569" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label text="Priorità" textFill="#475569" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label text="Durata massima di utilizzo (minuti)" textFill="#475569" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <TextField fx:id="itemNameField" promptText="Nome item" prefWidth="260.0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Spinner fx:id="prioritySpinner" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Spinner fx:id="maxUsageTimeSpinner" editable="true" prefWidth="240.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Button mnemonicParsing="false" onAction="#handleAddItem" style="-fx-background-color: #0f172a; -fx-text-fill: white;" text="Aggiungi" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                     </children></GridPane>
                 </children></VBox>
             </children>

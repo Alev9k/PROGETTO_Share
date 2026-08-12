@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /** Agenda giornaliera che applica le regole di disponibilità di un item. */
-public final class BookingSchedule {
+public class BookingSchedule {
     public static final int SLOT_MINUTES = 30;
 
     private final Group group;

@@ -39,7 +39,9 @@ public class ManageGroupController {
         }
 
         for (Group g : managedGroups) {
-            beanList.add(new GroupBean(g.getName(),g.getGroupID()));
+            beanList.add(new GroupBean(g.getGroupID(), g.getName(),
+                    g.getOpenTime(), g.getCloseTime(),
+                    g.getAccessToken(), g.getOwnerUsername()));
         }
         return beanList;
     }

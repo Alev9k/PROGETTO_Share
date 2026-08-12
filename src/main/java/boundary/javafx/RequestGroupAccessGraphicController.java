@@ -87,8 +87,7 @@ public class RequestGroupAccessGraphicController {
 
     @FXML
     private void handleBookings(Event event) {
-        showAlert(Alert.AlertType.INFORMATION, "Le mie prenotazioni",
-                "La gestione delle prenotazioni sarà collegata nel prossimo caso d'uso.");
+        navigator.showMyBookings(operatorUsername);
     }
 
     @FXML

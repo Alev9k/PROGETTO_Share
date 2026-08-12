@@ -4,8 +4,11 @@ import exceptions.DAOException;
 import model.entity.Booking;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class InMemoryBookingDAO implements BookingDAO {
     private final List<Booking> bookings = new ArrayList<>();
@@ -21,15 +24,18 @@ public class InMemoryBookingDAO implements BookingDAO {
     }
 
     @Override
-    public synchronized void update(Booking updatedBooking) {
-        Objects.requireNonNull(updatedBooking);
-        for (int i = 0; i < bookings.size(); i++) {
-            if (bookings.get(i).getBookingId().equals(updatedBooking.getBookingId())) {
-                bookings.set(i, updatedBooking);
-                return;
-            }
+    public synchronized void deleteByIds(Collection<String> bookingIds) {
+        Set<String> ids = new HashSet<>(Objects.requireNonNull(bookingIds));
+        if (ids.isEmpty()) {
+            return;
         }
-        throw new DAOException("Prenotazione non trovata.");
+        long found = bookings.stream()
+                .filter(booking -> ids.contains(booking.getBookingId()))
+                .count();
+        if (found != ids.size()) {
+            throw new DAOException("Una o più prenotazioni non sono state trovate.");
+        }
+        bookings.removeIf(booking -> ids.contains(booking.getBookingId()));
     }
 
     @Override

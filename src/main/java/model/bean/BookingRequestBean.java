@@ -3,7 +3,7 @@ package model.bean;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public final class BookingRequestBean {
+public class BookingRequestBean {
     private final int groupId;
     private final int itemId;
     private final LocalDate date;

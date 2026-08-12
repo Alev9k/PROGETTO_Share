@@ -1,7 +1,7 @@
 package model.bean;
 
 /** Dati inseriti dalla boundary per creare un nuovo item. */
-public final class CreateItemBean {
+public class CreateItemBean {
     private final String itemName;
     private final int priority;
     private final int maxUsageTime;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Fotografia immutabile della disponibilità giornaliera di un item. */
-public final class BookingAvailabilityBean {
+public class BookingAvailabilityBean {
     private final int groupId;
     private final int itemId;
     private final LocalDate date;

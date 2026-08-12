@@ -7,7 +7,6 @@ import model.dao.InMemoryGroupDAO;
 import model.dao.InMemoryMembershipRequestDAO;
 import model.dao.InMemoryUserDAO;
 import model.entity.Booking;
-import model.entity.BookingStatus;
 import model.entity.Group;
 import model.entity.Operator;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +21,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,14 +51,14 @@ class ManageOperatorsBookingTest {
     }
 
     @Test
-    void blockingOperatorCancelsFutureGroupBookings() throws Exception {
+    void blockingOperatorDeletesFutureGroupBookings() throws Exception {
         Booking future = new Booking("future", 1, 1, username,
                 TODAY, LocalTime.of(10, 0), 60);
         bookingDAO.save(future);
 
         controller.toggleBlock(new OperatorBean(username, 0));
 
-        assertEquals(BookingStatus.CANCELLED, bookingDAO.findById("future").getStatus());
+        assertNull(bookingDAO.findById("future"));
         assertFalse(group.isActiveMember(username));
     }
 
@@ -70,6 +70,6 @@ class ManageOperatorsBookingTest {
         assertThrows(OperatorHasItemException.class,
                 () -> controller.toggleBlock(new OperatorBean(username, 0)));
         assertTrue(group.isActiveMember(username));
-        assertEquals(BookingStatus.ACTIVE, bookingDAO.findById("current").getStatus());
+        assertEquals("current", bookingDAO.findById("current").getBookingId());
     }
 }

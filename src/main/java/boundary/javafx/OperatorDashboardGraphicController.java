@@ -44,10 +44,7 @@ public class OperatorDashboardGraphicController {
 
     @FXML
     private void handleBookings(Event event) {
-        showFeatureInProgress(
-                "Le mie prenotazioni",
-                "Qui potrai consultare e gestire le prenotazioni dei beni."
-        );
+        navigator.showMyBookings(operatorUsername);
     }
 
     @FXML
@@ -83,11 +80,6 @@ public class OperatorDashboardGraphicController {
         } catch (Exception e) {
             notificationLabel.setText("Impossibile caricare le notifiche.");
         }
-    }
-
-    private void showFeatureInProgress(String title, String message) {
-        showAlert(Alert.AlertType.INFORMATION, title,
-                message + "\n\nOperatore: " + operatorUsername);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

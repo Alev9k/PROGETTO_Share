@@ -18,6 +18,11 @@
         <sonar.projectKey>Alev9k_PROGETTO_Share</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
+        <!-- ESCLUSIONE REGOLA SYSTEM.OUT (java:S106) PER LA CARTELLA CLI -->
+        <sonar.issue.ignore.multicriteria>cli</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.cli.ruleKey>java:S106</sonar.issue.ignore.multicriteria.cli.ruleKey>
+        <sonar.issue.ignore.multicriteria.cli.resourceKey>src/main/java/boundary/cli/**/*</sonar.issue.ignore.multicriteria.cli.resourceKey>
+
         <!-- Rimosse le properties sonar.java.binaries e libraries: Maven le calcola in automatico e forzarle a volte crea problemi -->
     </properties>
 

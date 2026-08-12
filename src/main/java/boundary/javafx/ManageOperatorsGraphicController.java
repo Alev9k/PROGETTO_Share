@@ -28,6 +28,7 @@ public class ManageOperatorsGraphicController {
     private SceneNavigator navigator;
     private ManageOperatorsController logicController;
     private String adminUsername;
+    private static final String NO_INPUT = "Selezione mancante";
 
     public void initData(ManageOperatorsController logicController,
                          SceneNavigator navigator,
@@ -69,7 +70,7 @@ public class ManageOperatorsGraphicController {
     private void handleAcceptRequest(Event event) {
         MembershipRequestBean selected = pendingRequestsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Selezione mancante",
+            showAlert(Alert.AlertType.WARNING, NO_INPUT,
                     "Seleziona una richiesta da accettare.");
             return;
         }
@@ -87,7 +88,7 @@ public class ManageOperatorsGraphicController {
     private void handleRejectRequest(Event event) {
         MembershipRequestBean selected = pendingRequestsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Selezione mancante",
+            showAlert(Alert.AlertType.WARNING, NO_INPUT,
                     "Seleziona una richiesta da rifiutare.");
             return;
         }
@@ -105,7 +106,7 @@ public class ManageOperatorsGraphicController {
     private void handleToggleBlock(Event event) {
         OperatorBean selected = membersTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Selezione mancante",
+            showAlert(Alert.AlertType.WARNING, NO_INPUT,
                     "Seleziona un membro da bloccare o riattivare.");
             return;
         }

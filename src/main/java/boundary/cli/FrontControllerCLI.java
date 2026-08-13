@@ -60,8 +60,6 @@ public class FrontControllerCLI {
         switch (user.getRole()) {
             case ADMIN -> new AdminDashboardBoundaryCLI(controllerAssembler, scanner).start();
             case OPERATOR -> new OperatorDashboardBoundaryCLI(controllerAssembler, scanner).start();
-            case TECHNICIAN ->
-                    System.out.println("[MENU TECNICO] Funzionalità non ancora disponibili.");
         }
     }
 }

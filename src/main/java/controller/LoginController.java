@@ -24,7 +24,6 @@ public class LoginController {
         UserBean authenticatedUser = switch (u) {
             case Admin admin -> new UserBean(u.getUsername(), Role.ADMIN);
             case Operator operator -> new UserBean(u.getUsername(), Role.OPERATOR);
-            case Technician technician -> new UserBean(u.getUsername(), Role.TECHNICIAN);
             default -> throw new IllegalStateException("Tipo utente non previsto: " + u.getClass().getName());
         };
         session.open(authenticatedUser);

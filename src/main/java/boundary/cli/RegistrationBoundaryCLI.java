@@ -21,8 +21,7 @@ public class RegistrationBoundaryCLI {
         System.out.println("Scegli il tipo di utente:");
         System.out.println("1. Admin");
         System.out.println("2. Operator");
-        System.out.println("3. Technician");
-        int t = input.readChoice("Scelta: ", 1, 3);
+        int t = input.readChoice("Scelta: ", 1, 2);
 
         try {
             regController.register(u, p, t);

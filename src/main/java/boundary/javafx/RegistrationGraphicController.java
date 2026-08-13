@@ -22,7 +22,7 @@ public class RegistrationGraphicController {
     @FXML
     public void initialize() {
         // Inizializziamo le opzioni del ruolo
-        roleChoiceBox.getItems().addAll("Admin", "Operator", "Technician");
+        roleChoiceBox.getItems().addAll("Admin", "Operator");
         roleChoiceBox.setValue("Operator");
     }
 
@@ -43,7 +43,7 @@ public class RegistrationGraphicController {
             return;
         }
 
-        // Mappiamo la scelta (1=Admin, 2=Operator, 3=Technician)
+        // Mappiamo la scelta (1=Admin, 2=Operator)
         int type = roleChoiceBox.getSelectionModel().getSelectedIndex() + 1;
 
         try {

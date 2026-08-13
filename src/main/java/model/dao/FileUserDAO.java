@@ -80,7 +80,6 @@ public class FileUserDAO implements UserDAO {
         int type = switch (user) {
             case Admin ignored -> 1;
             case Operator ignored -> 2;
-            case Technician ignored -> 3;
             default -> throw new IllegalArgumentException("Tipo utente non supportato.");
         };
         out.println(user.getUsername() + "," + user.getPassword() + "," + type);

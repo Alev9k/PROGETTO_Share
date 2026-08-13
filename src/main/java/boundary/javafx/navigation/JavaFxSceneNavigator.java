@@ -67,7 +67,6 @@ public class JavaFxSceneNavigator implements SceneNavigator {
                             controllerAssembler.createAccessNotificationController(),
                             controllerAssembler.createEventNotificationController(),
                             this, userSession));
-            case TECHNICIAN -> loadScene("/view/TechnicianDashboard.fxml", null);
         }
     }
 

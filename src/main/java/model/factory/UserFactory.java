@@ -11,7 +11,6 @@ public class UserFactory {
         return switch (type) {
             case 1 -> new Admin(username, password);
             case 2 -> new Operator(username, password);
-            case 3 -> new Technician(username, password);
             default -> throw new IllegalArgumentException("Tipo utente non supportato");
         };
     }

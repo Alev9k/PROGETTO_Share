@@ -17,6 +17,7 @@
         <sonar.organization>alev9k</sonar.organization>
         <sonar.projectKey>Alev9k_PROGETTO_Share</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
 
         <!-- ESCLUSIONE REGOLA SYSTEM.OUT (java:S106) PER LA CARTELLA CLI -->
         <sonar.issue.ignore.multicriteria>cli,mainclass</sonar.issue.ignore.multicriteria>

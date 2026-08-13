@@ -7,6 +7,8 @@ import boundary.javafx.*;
 import javafx.application.Application;
 import model.session.UserSession;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) {
@@ -48,6 +50,7 @@ public class Main {
             new FrontControllerCLI(controllerAssembler, userSession).start();
         } else {
             MainAppGUI.setControllerAssembler(controllerAssembler);
+            Logger.getLogger("javafx").setLevel(Level.SEVERE);
             Application.launch(MainAppGUI.class, args);
         }
     }

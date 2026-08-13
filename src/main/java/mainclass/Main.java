@@ -5,6 +5,7 @@ import controller.ControllerFactory;
 import model.dao.*;
 import boundary.javafx.*;
 import javafx.application.Application;
+import model.session.UserSession;
 import java.util.Scanner;
 
 public class Main {
@@ -28,11 +29,14 @@ public class Main {
         GroupDAO groupDAO = FactoryDAO.getGroupDAO(context);
         MembershipRequestDAO membershipRequestDAO = FactoryDAO.getMembershipRequestDAO(context);
         BookingDAO bookingDAO = FactoryDAO.getBookingDAO(context);
+        NotificationDAO notificationDAO = FactoryDAO.getNotificationDAO(context);
 
         // 2. CREAZIONE DELLA CONTROLLER FACTORY
         // Centralizziamo qui la gestione delle dipendenze
+        UserSession userSession = UserSession.getInstance();
         ControllerFactory controllerFactory = new ControllerFactory(
-                userDAO, groupDAO, membershipRequestDAO, bookingDAO);
+                userDAO, groupDAO, membershipRequestDAO, bookingDAO, notificationDAO,
+                userSession);
 
         // 3. SCELTA INTERFACCIA
         System.out.println("\nScegli interfaccia utente:");
@@ -43,7 +47,7 @@ public class Main {
 
         if (interfaceChoice == 1) {
             // Passiamo la factory al Front Controller CLI
-            new FrontControllerCLI(controllerFactory).start();
+            new FrontControllerCLI(controllerFactory, userSession).start();
         } else {
             // Per JavaFX, potresti passare la factory tramite un setter o costruttore
             MainAppGUI.setControllerFactory(controllerFactory);

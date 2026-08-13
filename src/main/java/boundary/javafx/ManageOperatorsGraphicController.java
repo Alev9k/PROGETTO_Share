@@ -13,8 +13,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.GroupBean;
 import model.bean.MembershipRequestBean;
 import model.bean.OperatorBean;
-import model.bean.Role;
-import model.bean.UserBean;
 
 public class ManageOperatorsGraphicController {
     @FXML private Label groupNameLabel;
@@ -27,16 +25,13 @@ public class ManageOperatorsGraphicController {
 
     private SceneNavigator navigator;
     private ManageOperatorsController logicController;
-    private String adminUsername;
     private static final String NO_INPUT = "Selezione mancante";
 
     public void initData(ManageOperatorsController logicController,
                          SceneNavigator navigator,
-                         GroupBean group,
-                         String adminUsername) {
+                         GroupBean group) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.adminUsername = adminUsername;
         this.groupNameLabel.setText("Gestione membri: " + group.getGroupName());
 
         configureTables();
@@ -58,7 +53,7 @@ public class ManageOperatorsGraphicController {
         }
         try {
             pendingRequestsTable.setItems(FXCollections.observableArrayList(
-                    logicController.getPendingRequests(adminBean())));
+                    logicController.getPendingRequests()));
             membersTable.setItems(FXCollections.observableArrayList(
                     logicController.getOperatorList()));
         } catch (Exception e) {
@@ -75,7 +70,7 @@ public class ManageOperatorsGraphicController {
             return;
         }
         try {
-            logicController.acceptRequest(selected, adminBean());
+            logicController.acceptRequest(selected);
             reloadData();
             showAlert(Alert.AlertType.INFORMATION, "Richiesta accettata",
                     selected.getOperatorUsername() + " è ora membro del gruppo.");
@@ -93,7 +88,7 @@ public class ManageOperatorsGraphicController {
             return;
         }
         try {
-            logicController.rejectRequest(selected, adminBean());
+            logicController.rejectRequest(selected);
             reloadData();
             showAlert(Alert.AlertType.INFORMATION, "Richiesta rifiutata",
                     "La richiesta di " + selected.getOperatorUsername() + " è stata rifiutata.");
@@ -120,26 +115,22 @@ public class ManageOperatorsGraphicController {
 
     @FXML
     private void handleBackToGroups(Event event) {
-        navigator.showManageGroups(adminUsername);
+        navigator.showManageGroups();
     }
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        navigator.showDashboard(adminBean());
+        navigator.showDashboard();
     }
 
     @FXML
     private void handleCreateGroup(Event event) {
-        navigator.showCreateGroup(adminUsername);
+        navigator.showCreateGroup();
     }
 
     @FXML
     private void handleLogout(Event event) {
-        navigator.showLogin();
-    }
-
-    private UserBean adminBean() {
-        return new UserBean(adminUsername, Role.ADMIN);
+        navigator.logout();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

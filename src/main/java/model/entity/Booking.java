@@ -13,9 +13,17 @@ public class Booking {
     private final LocalDate date;
     private final LocalTime startTime;
     private final int durationMinutes;
+    private ReturnCondition returnCondition;
 
     public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
                    LocalDate date, LocalTime startTime, int durationMinutes) {
+        this(bookingId, groupId, itemId, operatorUsername, date, startTime,
+                durationMinutes, ReturnCondition.NOT_REPORTED);
+    }
+
+    public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
+                   LocalDate date, LocalTime startTime, int durationMinutes,
+                   ReturnCondition returnCondition) {
         if (bookingId == null || bookingId.isBlank()) {
             throw new IllegalArgumentException("L'identificativo della prenotazione è obbligatorio.");
         }
@@ -43,6 +51,8 @@ public class Booking {
         this.date = validDate;
         this.startTime = validStartTime;
         this.durationMinutes = durationMinutes;
+        this.returnCondition = Objects.requireNonNull(returnCondition,
+                "Lo stato della riconsegna è obbligatorio.");
     }
 
     public String getBookingId() { return bookingId; }
@@ -52,6 +62,7 @@ public class Booking {
     public LocalDate getDate() { return date; }
     public LocalTime getStartTime() { return startTime; }
     public int getDurationMinutes() { return durationMinutes; }
+    public ReturnCondition getReturnCondition() { return returnCondition; }
 
     public LocalTime getEndTime() {
         return startTime.plusMinutes(durationMinutes);
@@ -93,8 +104,37 @@ public class Booking {
         return LocalDateTime.of(date, startTime).isAfter(Objects.requireNonNull(moment));
     }
 
+    public boolean startsAtOrAfter(LocalDateTime moment) {
+        return !LocalDateTime.of(date, startTime)
+                .isBefore(Objects.requireNonNull(moment));
+    }
+
     /** Una prenotazione è eliminabile solo prima che inizi l'utilizzo dell'item. */
     public boolean canBeDeletedAt(LocalDateTime moment) {
         return startsAfter(moment);
+    }
+
+    /** La riconsegna è ammessa dall'inizio fino all'istante esatto di scadenza. */
+    public boolean canBeReturnedAt(LocalDateTime moment) {
+        Objects.requireNonNull(moment);
+        LocalDateTime start = LocalDateTime.of(date, startTime);
+        LocalDateTime end = start.plusMinutes(durationMinutes);
+        return returnCondition == ReturnCondition.NOT_REPORTED
+                && !moment.isBefore(start)
+                && !moment.isAfter(end);
+    }
+
+    public void registerReturn(ReturnCondition condition, LocalDateTime moment) {
+        if (condition == null || condition == ReturnCondition.NOT_REPORTED) {
+            throw new IllegalArgumentException("Seleziona se l'item è intatto o guasto.");
+        }
+        if (returnCondition != ReturnCondition.NOT_REPORTED) {
+            throw new IllegalStateException("La riconsegna è già stata registrata.");
+        }
+        if (!canBeReturnedAt(moment)) {
+            throw new IllegalStateException(
+                    "La riconsegna è consentita soltanto durante la prenotazione.");
+        }
+        returnCondition = condition;
     }
 }

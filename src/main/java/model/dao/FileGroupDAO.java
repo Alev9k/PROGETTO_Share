@@ -197,15 +197,12 @@ public class FileGroupDAO implements GroupDAO {
 
     private Group parseGroup(String line) {
         List<String> fields = parseCsvLine(line);
-        if (fields.size() != 4 && fields.size() != 6) {
+        if (fields.size() != 6) {
             throw new IllegalArgumentException("Riga gruppo non valida.");
         }
-
-        String accessToken = fields.size() == 6 ? fields.get(4) : "";
-        String ownerUsername = fields.size() == 6 ? fields.get(5) : "";
         return new Group(Integer.parseInt(fields.get(0)), fields.get(1),
                 LocalTime.parse(fields.get(2)), LocalTime.parse(fields.get(3)),
-                accessToken, ownerUsername);
+                fields.get(4), fields.get(5));
     }
 
     private void rewriteGroups(List<Group> groups) throws IOException {

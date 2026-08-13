@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.bean.GroupBean;
 import model.bean.UserBean;
+import model.session.UserSession;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -27,10 +28,13 @@ import java.util.function.Consumer;
 public class JavaFxSceneNavigator implements SceneNavigator {
     private final Stage stage;
     private final ControllerFactory controllerFactory;
+    private final UserSession userSession;
 
-    public JavaFxSceneNavigator(Stage stage, ControllerFactory controllerFactory) {
+    public JavaFxSceneNavigator(Stage stage, ControllerFactory controllerFactory,
+                                UserSession userSession) {
         this.stage = Objects.requireNonNull(stage);
         this.controllerFactory = Objects.requireNonNull(controllerFactory);
+        this.userSession = Objects.requireNonNull(userSession);
     }
 
     @Override
@@ -47,7 +51,8 @@ public class JavaFxSceneNavigator implements SceneNavigator {
     }
 
     @Override
-    public void showDashboard(UserBean user) {
+    public void showDashboard() {
+        UserBean user = userSession.requireCurrentUser();
         Objects.requireNonNull(user, "L'utente autenticato è obbligatorio.");
         stage.setResizable(true);
 
@@ -55,72 +60,73 @@ public class JavaFxSceneNavigator implements SceneNavigator {
             case ADMIN -> loadScene("/view/AdminDashboard.fxml",
                     (AdminDashboardGraphicController controller) -> controller.initData(
                             controllerFactory.createAccessNotificationController(),
-                            this,
-                            user.getUsername()));
+                            controllerFactory.createEventNotificationController(),
+                            this, userSession));
             case OPERATOR -> loadScene("/view/OperatorDashboard.fxml",
                     (OperatorDashboardGraphicController controller) -> controller.initData(
                             controllerFactory.createAccessNotificationController(),
-                            this,
-                            user.getUsername()));
+                            controllerFactory.createEventNotificationController(),
+                            this, userSession));
             case TECHNICIAN -> loadScene("/view/TechnicianDashboard.fxml", null);
         }
     }
 
     @Override
-    public void showCreateGroup(String adminUsername) {
+    public void showCreateGroup() {
         loadScene("/view/CreateGroup.fxml", (CreateGroupGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createCreateGroupController(), this, adminUsername));
+                        controllerFactory.createCreateGroupController(), this));
     }
 
     @Override
-    public void showManageGroups(String adminUsername) {
+    public void showManageGroups() {
         loadScene("/view/ManageGroup.fxml", (ManageGroupGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createManageGroupController(), this, adminUsername));
+                        controllerFactory.createManageGroupController(), this));
     }
 
     @Override
-    public void showManageItems(GroupBean group, String adminUsername) {
+    public void showManageItems(GroupBean group) {
         Objects.requireNonNull(group, "Il gruppo da gestire è obbligatorio.");
         loadScene("/view/ManageItems.fxml", (ManageItemsGraphicController controller) ->
                 controller.initData(
                         controllerFactory.createManageItemsController(group.getGroupId()),
-                        this,
-                        group,
-                        adminUsername));
+                        this, group));
     }
 
     @Override
-    public void showManageOperators(GroupBean group, String adminUsername) {
+    public void showManageOperators(GroupBean group) {
         Objects.requireNonNull(group, "Il gruppo da gestire è obbligatorio.");
         loadScene("/view/ManageOperators.fxml", (ManageOperatorsGraphicController controller) ->
                 controller.initData(
                         controllerFactory.createManageOperatorsController(group.getGroupId()),
-                        this,
-                        group,
-                        adminUsername));
+                        this, group));
     }
 
     @Override
-    public void showRequestGroupAccess(String operatorUsername) {
+    public void showRequestGroupAccess() {
         loadScene("/view/RequestGroupAccess.fxml",
                 (RequestGroupAccessGraphicController controller) -> controller.initData(
-                        controllerFactory.createJoinGroupController(), this, operatorUsername));
+                        controllerFactory.createJoinGroupController(), this));
     }
 
     @Override
-    public void showMyGroups(String operatorUsername) {
+    public void showMyGroups() {
         loadScene("/view/MyGroups.fxml", (MyGroupsGraphicController controller) ->
-                controller.initData(controllerFactory.createBookItemController(), this,
-                        operatorUsername));
+                controller.initData(controllerFactory.createBookItemController(), this));
     }
 
     @Override
-    public void showMyBookings(String operatorUsername) {
+    public void showMyBookings() {
         loadScene("/view/MyBookings.fxml", (MyBookingsGraphicController controller) ->
-                controller.initData(controllerFactory.createMyBookingsController(), this,
-                        operatorUsername));
+                controller.initData(controllerFactory.createMyBookingsController(),
+                        controllerFactory.createReturnItemController(), this));
+    }
+
+    @Override
+    public void logout() {
+        userSession.close();
+        showLogin();
     }
 
     private <T> void loadScene(String fxmlPath, Consumer<T> controllerInitializer) {

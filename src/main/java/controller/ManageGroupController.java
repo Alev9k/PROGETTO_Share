@@ -5,6 +5,7 @@ import model.dao.GroupDAO;
 import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.User;
+import model.session.SessionContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +16,19 @@ import java.util.List;
 public class ManageGroupController {
     private final UserDAO userDAO; // Per recuperare Admin/Operator
     private final GroupDAO groupDAO; // Per gestire i gruppi (Demo o VFS)
+    private final SessionContext session;
 
-    public ManageGroupController(UserDAO uDao, GroupDAO gDao) {
+    public ManageGroupController(UserDAO uDao, GroupDAO gDao, SessionContext session) {
         this.userDAO = uDao;
         this.groupDAO = gDao;
+        this.session = session;
     }
 
 
     // --- Metodi di Recupero Dati ---
 
-    public List<GroupBean> getGroupList(String adminUsername){
+    public List<GroupBean> getGroupList(){
+        String adminUsername = session.requireCurrentUser().getUsername();
         User admin = userDAO.findByUsername(adminUsername);
         List<GroupBean> beanList = new ArrayList<>();
 

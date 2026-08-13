@@ -4,6 +4,7 @@ import boundary.javafx.navigation.JavaFxSceneNavigator;
 import controller.ControllerFactory;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import model.session.UserSession;
 
 import java.util.Objects;
 
@@ -21,6 +22,6 @@ public class MainAppGUI extends Application {
                 controllerFactory,
                 "ControllerFactory non configurata prima dell'avvio JavaFX."
         );
-        new JavaFxSceneNavigator(stage, factory).showLogin();
+        new JavaFxSceneNavigator(stage, factory, UserSession.getInstance()).showLogin();
     }
 }

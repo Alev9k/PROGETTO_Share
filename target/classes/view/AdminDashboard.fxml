@@ -81,6 +81,8 @@
                                 </Label>
                                 <Label fx:id="pendingRequestsLabel" text="Nessuna richiesta di accesso in attesa."
                                        textFill="#64748b" />
+                                <Label fx:id="eventNotificationsLabel" text="Nessuna nuova segnalazione sugli item."
+                                       textFill="#64748b" />
                             </children>
                         </VBox>
                     </children>

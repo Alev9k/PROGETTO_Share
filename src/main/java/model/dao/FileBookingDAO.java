@@ -2,6 +2,7 @@ package model.dao;
 
 import exceptions.DAOException;
 import model.entity.Booking;
+import model.entity.ReturnCondition;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -74,6 +75,26 @@ public class FileBookingDAO implements BookingDAO {
     }
 
     @Override
+    public void update(Booking updatedBooking) {
+        Objects.requireNonNull(updatedBooking);
+        synchronized (FILE_LOCK) {
+            List<Booking> bookings = findAll();
+            boolean found = false;
+            for (int i = 0; i < bookings.size(); i++) {
+                if (bookings.get(i).getBookingId().equals(updatedBooking.getBookingId())) {
+                    bookings.set(i, updatedBooking);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new DAOException("Prenotazione non trovata per l'aggiornamento.");
+            }
+            rewrite(bookings);
+        }
+    }
+
+    @Override
     public List<Booking> findAll() {
         if (!Files.exists(bookingsFile)) {
             return new ArrayList<>();
@@ -93,13 +114,13 @@ public class FileBookingDAO implements BookingDAO {
 
     private Booking parseBooking(String line) {
         List<String> fields = parseCsvLine(line);
-        if (fields.size() != 7) {
+        if (fields.size() != 8) {
             throw new IllegalArgumentException("Riga prenotazione non valida.");
         }
         return new Booking(fields.get(0), Integer.parseInt(fields.get(1)),
                 Integer.parseInt(fields.get(2)), fields.get(3),
                 LocalDate.parse(fields.get(4)), LocalTime.parse(fields.get(5)),
-                Integer.parseInt(fields.get(6)));
+                Integer.parseInt(fields.get(6)), ReturnCondition.valueOf(fields.get(7)));
     }
 
     private void rewrite(List<Booking> bookings) {
@@ -125,7 +146,8 @@ public class FileBookingDAO implements BookingDAO {
                 booking.getOperatorUsername(),
                 booking.getDate().toString(),
                 booking.getStartTime().toString(),
-                Integer.toString(booking.getDurationMinutes())
+                Integer.toString(booking.getDurationMinutes()),
+                booking.getReturnCondition().name()
         ));
     }
 

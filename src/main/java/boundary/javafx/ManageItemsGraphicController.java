@@ -15,8 +15,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.CreateItemBean;
 import model.bean.GroupBean;
 import model.bean.ItemBean;
-import model.bean.Role;
-import model.bean.UserBean;
 
 /** Boundary JavaFX del caso d'uso di visualizzazione e creazione degli item. */
 public class ManageItemsGraphicController {
@@ -32,16 +30,13 @@ public class ManageItemsGraphicController {
     @FXML private Spinner<Integer> maxUsageTimeSpinner;
 
     private SceneNavigator navigator;
-    private String adminUsername;
     private ManageItemsController logicController;
 
     public void initData(ManageItemsController logicController,
                          SceneNavigator navigator,
-                         GroupBean group,
-                         String adminUsername) {
+                         GroupBean group) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.adminUsername = adminUsername;
         groupNameLabel.setText("Item del gruppo: " + group.getGroupName());
 
         configureInputs();
@@ -69,7 +64,7 @@ public class ManageItemsGraphicController {
     private void loadItems() {
         try {
             itemsTable.setItems(FXCollections.observableArrayList(
-                    logicController.getItemList(adminBean())));
+                    logicController.getItemList()));
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Impossibile caricare gli item", e.getMessage());
         }
@@ -82,7 +77,7 @@ public class ManageItemsGraphicController {
                     itemNameField.getText(),
                     prioritySpinner.getValue(),
                     maxUsageTimeSpinner.getValue());
-            logicController.createItem(item, adminBean());
+            logicController.createItem(item);
             itemNameField.clear();
             loadItems();
         } catch (Exception e) {
@@ -92,26 +87,22 @@ public class ManageItemsGraphicController {
 
     @FXML
     private void handleBackToDashboard() {
-        navigator.showDashboard(adminBean());
+        navigator.showDashboard();
     }
 
     @FXML
     private void handleManageGroups() {
-        navigator.showManageGroups(adminUsername);
+        navigator.showManageGroups();
     }
 
     @FXML
     private void handleCreateGroup() {
-        navigator.showCreateGroup(adminUsername);
+        navigator.showCreateGroup();
     }
 
     @FXML
     private void handleLogout() {
-        navigator.showLogin();
-    }
-
-    private UserBean adminBean() {
-        return new UserBean(adminUsername, Role.ADMIN);
+        navigator.logout();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

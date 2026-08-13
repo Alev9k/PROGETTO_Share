@@ -30,4 +30,11 @@ public class FactoryDAO {
             case FILE_SYSTEM -> new FileBookingDAO();
         };
     }
+
+    public static NotificationDAO getNotificationDAO(Context context) {
+        return switch (context) {
+            case MEMORY -> new InMemoryNotificationDAO();
+            case FILE_SYSTEM -> new FileNotificationDAO();
+        };
+    }
 }

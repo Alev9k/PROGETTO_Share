@@ -8,8 +8,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import model.bean.GroupBean;
-import model.bean.Role;
-import model.bean.UserBean;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -22,7 +20,6 @@ public class CreateGroupGraphicController {
 
     private CreateGroupController logicController;
     private SceneNavigator navigator;
-    private String adminUsername;
 
     /**
      * Metodo chiamato automaticamente da JavaFX all'avvio della schermata.
@@ -46,10 +43,9 @@ public class CreateGroupGraphicController {
      * Chiamato dal navigatore per iniettare controller logico e contesto.
      */
     public void initData(CreateGroupController logicController,
-                         SceneNavigator navigator, String username) {
+                         SceneNavigator navigator) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.adminUsername = username;
     }
     // --- AZIONE PRINCIPALE ---
 
@@ -70,10 +66,8 @@ public class CreateGroupGraphicController {
 
             // 1. IMPACCHETTIAMO I DATI NEI BEAN
             GroupBean newGroupBean = new GroupBean(name, openTime, closeTime);
-            UserBean adminBean = new UserBean(adminUsername, Role.ADMIN);
-
             // 2. PASSIAMO I BEAN AL CONTROLLER LOGICO
-            GroupBean createdGroup = logicController.createGroup(newGroupBean, adminBean);
+            GroupBean createdGroup = logicController.createGroup(newGroupBean);
 
             showInfo("Gruppo creato",
                     "Gruppo '" + name + "' creato correttamente!\n\n" +
@@ -93,7 +87,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleBackToDashboard(Event event) {
         try {
-            navigator.showDashboard(new UserBean(adminUsername, Role.ADMIN));
+            navigator.showDashboard();
         } catch (Exception e) {
             showError("Errore Navigazione", "Impossibile tornare alla Dashboard.");
         }
@@ -102,7 +96,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleManageGroups(Event event) {
         try {
-            navigator.showManageGroups(adminUsername);
+            navigator.showManageGroups();
         } catch (Exception e) {
             showError("Errore Navigazione", "Impossibile caricare la gestione gruppi.");
         }
@@ -111,7 +105,7 @@ public class CreateGroupGraphicController {
     @FXML
     private void handleLogout(Event event) {
         try {
-            navigator.showLogin();
+            navigator.logout();
         } catch (Exception e) {
             showError("Errore", "Impossibile effettuare il logout.");
         }

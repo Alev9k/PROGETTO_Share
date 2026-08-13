@@ -39,6 +39,18 @@ public class InMemoryBookingDAO implements BookingDAO {
     }
 
     @Override
+    public synchronized void update(Booking updatedBooking) {
+        Objects.requireNonNull(updatedBooking);
+        for (int i = 0; i < bookings.size(); i++) {
+            if (bookings.get(i).getBookingId().equals(updatedBooking.getBookingId())) {
+                bookings.set(i, updatedBooking);
+                return;
+            }
+        }
+        throw new DAOException("Prenotazione non trovata per l'aggiornamento.");
+    }
+
+    @Override
     public synchronized List<Booking> findAll() {
         return new ArrayList<>(bookings);
     }

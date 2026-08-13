@@ -9,8 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.GroupBean;
-import model.bean.Role;
-import model.bean.UserBean;
 import java.util.List;
 
 public class ManageGroupGraphicController {
@@ -21,18 +19,15 @@ public class ManageGroupGraphicController {
 
     private ManageGroupController logicController;
     private SceneNavigator navigator;
-    private String adminUsername;
 
     /**
      * Inizializza il controller grafico.
      * Viene chiamato dal navigatore centrale.
      */
     public void initData(ManageGroupController logicController,
-                         SceneNavigator navigator,
-                         String username) {
+                         SceneNavigator navigator) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.adminUsername = username;
 
         setupTable();
         loadGroups();
@@ -51,7 +46,7 @@ public class ManageGroupGraphicController {
 
     private void loadGroups() {
         try {
-            List<GroupBean> groups = logicController.getGroupList(adminUsername);
+            List<GroupBean> groups = logicController.getGroupList();
             ObservableList<GroupBean> observableList = FXCollections.observableArrayList(groups);
             groupsTable.setItems(observableList);
         } catch (Exception e) {
@@ -68,7 +63,7 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i membri.");
             return;
         }
-        navigator.showManageOperators(selected, adminUsername);
+        navigator.showManageOperators(selected);
     }
 
     @FXML
@@ -78,24 +73,24 @@ public class ManageGroupGraphicController {
             showWarning("Selezione mancante", "Seleziona un gruppo per gestire i beni.");
             return;
         }
-        navigator.showManageItems(selected, adminUsername);
+        navigator.showManageItems(selected);
     }
 
     // --- AZIONI DELLA SIDEBAR (Navigazione) ---
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        navigator.showDashboard(new UserBean(adminUsername, Role.ADMIN));
+        navigator.showDashboard();
     }
 
     @FXML
     private void handleCreateGroup(Event event) {
-        navigator.showCreateGroup(adminUsername);
+        navigator.showCreateGroup();
     }
 
     @FXML
     private void handleLogout(Event event) {
-        navigator.showLogin();
+        navigator.logout();
     }
 
     // --- Utility per i Dialogs ---

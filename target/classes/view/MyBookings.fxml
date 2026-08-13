@@ -82,7 +82,7 @@
                         <Label text="Prenotazioni registrate" textFill="#0f172a">
                             <font><Font name="System Bold" size="18.0" /></font>
                         </Label>
-                        <Label text="Puoi eliminare una prenotazione soltanto prima dell'orario di inizio."
+                        <Label text="Puoi eliminare una prenotazione prima dell'inizio o riconsegnare l'item durante il suo utilizzo."
                                textFill="#64748b" />
                     </children>
                     <VBox.margin><Insets left="30.0" right="30.0" /></VBox.margin>
@@ -98,6 +98,7 @@
                         <TableColumn fx:id="timeColumn" prefWidth="125.0" text="Orario" />
                         <TableColumn fx:id="durationColumn" prefWidth="120.0" text="Durata" />
                         <TableColumn fx:id="deletableColumn" prefWidth="105.0" text="Eliminabile" />
+                        <TableColumn fx:id="returnColumn" prefWidth="135.0" text="Riconsegna" />
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -108,8 +109,12 @@
                 <HBox alignment="CENTER_RIGHT" spacing="18.0">
                     <children>
                         <Label fx:id="selectionLabel"
-                               text="Seleziona una prenotazione futura da eliminare."
+                               text="Seleziona una prenotazione da gestire."
                                textFill="#64748b" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="returnButton" disable="true" mnemonicParsing="false"
+                                onAction="#handleReturn" prefHeight="42.0" prefWidth="190.0"
+                                style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"
+                                text="RICONSEGNA ITEM" />
                         <Button fx:id="deleteButton" disable="true" mnemonicParsing="false"
                                 onAction="#handleDelete" prefHeight="42.0" prefWidth="220.0"
                                 style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"

@@ -2,7 +2,6 @@ package controller;
 
 import exceptions.UnauthorizedOperationException;
 import model.bean.BookingBean;
-import model.bean.UserBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
@@ -11,6 +10,7 @@ import model.entity.Group;
 import model.entity.Item;
 import model.entity.Operator;
 import model.entity.User;
+import model.session.SessionContext;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -27,21 +27,24 @@ public class MyBookingsController {
     private final GroupDAO groupDAO;
     private final BookingDAO bookingDAO;
     private final Clock clock;
+    private final SessionContext session;
 
-    public MyBookingsController(UserDAO userDAO, GroupDAO groupDAO, BookingDAO bookingDAO) {
-        this(userDAO, groupDAO, bookingDAO, Clock.systemDefaultZone());
+    public MyBookingsController(UserDAO userDAO, GroupDAO groupDAO, BookingDAO bookingDAO,
+                                SessionContext session) {
+        this(userDAO, groupDAO, bookingDAO, session, Clock.systemDefaultZone());
     }
 
     MyBookingsController(UserDAO userDAO, GroupDAO groupDAO,
-                         BookingDAO bookingDAO, Clock clock) {
+                         BookingDAO bookingDAO, SessionContext session, Clock clock) {
         this.userDAO = Objects.requireNonNull(userDAO);
         this.groupDAO = Objects.requireNonNull(groupDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
+        this.session = Objects.requireNonNull(session);
         this.clock = Objects.requireNonNull(clock);
     }
 
-    public List<BookingBean> getMyBookings(UserBean operatorBean) {
-        Operator operator = requireOperator(operatorBean);
+    public List<BookingBean> getMyBookings() {
+        Operator operator = requireOperator();
         LocalDateTime now = LocalDateTime.now(clock);
         List<Booking> bookings = bookingDAO.findByOperator(operator.getUsername());
         if (bookings.isEmpty()) {
@@ -57,9 +60,9 @@ public class MyBookingsController {
                 .toList();
     }
 
-    public void deleteBooking(String bookingId, UserBean operatorBean)
+    public void deleteBooking(String bookingId)
             throws UnauthorizedOperationException {
-        Operator operator = requireOperator(operatorBean);
+        Operator operator = requireOperator();
         if (bookingId == null || bookingId.isBlank()) {
             throw new IllegalArgumentException("Seleziona una prenotazione.");
         }
@@ -80,9 +83,8 @@ public class MyBookingsController {
         bookingDAO.deleteByIds(List.of(bookingId));
     }
 
-    private Operator requireOperator(UserBean operatorBean) {
-        User user = operatorBean == null || operatorBean.getUsername() == null
-                ? null : userDAO.findByUsername(operatorBean.getUsername());
+    private Operator requireOperator() {
+        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
         if (!(user instanceof Operator operator)) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
@@ -95,6 +97,7 @@ public class MyBookingsController {
         String itemName = item == null ? "Item " + booking.getItemId() : item.getName();
         return new BookingBean(booking.getBookingId(), groupName, itemName,
                 booking.getDate(), booking.getStartTime(), booking.getEndTime(),
-                booking.canBeDeletedAt(now));
+                booking.canBeDeletedAt(now), booking.canBeReturnedAt(now),
+                booking.getReturnCondition());
     }
 }

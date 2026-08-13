@@ -3,85 +3,68 @@ package boundary.cli;
 import controller.ManageItemsController;
 import model.bean.CreateItemBean;
 import model.bean.ItemBean;
-import model.bean.UserBean;
 
 import java.util.List;
 import java.util.Scanner;
 
-/** Boundary CLI del caso d'uso di visualizzazione e creazione degli item. */
+/** Boundary CLI per visualizzazione e creazione degli item. */
 public class ManageItemsBoundaryCLI {
     private final ManageItemsController controller;
-    private final UserBean adminBean;
-    private final Scanner scanner;
+    private final CliInput input;
 
-    public ManageItemsBoundaryCLI(ManageItemsController controller, UserBean adminBean,
-                                  Scanner scanner) {
+    public ManageItemsBoundaryCLI(ManageItemsController controller, Scanner scanner) {
         this.controller = controller;
-        this.adminBean = adminBean;
-        this.scanner = scanner;
+        this.input = new CliInput(scanner);
     }
 
     public void start() {
         while (true) {
-            System.out.println("\n--- GESTIONE BENI DEL GRUPPO ---");
-            System.out.println("1. Visualizza tutti i beni");
-            System.out.println("2. Aggiungi un nuovo bene");
-            System.out.println("0. Torna al menu gruppo");
-            System.out.print("Scelta: ");
-
-            try {
-                int choice = Integer.parseInt(scanner.nextLine());
-                if (choice == 0) {
+            System.out.println("\n--- GESTIONE ITEM ---");
+            System.out.println("1. Visualizza item");
+            System.out.println("2. Crea item");
+            System.out.println("0. Torna al gruppo");
+            switch (input.readChoice("Scelta: ", 0, 2)) {
+                case 1 -> showItems();
+                case 2 -> createItem();
+                case 0 -> {
                     return;
                 }
-
-                switch (choice) {
-                    case 1 -> showItems();
-                    case 2 -> createItem();
-                    default -> System.out.println("Scelta non valida.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Per favore, inserisci un numero valido.");
+                default -> throw new IllegalStateException("Scelta item non prevista.");
             }
         }
     }
 
     private void showItems() {
         try {
-            List<ItemBean> items = controller.getItemList(adminBean);
+            List<ItemBean> items = controller.getItemList();
             if (items.isEmpty()) {
-                System.out.println("Non ci sono beni in questo gruppo.");
+                System.out.println("Non ci sono item in questo gruppo.");
                 return;
             }
-
-            System.out.println("\nElenco beni:");
+            System.out.println("\n--- ITEM DEL GRUPPO ---");
             for (int i = 0; i < items.size(); i++) {
                 ItemBean item = items.get(i);
                 System.out.println((i + 1) + ". " + item.getItemName()
-                        + " | priorità: " + item.getPriority()
-                        + " | uso massimo: " + item.getMaxUsageTime() + " minuti");
+                        + " | priorità " + item.getPriority()
+                        + " | massimo " + item.getMaxUsageTime() + " minuti"
+                        + " | " + item.getStatusLabel());
             }
         } catch (Exception e) {
-            System.err.println("Errore: " + e.getMessage());
+            System.err.println("Impossibile caricare gli item: " + e.getMessage());
         }
     }
 
     private void createItem() {
+        String name = input.readRequired("Nome dell'item: ");
+        int priority = input.readInt("Priorità (1-5): ");
+        int maxUsageTime = input.readInt(
+                "Durata massima in minuti, multipla di 30: ");
         try {
-            System.out.print("Inserisci il nome del nuovo bene: ");
-            String name = scanner.nextLine();
-            System.out.print("Inserisci la priorità (1-5): ");
-            int priority = Integer.parseInt(scanner.nextLine());
-            System.out.print("Inserisci il tempo massimo di utilizzo in minuti: ");
-            int maxUsageTime = Integer.parseInt(scanner.nextLine());
-
-            controller.createItem(
-                    new CreateItemBean(name, priority, maxUsageTime), adminBean);
-            System.out.println("Bene aggiunto con successo!");
-        } catch (NumberFormatException e) {
-            System.err.println("Priorità e tempo massimo devono essere numeri interi.");
+            ItemBean created = controller.createItem(
+                    new CreateItemBean(name, priority, maxUsageTime));
+            System.out.println("Item '" + created.getItemName() + "' creato correttamente.");
         } catch (Exception e) {
-            System.err.println("Errore: " + e.getMessage());
+            System.err.println("Impossibile creare l'item: " + e.getMessage());
         }
     }
 }

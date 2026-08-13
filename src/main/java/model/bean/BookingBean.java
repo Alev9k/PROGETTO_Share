@@ -1,5 +1,7 @@
 package model.bean;
 
+import model.entity.ReturnCondition;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +18,8 @@ public class BookingBean {
     private final LocalTime startTime;
     private final LocalTime endTime;
     private final boolean deletable;
+    private final boolean returnable;
+    private final ReturnCondition returnCondition;
 
     public BookingBean(String bookingId, String groupName, String itemName,
                        LocalDate date, LocalTime startTime, LocalTime endTime) {
@@ -25,6 +29,14 @@ public class BookingBean {
     public BookingBean(String bookingId, String groupName, String itemName,
                        LocalDate date, LocalTime startTime, LocalTime endTime,
                        boolean deletable) {
+        this(bookingId, groupName, itemName, date, startTime, endTime,
+                deletable, false, ReturnCondition.NOT_REPORTED);
+    }
+
+    public BookingBean(String bookingId, String groupName, String itemName,
+                       LocalDate date, LocalTime startTime, LocalTime endTime,
+                       boolean deletable, boolean returnable,
+                       ReturnCondition returnCondition) {
         this.bookingId = bookingId;
         this.groupName = groupName;
         this.itemName = itemName;
@@ -32,6 +44,8 @@ public class BookingBean {
         this.startTime = startTime;
         this.endTime = endTime;
         this.deletable = deletable;
+        this.returnable = returnable;
+        this.returnCondition = returnCondition;
     }
 
     public String getBookingId() { return bookingId; }
@@ -41,6 +55,8 @@ public class BookingBean {
     public LocalTime getStartTime() { return startTime; }
     public LocalTime getEndTime() { return endTime; }
     public boolean isDeletable() { return deletable; }
+    public boolean isReturnable() { return returnable; }
+    public ReturnCondition getReturnCondition() { return returnCondition; }
     public String getDateLabel() { return DATE_FORMAT.format(date); }
     public String getTimeRangeLabel() {
         return TIME_FORMAT.format(startTime) + " - " + TIME_FORMAT.format(endTime);
@@ -50,5 +66,14 @@ public class BookingBean {
     }
     public String getDeletionLabel() {
         return deletable ? "Sì" : "No";
+    }
+    public String getReturnLabel() {
+        return switch (returnCondition) {
+            case NOT_REPORTED -> returnable
+                    ? "Da riconsegnare"
+                    : (deletable ? "Non iniziata" : "Non compilato");
+            case INTACT -> "Intatto";
+            case BROKEN -> "Guasto";
+        };
     }
 }

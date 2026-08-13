@@ -6,28 +6,23 @@ import java.util.Scanner;
 
 public class RegistrationBoundaryCLI {
     private final RegistrationController regController;
-    private final Scanner scanner;
+    private final CliInput input;
 
     public RegistrationBoundaryCLI(RegistrationController rc, Scanner scanner) {
         this.regController = rc;
-        this.scanner = scanner;
+        this.input = new CliInput(scanner);
     }
 
     public void start() {
         System.out.println("\n--- REGISTRAZIONE NUOVO ACCOUNT ---");
-        System.out.print("Nuovo Username: ");
-        String u = scanner.nextLine();
-        System.out.print("Nuova Password: ");
-        String p = scanner.nextLine();
+        String u = input.readRequired("Nuovo username: ");
+        String p = input.readRequired("Nuova password: ");
 
         System.out.println("Scegli il tipo di utente:");
         System.out.println("1. Admin");
         System.out.println("2. Operator");
         System.out.println("3. Technician");
-        System.out.print("Scelta: ");
-
-        int t = scanner.nextInt();
-        scanner.nextLine(); // Consuma il newline rimasto nel buffer
+        int t = input.readChoice("Scelta: ", 1, 3);
 
         try {
             regController.register(u, p, t);

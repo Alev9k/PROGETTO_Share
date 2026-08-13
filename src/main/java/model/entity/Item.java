@@ -1,8 +1,12 @@
 package model.entity;
 
+import model.observer.ItemBrokenEvent;
+import model.observer.ItemSubject;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Item {
+public class Item extends ItemSubject {
     private final int itemID;
     private final String name;
     private final int groupID;
@@ -43,8 +47,20 @@ public class Item {
         return status;
     }
 
+    /** Usato dai DAO durante la ricostruzione; il caso d'uso usa markAsBroken. */
     public void setStatus(ItemStatus status) {
         this.status = Objects.requireNonNull(status);
+    }
+
+    /** Transizione di dominio che pubblica l'evento soltanto al primo guasto. */
+    public void markAsBroken(String reportingOperator, LocalDateTime reportedAt) {
+        if (status == ItemStatus.BROKEN) {
+            throw new IllegalStateException("L'item è già stato segnalato come guasto.");
+        }
+        ItemBrokenEvent event = new ItemBrokenEvent(groupID, itemID, name,
+                reportingOperator, reportedAt);
+        status = ItemStatus.BROKEN;
+        notifyItemBroken(event);
     }
 
     public void setPriority(int priority) {

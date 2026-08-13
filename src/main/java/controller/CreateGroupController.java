@@ -5,8 +5,8 @@ import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.User;
 import model.bean.GroupBean;
-import model.bean.UserBean;
 import model.factory.AccessTokenGenerator;
+import model.session.SessionContext;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -16,30 +16,33 @@ public class CreateGroupController {
     private final GroupDAO groupDAO;
     private final UserDAO userDAO;
     private final AccessTokenGenerator tokenGenerator;
+    private final SessionContext session;
 
-    public CreateGroupController(GroupDAO groupDAO, UserDAO userDAO) {
-        this(groupDAO, userDAO, new AccessTokenGenerator());
+    public CreateGroupController(GroupDAO groupDAO, UserDAO userDAO,
+                                 SessionContext session) {
+        this(groupDAO, userDAO, session, new AccessTokenGenerator());
     }
 
-    CreateGroupController(GroupDAO groupDAO, UserDAO userDAO, AccessTokenGenerator tokenGenerator) {
+    CreateGroupController(GroupDAO groupDAO, UserDAO userDAO, SessionContext session,
+                          AccessTokenGenerator tokenGenerator) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
         this.tokenGenerator = tokenGenerator;
+        this.session = session;
     }
 
     /**
      * Crea un nuovo gruppo ricevendo i dati esclusivamente tramite Bean.
      *
      * @param groupBean Il bean contenente i dati inseriti nella view.
-     * @param adminBean Il bean dell'utente loggato.
      */
-    public GroupBean createGroup(GroupBean groupBean, UserBean adminBean) throws Exception {
+    public GroupBean createGroup(GroupBean groupBean) throws Exception {
 
         // 1. Estrazione dai Bean
         String groupName = groupBean.getGroupName();
         LocalTime openTime = groupBean.getOpenTime();
         LocalTime closeTime = groupBean.getCloseTime();
-        String adminUsername = adminBean.getUsername();
+        String adminUsername = session.requireCurrentUser().getUsername();
 
         // 2. Validazione base e logica di business
         if (groupName == null || groupName.trim().isEmpty()) {

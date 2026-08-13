@@ -30,12 +30,17 @@ public class FileUserDAO implements UserDAO {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    users.add(UserFactory.createUser(Integer.parseInt(parts[2]), parts[0], parts[1]));
+                if (line.isBlank()) {
+                    continue;
                 }
+                String[] parts = line.split(",", -1);
+                if (parts.length != 3) {
+                    throw new IllegalArgumentException("Riga utente non valida.");
+                }
+                users.add(UserFactory.createUser(
+                        Integer.parseInt(parts[2]), parts[0], parts[1]));
             }
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             throw new DAOException("Errore critico nella lettura del database CSV.");
         }
         return users;

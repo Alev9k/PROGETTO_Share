@@ -1,108 +1,64 @@
 package boundary.cli;
 
-import controller.*;
-import model.bean.*;
+import controller.ControllerFactory;
+import controller.LoginController;
+import controller.RegistrationController;
+import model.bean.UserBean;
+import model.session.UserSession;
+
 import java.util.Scanner;
 
+/** Front controller della variante CLI. */
 public class FrontControllerCLI {
     private final ControllerFactory factory;
+    private final UserSession userSession;
 
-    public FrontControllerCLI(ControllerFactory factory) {
+    public FrontControllerCLI(ControllerFactory factory, UserSession userSession) {
         this.factory = factory;
+        this.userSession = userSession;
     }
 
     public void start() {
-        Scanner sc = new Scanner(System.in);
-        LoginController lc = factory.createLoginController();
-        RegistrationController rc = factory.createRegistrationController();
+        Scanner scanner = new Scanner(System.in);
+        CliInput input = new CliInput(scanner);
+        LoginController loginController = factory.createLoginController();
+        RegistrationController registrationController = factory.createRegistrationController();
 
         while (true) {
-            try {
-                System.out.println("\n--- BENVENUTO IN SHARE ---");
-                System.out.println("1. Registrati\n2. Accedi\n3. Esci");
-                System.out.print("Scelta: ");
+            System.out.println("\n--- BENVENUTO IN SHARE ---");
+            System.out.println("1. Registrati");
+            System.out.println("2. Accedi");
+            System.out.println("0. Esci");
 
-                int choice = Integer.parseInt(sc.nextLine());
-
-                if (choice == 1) {
-                    new RegistrationBoundaryCLI(rc, sc).start();
-                } else if (choice == 2) {
-                    UserBean loggedUser = new LoginBoundaryCLI(lc, sc).start();
-                    if (loggedUser != null) {
-                        dispatchUser(loggedUser, sc);
+            switch (input.readChoice("Scelta: ", 0, 2)) {
+                case 1 -> new RegistrationBoundaryCLI(
+                        registrationController, scanner).start();
+                case 2 -> {
+                    if (new LoginBoundaryCLI(loginController, scanner).start()) {
+                        try {
+                            dispatchAuthenticatedUser(scanner);
+                        } finally {
+                            userSession.close();
+                        }
                     }
-                } else {
+                }
+                case 0 -> {
                     System.out.println("Arrivederci!");
-                    break;
+                    return;
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Inserisci un numero valido.");
+                default -> throw new IllegalStateException("Scelta iniziale non prevista.");
             }
         }
     }
 
-    private void dispatchUser(UserBean user, Scanner sc) {
+    private void dispatchAuthenticatedUser(Scanner scanner) {
+        UserBean user = userSession.requireCurrentUser();
         System.out.println("\nAccesso effettuato come: " + user.getUsername());
-
         switch (user.getRole()) {
-            case ADMIN:
-                showAdminMenu(user, sc);
-                break;
-
-            case OPERATOR:
-                System.out.println("[MENU OPERATORE] Funzionalità non ancora disponibili.");
-                break;
-
-            case TECHNICIAN:
-                System.out.println("[MENU TECNICO] Funzionalità non ancora disponibili.");
-                break;
-
-            default:
-                System.out.println("Errore: Ruolo non riconosciuto.");
-                break;
-        }
-    }
-
-    /**
-     * Sotto-menu dedicato alle funzionalità dell'Admin.
-     */
-    private void showAdminMenu(UserBean user, Scanner sc) {
-        boolean exitAdmin = false;
-
-        while (!exitAdmin) {
-            System.out.println("\n--- MENU AMMINISTRATORE ---");
-            System.out.println("1. Crea Nuovo Gruppo");
-            System.out.println("2. Gestisci Gruppi Esistenti");
-            System.out.println("0. Logout");
-            System.out.print("Scelta: ");
-
-            try {
-                int choice = Integer.parseInt(sc.nextLine());
-
-                switch (choice) {
-                    case 1:
-                        System.out.println("\n[!] Funzionalità 'Crea Gruppo' non ancora implementata.");
-                        // Resta nel ciclo, quindi torna al menu Admin
-                        break;
-
-                    case 2:
-                        // Avviamo il caso d'uso già implementato
-                        ManageGroupController mgc = factory.createManageGroupController();
-                        new ManageGroupBoundaryCLI(mgc, factory, user.getUsername(), sc).showMenu();
-                        break;
-
-                    case 0:
-                        System.out.println("Effettuo logout...");
-                        exitAdmin = true;
-                        break;
-
-                    default:
-                        System.out.println("Scelta non valida.");
-                        break;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Per favore, inserisci un numero.");
-            }
+            case ADMIN -> new AdminDashboardBoundaryCLI(factory, scanner).start();
+            case OPERATOR -> new OperatorDashboardBoundaryCLI(factory, scanner).start();
+            case TECHNICIAN ->
+                    System.out.println("[MENU TECNICO] Funzionalità non ancora disponibili.");
         }
     }
 }

@@ -20,8 +20,6 @@ import model.bean.BookingAvailabilityBean;
 import model.bean.BookingRequestBean;
 import model.bean.ItemBean;
 import model.bean.OperatorGroupBean;
-import model.bean.Role;
-import model.bean.UserBean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -47,14 +45,11 @@ public class MyGroupsGraphicController {
 
     private BookItemController logicController;
     private SceneNavigator navigator;
-    private String operatorUsername;
     private BookingAvailabilityBean currentAvailability;
 
-    public void initData(BookItemController logicController, SceneNavigator navigator,
-                         String operatorUsername) {
+    public void initData(BookItemController logicController, SceneNavigator navigator) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.operatorUsername = operatorUsername;
         configureControls();
         loadGroups();
     }
@@ -143,7 +138,7 @@ public class MyGroupsGraphicController {
 
     private void loadGroups() {
         try {
-            List<OperatorGroupBean> groups = logicController.getMyGroups(operatorBean());
+            List<OperatorGroupBean> groups = logicController.getMyGroups();
             groupChoice.setItems(FXCollections.observableArrayList(groups));
             if (groups.isEmpty()) {
                 availabilityLabel.setText(
@@ -173,8 +168,7 @@ public class MyGroupsGraphicController {
             return;
         }
         try {
-            List<ItemBean> items = logicController.getBookableItems(
-                    group.getGroupId(), operatorBean());
+            List<ItemBean> items = logicController.getBookableItems(group.getGroupId());
             itemsTable.setItems(FXCollections.observableArrayList(items));
             if (!items.isEmpty()) {
                 itemsTable.getSelectionModel().selectFirst();
@@ -198,7 +192,7 @@ public class MyGroupsGraphicController {
         }
         try {
             currentAvailability = logicController.getAvailability(
-                    group.getGroupId(), item.getItemId(), date, operatorBean());
+                    group.getGroupId(), item.getItemId(), date);
             List<LocalTime> slots = currentAvailability.getStartSlots();
             startChoice.setItems(FXCollections.observableArrayList(slots));
             if (slots.isEmpty()) {
@@ -253,7 +247,7 @@ public class MyGroupsGraphicController {
         try {
             BookingBean booking = logicController.createBooking(new BookingRequestBean(
                     group.getGroupId(), item.getItemId(), dateChoice.getValue(),
-                    startChoice.getValue(), durationChoice.getValue()), operatorBean());
+                    startChoice.getValue(), durationChoice.getValue()));
             showAlert(Alert.AlertType.INFORMATION, "Prenotazione confermata",
                     booking.getItemName() + " · " + DATE_FORMAT.format(booking.getDate())
                             + " · " + booking.getTimeRangeLabel());
@@ -266,26 +260,22 @@ public class MyGroupsGraphicController {
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        navigator.showDashboard(operatorBean());
+        navigator.showDashboard();
     }
 
     @FXML
     private void handleJoinGroup(Event event) {
-        navigator.showRequestGroupAccess(operatorUsername);
+        navigator.showRequestGroupAccess();
     }
 
     @FXML
     private void handleBookings(Event event) {
-        navigator.showMyBookings(operatorUsername);
+        navigator.showMyBookings();
     }
 
     @FXML
     private void handleLogout(Event event) {
-        navigator.showLogin();
-    }
-
-    private UserBean operatorBean() {
-        return new UserBean(operatorUsername, Role.OPERATOR);
+        navigator.logout();
     }
 
     private ListCell<OperatorGroupBean> createGroupCell() {

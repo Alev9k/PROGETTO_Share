@@ -5,7 +5,6 @@ import exceptions.OperatorHasItemException;
 import exceptions.UnauthorizedOperationException;
 import model.bean.MembershipRequestBean;
 import model.bean.OperatorBean;
-import model.bean.UserBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
 import model.dao.MembershipRequestDAO;
@@ -17,6 +16,7 @@ import model.entity.MembershipRequest;
 import model.entity.MembershipRequestStatus;
 import model.entity.Operator;
 import model.entity.User;
+import model.session.SessionContext;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -30,22 +30,25 @@ public class ManageOperatorsController {
     private final BookingDAO bookingDAO;
     private final Clock clock;
     private final Group contextGroup;
+    private final SessionContext session;
 
     public ManageOperatorsController(int groupID, UserDAO userDAO, GroupDAO groupDAO,
                                      MembershipRequestDAO requestDAO,
-                                     BookingDAO bookingDAO) throws DAOException {
+                                     BookingDAO bookingDAO,
+                                     SessionContext session) throws DAOException {
         this(groupID, userDAO, groupDAO, requestDAO, bookingDAO,
-                Clock.systemDefaultZone());
+                session, Clock.systemDefaultZone());
     }
 
     ManageOperatorsController(int groupID, UserDAO userDAO, GroupDAO groupDAO,
                               MembershipRequestDAO requestDAO, BookingDAO bookingDAO,
-                              Clock clock) throws DAOException {
+                              SessionContext session, Clock clock) throws DAOException {
         this.userDAO = Objects.requireNonNull(userDAO);
         this.groupDAO = Objects.requireNonNull(groupDAO);
         this.requestDAO = Objects.requireNonNull(requestDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
         this.clock = Objects.requireNonNull(clock);
+        this.session = Objects.requireNonNull(session);
         this.contextGroup = groupDAO.findGroupById(groupID);
 
         if (this.contextGroup == null) {
@@ -53,25 +56,26 @@ public class ManageOperatorsController {
         }
     }
 
-    public List<OperatorBean> getOperatorList() {
+    public List<OperatorBean> getOperatorList() throws UnauthorizedOperationException {
+        requireAuthorizedAdmin();
         return contextGroup.getMemberships().stream()
                 .map(membership -> new OperatorBean(
                         membership.getOperatorUsername(), membership.isActive() ? 0 : 1))
                 .toList();
     }
 
-    public List<MembershipRequestBean> getPendingRequests(UserBean adminBean)
+    public List<MembershipRequestBean> getPendingRequests()
             throws UnauthorizedOperationException {
-        requireAuthorizedAdmin(adminBean);
+        requireAuthorizedAdmin();
         return requestDAO.findByGroupId(contextGroup.getGroupID()).stream()
                 .filter(request -> request.getStatus() == MembershipRequestStatus.PENDING)
                 .map(this::toBean)
                 .toList();
     }
 
-    public void acceptRequest(MembershipRequestBean requestBean, UserBean adminBean)
+    public void acceptRequest(MembershipRequestBean requestBean)
             throws UnauthorizedOperationException {
-        requireAuthorizedAdmin(adminBean);
+        requireAuthorizedAdmin();
         MembershipRequest request = requirePendingRequest(requestBean);
         User user = userDAO.findByUsername(request.getOperatorUsername());
         if (!(user instanceof Operator operator)) {
@@ -87,15 +91,17 @@ public class ManageOperatorsController {
         requestDAO.update(request);
     }
 
-    public void rejectRequest(MembershipRequestBean requestBean, UserBean adminBean)
+    public void rejectRequest(MembershipRequestBean requestBean)
             throws UnauthorizedOperationException {
-        requireAuthorizedAdmin(adminBean);
+        requireAuthorizedAdmin();
         MembershipRequest request = requirePendingRequest(requestBean);
         request.reject();
         requestDAO.update(request);
     }
 
-    public void toggleBlock(OperatorBean opBean) throws DAOException, OperatorHasItemException {
+    public void toggleBlock(OperatorBean opBean)
+            throws DAOException, OperatorHasItemException, UnauthorizedOperationException {
+        requireAuthorizedAdmin();
         if (opBean == null) {
             throw new IllegalArgumentException("Seleziona un operatore.");
         }
@@ -141,9 +147,9 @@ public class ManageOperatorsController {
         return request;
     }
 
-    private void requireAuthorizedAdmin(UserBean adminBean)
+    private void requireAuthorizedAdmin()
             throws UnauthorizedOperationException {
-        User admin = adminBean == null ? null : userDAO.findByUsername(adminBean.getUsername());
+        User admin = userDAO.findByUsername(session.requireCurrentUser().getUsername());
         if (admin == null || !admin.canManageGroups()) {
             throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }

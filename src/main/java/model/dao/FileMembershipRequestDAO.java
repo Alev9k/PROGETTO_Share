@@ -55,17 +55,21 @@ public class FileMembershipRequestDAO implements MembershipRequestDAO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", -1);
-                if (parts.length == 6 || parts.length == 7) {
-                    requests.add(new MembershipRequest(
-                            parts[0],
-                            Integer.parseInt(parts[1]),
-                            parts[2],
-                            MembershipRequestStatus.valueOf(parts[3]),
-                            LocalDateTime.parse(parts[4]),
-                            Boolean.parseBoolean(parts[parts.length - 1])
-                    ));
+                if (line.isBlank()) {
+                    continue;
                 }
+                String[] parts = line.split(",", -1);
+                if (parts.length != 6) {
+                    throw new IllegalArgumentException("Riga richiesta di accesso non valida.");
+                }
+                requests.add(new MembershipRequest(
+                        parts[0],
+                        Integer.parseInt(parts[1]),
+                        parts[2],
+                        MembershipRequestStatus.valueOf(parts[3]),
+                        LocalDateTime.parse(parts[4]),
+                        Boolean.parseBoolean(parts[5])
+                ));
             }
             return requests;
         } catch (IOException | IllegalArgumentException e) {

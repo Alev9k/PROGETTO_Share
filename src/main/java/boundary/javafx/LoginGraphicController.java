@@ -37,7 +37,7 @@ public class LoginGraphicController {
         try {
             UserBean loggedUser = loginController.login(u, p);
             showInfo("Accesso Eseguito", "Benvenuto " + loggedUser.getUsername() + "!");
-            navigator.showDashboard(loggedUser);
+            navigator.showDashboard();
 
         } catch (InvalidCredentialsException e) {
             showError("Errore Login", e.getMessage());

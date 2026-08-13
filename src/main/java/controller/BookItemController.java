@@ -5,7 +5,6 @@ import model.bean.BookingAvailabilityBean;
 import model.bean.BookingRequestBean;
 import model.bean.ItemBean;
 import model.bean.OperatorGroupBean;
-import model.bean.UserBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
@@ -16,6 +15,7 @@ import model.entity.Item;
 import model.entity.ItemStatus;
 import model.entity.Operator;
 import model.entity.User;
+import model.session.SessionContext;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -30,21 +30,24 @@ public class BookItemController {
     private final UserDAO userDAO;
     private final BookingDAO bookingDAO;
     private final Clock clock;
+    private final SessionContext session;
 
-    public BookItemController(GroupDAO groupDAO, UserDAO userDAO, BookingDAO bookingDAO) {
-        this(groupDAO, userDAO, bookingDAO, Clock.systemDefaultZone());
+    public BookItemController(GroupDAO groupDAO, UserDAO userDAO, BookingDAO bookingDAO,
+                              SessionContext session) {
+        this(groupDAO, userDAO, bookingDAO, session, Clock.systemDefaultZone());
     }
 
     BookItemController(GroupDAO groupDAO, UserDAO userDAO,
-                       BookingDAO bookingDAO, Clock clock) {
+                       BookingDAO bookingDAO, SessionContext session, Clock clock) {
         this.groupDAO = Objects.requireNonNull(groupDAO);
         this.userDAO = Objects.requireNonNull(userDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
+        this.session = Objects.requireNonNull(session);
         this.clock = Objects.requireNonNull(clock);
     }
 
-    public List<OperatorGroupBean> getMyGroups(UserBean operatorBean) {
-        Operator operator = requireOperator(operatorBean);
+    public List<OperatorGroupBean> getMyGroups() {
+        Operator operator = requireOperator();
         return groupDAO.findGroupsByMemberUsername(operator.getUsername()).stream()
                 .map(group -> toOperatorGroupBean(group, operator.getUsername()))
                 .toList();
@@ -55,8 +58,8 @@ public class BookItemController {
         return List.of(today, today.plusDays(1));
     }
 
-    public List<ItemBean> getBookableItems(int groupId, UserBean operatorBean) {
-        Operator operator = requireOperator(operatorBean);
+    public List<ItemBean> getBookableItems(int groupId) {
+        Operator operator = requireOperator();
         Group group = requireActiveMembership(groupId, operator.getUsername());
         return group.getItems().stream()
                 .filter(item -> item.getStatus() != ItemStatus.BROKEN)
@@ -67,19 +70,19 @@ public class BookItemController {
     }
 
     public BookingAvailabilityBean getAvailability(int groupId, int itemId,
-                                                   LocalDate date, UserBean operatorBean) {
-        Operator operator = requireOperator(operatorBean);
+                                                   LocalDate date) {
+        Operator operator = requireOperator();
         BookingSchedule schedule = buildSchedule(groupId, itemId, date,
                 operator.getUsername());
         return new BookingAvailabilityBean(groupId, itemId, date,
                 schedule.getAvailableDurationsByStart(operator.getUsername()));
     }
 
-    public BookingBean createBooking(BookingRequestBean request, UserBean operatorBean) {
+    public BookingBean createBooking(BookingRequestBean request) {
         if (request == null) {
             throw new IllegalArgumentException("I dati della prenotazione sono obbligatori.");
         }
-        Operator operator = requireOperator(operatorBean);
+        Operator operator = requireOperator();
         validateDate(request.getDate());
         Group group = requireActiveMembership(request.getGroupId(), operator.getUsername());
         Item item = requireItem(group, request.getItemId());
@@ -110,9 +113,8 @@ public class BookItemController {
         }
     }
 
-    private Operator requireOperator(UserBean operatorBean) {
-        User user = operatorBean == null || operatorBean.getUsername() == null
-                ? null : userDAO.findByUsername(operatorBean.getUsername());
+    private Operator requireOperator() {
+        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
         if (!(user instanceof Operator operator)) {
             throw new IllegalArgumentException("Operatore non valido.");
         }

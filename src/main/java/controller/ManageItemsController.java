@@ -5,12 +5,12 @@ import exceptions.DuplicateItemNameException;
 import exceptions.UnauthorizedOperationException;
 import model.bean.CreateItemBean;
 import model.bean.ItemBean;
-import model.bean.UserBean;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.User;
+import model.session.SessionContext;
 
 import java.util.List;
 
@@ -19,10 +19,13 @@ public class ManageItemsController {
     private final GroupDAO groupDAO;
     private final UserDAO userDAO;
     private final Group contextGroup;
+    private final SessionContext session;
 
-    public ManageItemsController(int groupID, GroupDAO groupDAO, UserDAO userDAO) {
+    public ManageItemsController(int groupID, GroupDAO groupDAO, UserDAO userDAO,
+                                 SessionContext session) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
+        this.session = session;
         this.contextGroup = groupDAO.findGroupById(groupID);
 
         if (this.contextGroup == null) {
@@ -30,17 +33,17 @@ public class ManageItemsController {
         }
     }
 
-    public List<ItemBean> getItemList(UserBean adminBean)
+    public List<ItemBean> getItemList()
             throws UnauthorizedOperationException {
-        requireAuthorizedAdmin(adminBean);
+        requireAuthorizedAdmin();
         return contextGroup.getItems().stream()
                 .map(this::toBean)
                 .toList();
     }
 
-    public ItemBean createItem(CreateItemBean bean, UserBean adminBean)
+    public ItemBean createItem(CreateItemBean bean)
             throws DuplicateItemNameException, UnauthorizedOperationException {
-        requireAuthorizedAdmin(adminBean);
+        requireAuthorizedAdmin();
         validate(bean);
 
         int nextItemId = contextGroup.getItems().stream()
@@ -71,9 +74,9 @@ public class ManageItemsController {
         }
     }
 
-    private void requireAuthorizedAdmin(UserBean adminBean)
+    private void requireAuthorizedAdmin()
             throws UnauthorizedOperationException {
-        User admin = adminBean == null ? null : userDAO.findByUsername(adminBean.getUsername());
+        User admin = userDAO.findByUsername(session.requireCurrentUser().getUsername());
         if (admin == null || !admin.canManageGroups()) {
             throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }

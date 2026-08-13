@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface BookingDAO {
     void save(Booking booking);
+    void update(Booking booking);
     void deleteByIds(Collection<String> bookingIds);
     List<Booking> findAll();
 

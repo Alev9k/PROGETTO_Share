@@ -13,8 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.MembershipRequestBean;
-import model.bean.Role;
-import model.bean.UserBean;
 
 public class RequestGroupAccessGraphicController {
     @FXML private TextField tokenField;
@@ -25,14 +23,11 @@ public class RequestGroupAccessGraphicController {
 
     private SceneNavigator navigator;
     private JoinGroupController logicController;
-    private String operatorUsername;
 
     public void initData(JoinGroupController logicController,
-                         SceneNavigator navigator,
-                         String operatorUsername) {
+                         SceneNavigator navigator) {
         this.logicController = logicController;
         this.navigator = navigator;
-        this.operatorUsername = operatorUsername;
         configureTokenField();
         configureTable();
         loadRequests();
@@ -53,8 +48,7 @@ public class RequestGroupAccessGraphicController {
     @FXML
     private void handleSubmit(Event event) {
         try {
-            MembershipRequestBean request = logicController.requestAccess(
-                    tokenField.getText(), operatorBean());
+            MembershipRequestBean request = logicController.requestAccess(tokenField.getText());
             tokenField.clear();
             loadRequests();
             showAlert(Alert.AlertType.INFORMATION, "Richiesta inviata",
@@ -68,7 +62,7 @@ public class RequestGroupAccessGraphicController {
     private void loadRequests() {
         try {
             requestsTable.setItems(FXCollections.observableArrayList(
-                    logicController.getRequestHistory(operatorBean())));
+                    logicController.getRequestHistory()));
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Errore",
                     "Impossibile caricare le richieste: " + e.getMessage());
@@ -77,26 +71,22 @@ public class RequestGroupAccessGraphicController {
 
     @FXML
     private void handleBackToDashboard(Event event) {
-        navigator.showDashboard(operatorBean());
+        navigator.showDashboard();
     }
 
     @FXML
     private void handleMyGroups(Event event) {
-        navigator.showMyGroups(operatorUsername);
+        navigator.showMyGroups();
     }
 
     @FXML
     private void handleBookings(Event event) {
-        navigator.showMyBookings(operatorUsername);
+        navigator.showMyBookings();
     }
 
     @FXML
     private void handleLogout(Event event) {
-        navigator.showLogin();
-    }
-
-    private UserBean operatorBean() {
-        return new UserBean(operatorUsername, Role.OPERATOR);
+        navigator.logout();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

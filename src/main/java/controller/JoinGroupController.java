@@ -1,13 +1,13 @@
 package controller;
 
 import model.bean.MembershipRequestBean;
-import model.bean.UserBean;
 import model.dao.GroupDAO;
 import model.dao.MembershipRequestDAO;
 import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.MembershipRequest;
 import model.entity.Operator;
+import model.session.SessionContext;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,15 +18,18 @@ public class JoinGroupController {
     private final GroupDAO groupDAO;
     private final UserDAO userDAO;
     private final MembershipRequestDAO requestDAO;
+    private final SessionContext session;
 
     public JoinGroupController(GroupDAO groupDAO, UserDAO userDAO,
-                               MembershipRequestDAO requestDAO) {
+                               MembershipRequestDAO requestDAO,
+                               SessionContext session) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
         this.requestDAO = requestDAO;
+        this.session = session;
     }
 
-    public MembershipRequestBean requestAccess(String accessToken, UserBean operatorBean) {
+    public MembershipRequestBean requestAccess(String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalArgumentException("Inserisci il token di accesso.");
         }
@@ -34,11 +37,8 @@ public class JoinGroupController {
         if (!normalizedToken.matches("\\d{6}")) {
             throw new IllegalArgumentException("Il token deve contenere esattamente 6 cifre.");
         }
-        if (operatorBean == null || operatorBean.getUsername() == null) {
-            throw new IllegalArgumentException("Operatore non valido.");
-        }
-
-        if (!(userDAO.findByUsername(operatorBean.getUsername()) instanceof Operator operator)) {
+        if (!(userDAO.findByUsername(session.requireCurrentUser().getUsername())
+                instanceof Operator operator)) {
             throw new IllegalArgumentException("Solo un operatore può richiedere l'accesso a un gruppo.");
         }
 
@@ -59,11 +59,12 @@ public class JoinGroupController {
         return toBean(request, group);
     }
 
-    public List<MembershipRequestBean> getRequestHistory(UserBean operatorBean) {
-        if (operatorBean == null || operatorBean.getUsername() == null) {
+    public List<MembershipRequestBean> getRequestHistory() {
+        String operatorUsername = session.requireCurrentUser().getUsername();
+        if (!(userDAO.findByUsername(operatorUsername) instanceof Operator)) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
-        return requestDAO.findByOperatorUsername(operatorBean.getUsername()).stream()
+        return requestDAO.findByOperatorUsername(operatorUsername).stream()
                 .sorted(Comparator.comparing(MembershipRequest::getCreatedAt).reversed())
                 .map(request -> toBean(request, groupDAO.findGroupById(request.getGroupId())))
                 .toList();

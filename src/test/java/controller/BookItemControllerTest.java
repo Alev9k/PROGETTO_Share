@@ -53,16 +53,16 @@ class BookItemControllerTest {
         bookingDAO = new InMemoryBookingDAO();
         clock = Clock.fixed(Instant.parse("2026-08-11T07:10:00Z"),
                 ZoneId.of("Europe/Rome"));
-        controller = new BookItemController(groupDAO, userDAO, bookingDAO, clock);
+        controller = new BookItemController(groupDAO, userDAO, bookingDAO,
+                () -> operatorBean, clock);
     }
 
     @Test
     void exposesMembershipGroupsAndCreatesTheBooking() {
-        assertEquals(1, controller.getMyGroups(operatorBean).size());
+        assertEquals(1, controller.getMyGroups().size());
 
         BookingBean created = controller.createBooking(new BookingRequestBean(
-                group.getGroupID(), 1, TODAY.plusDays(1), LocalTime.of(10, 0), 60),
-                operatorBean);
+                group.getGroupID(), 1, TODAY.plusDays(1), LocalTime.of(10, 0), 60));
 
         assertEquals("Trapano", created.getItemName());
         assertEquals(LocalTime.of(11, 0), created.getEndTime());
@@ -76,7 +76,7 @@ class BookItemControllerTest {
 
         assertThrows(IllegalStateException.class, () -> controller.createBooking(
                 new BookingRequestBean(group.getGroupID(), 1, TODAY.plusDays(1),
-                        LocalTime.of(10, 30), 30), operatorBean));
+                        LocalTime.of(10, 30), 30)));
         assertEquals(1, bookingDAO.findAll().size());
     }
 
@@ -84,21 +84,21 @@ class BookItemControllerTest {
     void blockedOperatorCannotBook() {
         group.toggleMemberStatus(operatorBean.getUsername());
 
-        assertEquals(1, controller.getMyGroups(operatorBean).size());
-        assertFalse(controller.getMyGroups(operatorBean).getFirst().isActive());
+        assertEquals(1, controller.getMyGroups().size());
+        assertFalse(controller.getMyGroups().getFirst().isActive());
         assertThrows(IllegalStateException.class, () -> controller.createBooking(
                 new BookingRequestBean(group.getGroupID(), 1, TODAY.plusDays(1),
-                        LocalTime.of(10, 0), 30), operatorBean));
+                        LocalTime.of(10, 0), 30)));
     }
 
     @Test
     void availabilitySnapshotAvoidsReadsWhenTheStartTimeChanges() {
         CountingBookingDAO countingDAO = new CountingBookingDAO();
         BookItemController countingController = new BookItemController(
-                groupDAO, userDAO, countingDAO, clock);
+                groupDAO, userDAO, countingDAO, () -> operatorBean, clock);
 
         BookingAvailabilityBean availability = countingController.getAvailability(
-                group.getGroupID(), 1, TODAY.plusDays(1), operatorBean);
+                group.getGroupID(), 1, TODAY.plusDays(1));
 
         assertEquals(1, countingDAO.getReadCount());
         availability.getDurationsFor(LocalTime.of(9, 0));
@@ -107,7 +107,7 @@ class BookItemControllerTest {
         assertEquals(1, countingDAO.getReadCount());
 
         countingController.createBooking(new BookingRequestBean(group.getGroupID(), 1,
-                TODAY.plusDays(1), LocalTime.of(10, 0), 30), operatorBean);
+                TODAY.plusDays(1), LocalTime.of(10, 0), 30));
         assertEquals(2, countingDAO.getReadCount());
     }
 

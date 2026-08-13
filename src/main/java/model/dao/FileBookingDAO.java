@@ -2,6 +2,7 @@ package model.dao;
 
 import exceptions.DAOException;
 import model.entity.Booking;
+import model.entity.BookingSlot;
 import model.entity.ReturnCondition;
 
 import java.io.BufferedWriter;
@@ -119,8 +120,9 @@ public class FileBookingDAO implements BookingDAO {
         }
         return new Booking(fields.get(0), Integer.parseInt(fields.get(1)),
                 Integer.parseInt(fields.get(2)), fields.get(3),
-                LocalDate.parse(fields.get(4)), LocalTime.parse(fields.get(5)),
-                Integer.parseInt(fields.get(6)), ReturnCondition.valueOf(fields.get(7)));
+                new BookingSlot(LocalDate.parse(fields.get(4)),
+                        LocalTime.parse(fields.get(5)), Integer.parseInt(fields.get(6))),
+                ReturnCondition.valueOf(fields.get(7)));
     }
 
     private void rewrite(List<Booking> bookings) {
@@ -172,12 +174,14 @@ public class FileBookingDAO implements BookingDAO {
         List<String> fields = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean quoted = false;
-        for (int i = 0; i < line.length(); i++) {
-            char character = line.charAt(i);
+        int index = 0;
+        while (index < line.length()) {
+            char character = line.charAt(index);
             if (character == '"') {
-                if (quoted && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                if (quoted && index + 1 < line.length()
+                        && line.charAt(index + 1) == '"') {
                     current.append('"');
-                    i++;
+                    index++;
                 } else {
                     quoted = !quoted;
                 }
@@ -187,6 +191,7 @@ public class FileBookingDAO implements BookingDAO {
             } else {
                 current.append(character);
             }
+            index++;
         }
         if (quoted) {
             throw new IllegalArgumentException("Virgolette CSV non bilanciate.");

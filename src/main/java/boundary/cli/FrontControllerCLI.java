@@ -33,21 +33,24 @@ public class FrontControllerCLI {
             switch (input.readChoice("Scelta: ", 0, 2)) {
                 case 1 -> new RegistrationBoundaryCLI(
                         registrationController, scanner).start();
-                case 2 -> {
-                    if (new LoginBoundaryCLI(loginController, scanner).start()) {
-                        try {
-                            dispatchAuthenticatedUser(scanner);
-                        } finally {
-                            userSession.close();
-                        }
-                    }
-                }
+                case 2 -> handleLogin(loginController, scanner);
                 case 0 -> {
                     System.out.println("Arrivederci!");
                     return;
                 }
                 default -> throw new IllegalStateException("Scelta iniziale non prevista.");
             }
+        }
+    }
+
+    private void handleLogin(LoginController loginController, Scanner scanner) {
+        if (!new LoginBoundaryCLI(loginController, scanner).start()) {
+            return;
+        }
+        try {
+            dispatchAuthenticatedUser(scanner);
+        } finally {
+            userSession.close();
         }
     }
 

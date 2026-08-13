@@ -9,6 +9,7 @@ import model.dao.InMemoryBookingDAO;
 import model.dao.InMemoryGroupDAO;
 import model.dao.InMemoryUserDAO;
 import model.entity.Booking;
+import model.entity.BookingSlot;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.Operator;
@@ -72,7 +73,7 @@ class BookItemControllerTest {
     @Test
     void revalidatesAvailabilityWhenCreating() {
         bookingDAO.save(new Booking("occupied", group.getGroupID(), 1, "other",
-                TODAY.plusDays(1), LocalTime.of(10, 0), 60));
+                new BookingSlot(TODAY.plusDays(1), LocalTime.of(10, 0), 60)));
 
         assertThrows(IllegalStateException.class, () -> controller.createBooking(
                 new BookingRequestBean(group.getGroupID(), 1, TODAY.plusDays(1),

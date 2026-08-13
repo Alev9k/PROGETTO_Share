@@ -70,7 +70,9 @@ public class ManageOperatorsBoundaryCLI {
                     controller.rejectRequest(selected);
                     System.out.println("Richiesta rifiutata.");
                 }
-                case 0 -> { }
+                case 0 -> {
+                    return;
+                }
                 default -> throw new IllegalStateException("Decisione non prevista.");
             }
         } catch (Exception e) {

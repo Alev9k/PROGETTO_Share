@@ -2,6 +2,7 @@ package controller;
 
 import exceptions.UnauthorizedOperationException;
 import model.bean.BookingBean;
+import model.bean.BookingStateBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
@@ -97,7 +98,7 @@ public class MyBookingsController {
         String itemName = item == null ? "Item " + booking.getItemId() : item.getName();
         return new BookingBean(booking.getBookingId(), groupName, itemName,
                 booking.getDate(), booking.getStartTime(), booking.getEndTime(),
-                booking.canBeDeletedAt(now), booking.canBeReturnedAt(now),
-                booking.getReturnCondition());
+                new BookingStateBean(booking.canBeDeletedAt(now),
+                        booking.canBeReturnedAt(now), booking.getReturnCondition()));
     }
 }

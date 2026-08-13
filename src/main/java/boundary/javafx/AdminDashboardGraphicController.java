@@ -20,6 +20,7 @@ public class AdminDashboardGraphicController {
 
     private static final Logger LOGGER = Logger.getLogger(
             AdminDashboardGraphicController.class.getName());
+    private static final String ERRORE = "Errore";
 
     @FXML private Label welcomeLabel;
     @FXML private Label pendingRequestsLabel;
@@ -83,7 +84,7 @@ public class AdminDashboardGraphicController {
             navigator.showManageGroups();
         } catch (NavigationException e) {
             LOGGER.log(Level.SEVERE, "Navigazione verso la gestione gruppi fallita.", e);
-            showError("Errore", "Impossibile caricare la gestione gruppi.");
+            showError(ERRORE, "Impossibile caricare la gestione gruppi.");
         }
     }
 
@@ -93,7 +94,7 @@ public class AdminDashboardGraphicController {
             navigator.showCreateGroup();
         } catch (NavigationException e) {
             LOGGER.log(Level.SEVERE, "Navigazione verso la creazione del gruppo fallita.", e);
-            showError("Errore", "Impossibile caricare la creazione del gruppo.");
+            showError(ERRORE, "Impossibile caricare la creazione del gruppo.");
         }
     }
 
@@ -102,7 +103,7 @@ public class AdminDashboardGraphicController {
         try {
             navigator.logout();
         } catch (Exception e) {
-            showError("Errore", "Impossibile tornare al login.");
+            showError(ERRORE, "Impossibile tornare al login.");
         }
     }
 

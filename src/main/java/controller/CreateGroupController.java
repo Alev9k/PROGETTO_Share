@@ -1,5 +1,8 @@
 package controller;
 
+import exceptions.DuplicateGroupNameException;
+import exceptions.UnauthorizedOperationException;
+import exceptions.UserNotFoundException;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
 import model.entity.Group;
@@ -36,7 +39,8 @@ public class CreateGroupController {
      *
      * @param groupBean Il bean contenente i dati inseriti nella view.
      */
-    public GroupBean createGroup(GroupBean groupBean) throws Exception {
+    public GroupBean createGroup(GroupBean groupBean)
+            throws DuplicateGroupNameException, UnauthorizedOperationException {
 
         // 1. Estrazione dai Bean
         String groupName = groupBean.getGroupName();
@@ -61,7 +65,9 @@ public class CreateGroupController {
 
         for (Group g : existingGroups) {
             if (g.getName().equalsIgnoreCase(groupName.trim())) {
-                throw new Exception("Esiste già un gruppo chiamato '" + groupName + "'. Scegli un nome diverso.");
+                throw new DuplicateGroupNameException(
+                        "Esiste già un gruppo chiamato '" + groupName
+                                + "'. Scegli un nome diverso.");
             }
             if (g.getGroupID() >= newId) {
                 newId = g.getGroupID() + 1;
@@ -69,8 +75,13 @@ public class CreateGroupController {
         }
 
         User admin = userDAO.findByUsername(adminUsername);
-        if (admin == null || !admin.canManageGroups()) {
-            throw new Exception("Errore critico: Amministratore '" + adminUsername + "' non trovato.");
+        if (admin == null) {
+            throw new UserNotFoundException(
+                    "Amministratore '" + adminUsername + "' non trovato.");
+        }
+        if (!admin.canManageGroups()) {
+            throw new UnauthorizedOperationException(
+                    "L'utente corrente non è autorizzato a creare gruppi.");
         }
 
         // 4. Creazione dell'entità reale e salvataggio

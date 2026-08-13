@@ -159,12 +159,14 @@ public class FileNotificationDAO implements NotificationDAO {
         List<String> fields = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean quoted = false;
-        for (int i = 0; i < line.length(); i++) {
-            char character = line.charAt(i);
+        int index = 0;
+        while (index < line.length()) {
+            char character = line.charAt(index);
             if (character == '"') {
-                if (quoted && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                if (quoted && index + 1 < line.length()
+                        && line.charAt(index + 1) == '"') {
                     current.append('"');
-                    i++;
+                    index++;
                 } else {
                     quoted = !quoted;
                 }
@@ -174,6 +176,7 @@ public class FileNotificationDAO implements NotificationDAO {
             } else {
                 current.append(character);
             }
+            index++;
         }
         if (quoted) {
             throw new IllegalArgumentException("Virgolette CSV non bilanciate.");

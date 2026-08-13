@@ -10,20 +10,17 @@ public class Booking {
     private final int groupId;
     private final int itemId;
     private final String operatorUsername;
-    private final LocalDate date;
-    private final LocalTime startTime;
-    private final int durationMinutes;
+    private final BookingSlot slot;
     private ReturnCondition returnCondition;
 
     public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
-                   LocalDate date, LocalTime startTime, int durationMinutes) {
-        this(bookingId, groupId, itemId, operatorUsername, date, startTime,
-                durationMinutes, ReturnCondition.NOT_REPORTED);
+                   BookingSlot slot) {
+        this(bookingId, groupId, itemId, operatorUsername, slot,
+                ReturnCondition.NOT_REPORTED);
     }
 
     public Booking(String bookingId, int groupId, int itemId, String operatorUsername,
-                   LocalDate date, LocalTime startTime, int durationMinutes,
-                   ReturnCondition returnCondition) {
+                   BookingSlot slot, ReturnCondition returnCondition) {
         if (bookingId == null || bookingId.isBlank()) {
             throw new IllegalArgumentException("L'identificativo della prenotazione è obbligatorio.");
         }
@@ -33,24 +30,11 @@ public class Booking {
         if (operatorUsername == null || operatorUsername.isBlank()) {
             throw new IllegalArgumentException("L'operatore della prenotazione è obbligatorio.");
         }
-        if (durationMinutes <= 0 || durationMinutes % BookingSchedule.SLOT_MINUTES != 0) {
-            throw new IllegalArgumentException("La durata deve essere un multiplo di 30 minuti.");
-        }
-        LocalDate validDate = Objects.requireNonNull(date, "La data è obbligatoria.");
-        LocalTime validStartTime = Objects.requireNonNull(
-                startTime, "L'orario iniziale è obbligatorio.");
-        if (validStartTime.getMinute() % BookingSchedule.SLOT_MINUTES != 0
-                || validStartTime.getSecond() != 0 || validStartTime.getNano() != 0) {
-            throw new IllegalArgumentException(
-                    "L'orario iniziale deve coincidere con uno slot di 30 minuti.");
-        }
         this.bookingId = bookingId;
         this.groupId = groupId;
         this.itemId = itemId;
         this.operatorUsername = operatorUsername.trim();
-        this.date = validDate;
-        this.startTime = validStartTime;
-        this.durationMinutes = durationMinutes;
+        this.slot = Objects.requireNonNull(slot, "Lo slot della prenotazione è obbligatorio.");
         this.returnCondition = Objects.requireNonNull(returnCondition,
                 "Lo stato della riconsegna è obbligatorio.");
     }
@@ -59,26 +43,26 @@ public class Booking {
     public int getGroupId() { return groupId; }
     public int getItemId() { return itemId; }
     public String getOperatorUsername() { return operatorUsername; }
-    public LocalDate getDate() { return date; }
-    public LocalTime getStartTime() { return startTime; }
-    public int getDurationMinutes() { return durationMinutes; }
+    public LocalDate getDate() { return slot.getDate(); }
+    public LocalTime getStartTime() { return slot.getStartTime(); }
+    public int getDurationMinutes() { return slot.getDurationMinutes(); }
     public ReturnCondition getReturnCondition() { return returnCondition; }
 
     public LocalTime getEndTime() {
-        return startTime.plusMinutes(durationMinutes);
+        return slot.getEndTime();
     }
 
     /** Verifica il conflitto tra due prenotazioni persistenti sullo stesso item o operatore. */
     public boolean conflictsWith(Booking other) {
         Objects.requireNonNull(other);
         return conflictsWith(other.operatorUsername, other.groupId,
-                other.itemId, other.date, other.startTime, other.getEndTime());
+                other.itemId, other.getDate(), other.getStartTime(), other.getEndTime());
     }
 
     public boolean overlaps(LocalDate candidateDate, LocalTime candidateStart,
                             LocalTime candidateEnd) {
-        return date.equals(candidateDate)
-                && startTime.isBefore(candidateEnd)
+        return getDate().equals(candidateDate)
+                && getStartTime().isBefore(candidateEnd)
                 && candidateStart.isBefore(getEndTime());
     }
 
@@ -93,19 +77,20 @@ public class Booking {
 
     public boolean isInProgress(LocalDateTime moment) {
         Objects.requireNonNull(moment);
-        if (!date.equals(moment.toLocalDate())) {
+        if (!getDate().equals(moment.toLocalDate())) {
             return false;
         }
         LocalTime time = moment.toLocalTime();
-        return !time.isBefore(startTime) && time.isBefore(getEndTime());
+        return !time.isBefore(getStartTime()) && time.isBefore(getEndTime());
     }
 
     public boolean startsAfter(LocalDateTime moment) {
-        return LocalDateTime.of(date, startTime).isAfter(Objects.requireNonNull(moment));
+        return LocalDateTime.of(getDate(), getStartTime())
+                .isAfter(Objects.requireNonNull(moment));
     }
 
     public boolean startsAtOrAfter(LocalDateTime moment) {
-        return !LocalDateTime.of(date, startTime)
+        return !LocalDateTime.of(getDate(), getStartTime())
                 .isBefore(Objects.requireNonNull(moment));
     }
 
@@ -117,8 +102,8 @@ public class Booking {
     /** La riconsegna è ammessa dall'inizio fino all'istante esatto di scadenza. */
     public boolean canBeReturnedAt(LocalDateTime moment) {
         Objects.requireNonNull(moment);
-        LocalDateTime start = LocalDateTime.of(date, startTime);
-        LocalDateTime end = start.plusMinutes(durationMinutes);
+        LocalDateTime start = LocalDateTime.of(getDate(), getStartTime());
+        LocalDateTime end = start.plusMinutes(getDurationMinutes());
         return returnCondition == ReturnCondition.NOT_REPORTED
                 && !moment.isBefore(start)
                 && !moment.isAfter(end);

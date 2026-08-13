@@ -10,6 +10,7 @@ import model.dao.GroupDAO;
 import model.dao.UserDAO;
 import model.entity.Booking;
 import model.entity.BookingSchedule;
+import model.entity.BookingSlot;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.ItemStatus;
@@ -87,8 +88,8 @@ public class BookItemController {
         Group group = requireActiveMembership(request.getGroupId(), operator.getUsername());
         Item item = requireItem(group, request.getItemId());
         Booking booking = new Booking(UUID.randomUUID().toString(), group.getGroupID(),
-                item.getItemID(), operator.getUsername(), request.getDate(),
-                request.getStartTime(), request.getDurationMinutes());
+                item.getItemID(), operator.getUsername(), new BookingSlot(request.getDate(),
+                request.getStartTime(), request.getDurationMinutes()));
 
         BookingSchedule schedule = new BookingSchedule(group, item, request.getDate(),
                 List.of(), clock);

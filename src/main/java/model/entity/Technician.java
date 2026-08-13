@@ -7,7 +7,4 @@ public class Technician extends User {
         super(username, password);
     }
 
-    /*public String getUsername() {
-        return username;
-    }*/
 }

@@ -13,6 +13,7 @@ public class ManageOperatorsBoundaryCLI {
     private final GroupBean group;
     private final ManageOperatorsController controller;
     private final CliInput input;
+    private static final String ANNULLA = "0. Annulla";
 
     public ManageOperatorsBoundaryCLI(ManageOperatorsController controller,
                                       GroupBean group, Scanner scanner) {
@@ -50,7 +51,7 @@ public class ManageOperatorsBoundaryCLI {
                 System.out.println((i + 1) + ". " + request.getOperatorUsername()
                         + " | " + request.getCreatedAtLabel());
             }
-            System.out.println("0. Annulla");
+            System.out.println(ANNULLA);
             int choice = input.readChoice("Seleziona una richiesta: ", 0, requests.size());
             if (choice == 0) {
                 return;
@@ -58,7 +59,7 @@ public class ManageOperatorsBoundaryCLI {
             MembershipRequestBean selected = requests.get(choice - 1);
             System.out.println("1. Accetta");
             System.out.println("2. Rifiuta");
-            System.out.println("0. Annulla");
+            System.out.println(ANNULLA);
             switch (input.readChoice("Decisione: ", 0, 2)) {
                 case 1 -> {
                     controller.acceptRequest(selected);
@@ -89,7 +90,7 @@ public class ManageOperatorsBoundaryCLI {
                 System.out.println((i + 1) + ". " + member.getUsername()
                         + " | " + member.getStatusLabel());
             }
-            System.out.println("0. Annulla");
+            System.out.println(ANNULLA);
             int choice = input.readChoice("Seleziona un membro: ", 0, members.size());
             if (choice == 0) {
                 return;

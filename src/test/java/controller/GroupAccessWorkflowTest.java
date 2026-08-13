@@ -103,8 +103,9 @@ class GroupAccessWorkflowTest {
 
         notifications.markAsRead(unread.getFirst());
         assertTrue(notifications.getUnreadResults().isEmpty());
+        String accessToken = createdGroup.getAccessToken();
         assertThrows(IllegalStateException.class, () ->
-                joinController.requestAccess(createdGroup.getAccessToken()));
+                joinController.requestAccess(accessToken));
     }
 
     @Test

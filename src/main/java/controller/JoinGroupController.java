@@ -9,6 +9,8 @@ import model.entity.MembershipRequest;
 import model.entity.Operator;
 import model.session.SessionContext;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -19,14 +21,22 @@ public class JoinGroupController {
     private final UserDAO userDAO;
     private final MembershipRequestDAO requestDAO;
     private final SessionContext session;
+    private final Clock clock;
 
     public JoinGroupController(GroupDAO groupDAO, UserDAO userDAO,
                                MembershipRequestDAO requestDAO,
                                SessionContext session) {
+        this(groupDAO, userDAO, requestDAO, session, Clock.systemDefaultZone());
+    }
+
+    JoinGroupController(GroupDAO groupDAO, UserDAO userDAO,
+                        MembershipRequestDAO requestDAO, SessionContext session,
+                        Clock clock) {
         this.groupDAO = groupDAO;
         this.userDAO = userDAO;
         this.requestDAO = requestDAO;
         this.session = session;
+        this.clock = clock;
     }
 
     public MembershipRequestBean requestAccess(String accessToken) {
@@ -54,7 +64,8 @@ public class JoinGroupController {
         }
 
         MembershipRequest request = new MembershipRequest(
-                UUID.randomUUID().toString(), group.getGroupID(), operator.getUsername());
+                UUID.randomUUID().toString(), group.getGroupID(), operator.getUsername(),
+                LocalDateTime.now(clock));
         requestDAO.save(request);
         return toBean(request, group);
     }

@@ -12,9 +12,10 @@ public class MembershipRequest {
     private MembershipRequestStatus status;
     private boolean resultRead;
 
-    public MembershipRequest(String requestId, int groupId, String operatorUsername) {
+    public MembershipRequest(String requestId, int groupId, String operatorUsername,
+                             LocalDateTime createdAt) {
         this(requestId, groupId, operatorUsername, MembershipRequestStatus.PENDING,
-                LocalDateTime.now(), false);
+                createdAt, false);
     }
 
     public MembershipRequest(String requestId, int groupId, String operatorUsername,

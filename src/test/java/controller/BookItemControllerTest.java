@@ -75,9 +75,10 @@ class BookItemControllerTest {
         bookingDAO.save(new Booking("occupied", group.getGroupID(), 1, "other",
                 new BookingSlot(TODAY.plusDays(1), LocalTime.of(10, 0), 60)));
 
-        assertThrows(IllegalStateException.class, () -> controller.createBooking(
-                new BookingRequestBean(group.getGroupID(), 1, TODAY.plusDays(1),
-                        LocalTime.of(10, 30), 30)));
+        BookingRequestBean conflictingRequest = new BookingRequestBean(
+                group.getGroupID(), 1, TODAY.plusDays(1), LocalTime.of(10, 30), 30);
+        assertThrows(IllegalStateException.class,
+                () -> controller.createBooking(conflictingRequest));
         assertEquals(1, bookingDAO.findAll().size());
     }
 
@@ -87,9 +88,10 @@ class BookItemControllerTest {
 
         assertEquals(1, controller.getMyGroups().size());
         assertFalse(controller.getMyGroups().getFirst().isActive());
-        assertThrows(IllegalStateException.class, () -> controller.createBooking(
-                new BookingRequestBean(group.getGroupID(), 1, TODAY.plusDays(1),
-                        LocalTime.of(10, 0), 30)));
+        BookingRequestBean blockedRequest = new BookingRequestBean(
+                group.getGroupID(), 1, TODAY.plusDays(1), LocalTime.of(10, 0), 30);
+        assertThrows(IllegalStateException.class,
+                () -> controller.createBooking(blockedRequest));
     }
 
     @Test

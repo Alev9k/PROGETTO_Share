@@ -31,9 +31,7 @@ public class ManageOperatorsBoundaryCLI {
             switch (input.readChoice("Scelta: ", 0, 2)) {
                 case 1 -> managePendingRequests();
                 case 2 -> manageMembers();
-                case 0 -> {
-                    return;
-                }
+                case 0 -> System.out.println("Operazione annullata.");
                 default -> throw new IllegalStateException("Scelta membri non prevista.");
             }
         }
@@ -70,9 +68,7 @@ public class ManageOperatorsBoundaryCLI {
                     controller.rejectRequest(selected);
                     System.out.println("Richiesta rifiutata.");
                 }
-                case 0 -> {
-                    return;
-                }
+                case 0 -> System.out.println("Operazione annullata.");
                 default -> throw new IllegalStateException("Decisione non prevista.");
             }
         } catch (Exception e) {

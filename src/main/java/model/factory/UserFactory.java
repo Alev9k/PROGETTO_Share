@@ -2,7 +2,7 @@ package model.factory;
 
 import model.entity.*;
 
-public final class UserFactory {
+public class UserFactory {
     private UserFactory() {
         // La factory espone esclusivamente operazioni statiche.
     }

@@ -3,8 +3,6 @@ package controller;
 import model.bean.BookingBean;
 import model.bean.BookingAvailabilityBean;
 import model.bean.BookingRequestBean;
-import model.bean.Role;
-import model.bean.UserBean;
 import model.dao.InMemoryBookingDAO;
 import model.dao.InMemoryGroupDAO;
 import model.dao.InMemoryUserDAO;
@@ -32,7 +30,7 @@ class BookItemControllerTest {
 
     private InMemoryBookingDAO bookingDAO;
     private BookItemController controller;
-    private UserBean operatorBean;
+    private Operator operator;
     private Group group;
     private InMemoryUserDAO userDAO;
     private InMemoryGroupDAO groupDAO;
@@ -42,8 +40,8 @@ class BookItemControllerTest {
     void setUp() throws Exception {
         String username = "booking-operator-" + UUID.randomUUID();
         userDAO = new InMemoryUserDAO();
-        userDAO.save(new Operator(username, "password"));
-        operatorBean = new UserBean(username, Role.OPERATOR);
+        operator = new Operator(username, "password");
+        userDAO.save(operator);
 
         group = new Group(1, "Laboratorio", LocalTime.of(8, 0),
                 LocalTime.of(18, 0), "123456", "admin");
@@ -54,8 +52,8 @@ class BookItemControllerTest {
         bookingDAO = new InMemoryBookingDAO();
         clock = Clock.fixed(Instant.parse("2026-08-11T07:10:00Z"),
                 ZoneId.of("Europe/Rome"));
-        controller = new BookItemController(groupDAO, userDAO, bookingDAO,
-                () -> operatorBean, clock);
+        controller = new BookItemController(groupDAO, bookingDAO,
+                () -> operator, clock);
     }
 
     @Test
@@ -84,7 +82,7 @@ class BookItemControllerTest {
 
     @Test
     void blockedOperatorCannotBook() {
-        group.toggleMemberStatus(operatorBean.getUsername());
+        group.toggleMemberStatus(operator.getUsername());
 
         assertEquals(1, controller.getMyGroups().size());
         assertFalse(controller.getMyGroups().getFirst().isActive());
@@ -98,7 +96,7 @@ class BookItemControllerTest {
     void availabilitySnapshotAvoidsReadsWhenTheStartTimeChanges() {
         CountingBookingDAO countingDAO = new CountingBookingDAO();
         BookItemController countingController = new BookItemController(
-                groupDAO, userDAO, countingDAO, () -> operatorBean, clock);
+                groupDAO, countingDAO, () -> operator, clock);
 
         BookingAvailabilityBean availability = countingController.getAvailability(
                 group.getGroupID(), 1, TODAY.plusDays(1));

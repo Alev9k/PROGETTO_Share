@@ -14,7 +14,7 @@ import model.entity.Group;
 import model.entity.GroupMembership;
 import model.entity.MembershipRequest;
 import model.entity.MembershipRequestStatus;
-import model.entity.Operator;
+import model.entity.Role;
 import model.entity.User;
 import model.session.SessionContext;
 
@@ -78,12 +78,12 @@ public class ManageOperatorsController {
         requireAuthorizedAdmin();
         MembershipRequest request = requirePendingRequest(requestBean);
         User user = userDAO.findByUsername(request.getOperatorUsername());
-        if (!(user instanceof Operator operator)) {
+        if (user == null || user.getRole() != Role.OPERATOR) {
             throw new IllegalArgumentException("L'utente richiedente non è un operatore valido.");
         }
 
-        if (!contextGroup.hasMember(operator.getUsername())) {
-            contextGroup.addMember(operator.getUsername());
+        if (!contextGroup.hasMember(user.getUsername())) {
+            contextGroup.addMember(user.getUsername());
         }
         request.accept();
 
@@ -107,7 +107,7 @@ public class ManageOperatorsController {
         }
         GroupMembership membership = contextGroup.findMembership(opBean.getUsername());
         User user = userDAO.findByUsername(opBean.getUsername());
-        if (membership == null || !(user instanceof Operator)) {
+        if (membership == null || user == null || user.getRole() != Role.OPERATOR) {
             throw new DAOException("Operatore non presente nel gruppo.");
         }
 
@@ -149,8 +149,8 @@ public class ManageOperatorsController {
 
     private void requireAuthorizedAdmin()
             throws UnauthorizedOperationException {
-        User admin = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (admin == null || !admin.canManageGroups()) {
+        User admin = session.requireCurrentUser();
+        if (!admin.canManageGroups()) {
             throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }
 

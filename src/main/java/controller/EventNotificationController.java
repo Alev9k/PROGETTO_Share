@@ -2,7 +2,6 @@ package controller;
 
 import model.bean.NotificationBean;
 import model.dao.NotificationDAO;
-import model.dao.UserDAO;
 import model.entity.Notification;
 import model.entity.User;
 import model.session.SessionContext;
@@ -13,13 +12,11 @@ import java.util.Objects;
 
 /** Controller BCE per la consultazione delle notifiche persistenti di dominio. */
 public class EventNotificationController {
-    private final UserDAO userDAO;
     private final NotificationDAO notificationDAO;
     private final SessionContext session;
 
-    public EventNotificationController(UserDAO userDAO, NotificationDAO notificationDAO,
+    public EventNotificationController(NotificationDAO notificationDAO,
                                        SessionContext session) {
-        this.userDAO = Objects.requireNonNull(userDAO);
         this.notificationDAO = Objects.requireNonNull(notificationDAO);
         this.session = Objects.requireNonNull(session);
     }
@@ -44,11 +41,7 @@ public class EventNotificationController {
     }
 
     private User requireUser() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (user == null) {
-            throw new IllegalArgumentException("Utente non valido.");
-        }
-        return user;
+        return session.requireCurrentUser();
     }
 
     private NotificationBean toBean(Notification notification) {

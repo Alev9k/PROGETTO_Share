@@ -14,16 +14,12 @@ public abstract class User {
     public String getUsername() { return username; }
     public String getPassword() { return password; }
 
-    public boolean canManageGroups() {
-        return false;
-    }
+    public abstract Role getRole();
 
-    public List<Group> getManagedGroups() {
-        return List.of();
-    }
+    public abstract boolean canManageGroups();
 
-    public void addManagedGroup(Group group) {
-        throw new IllegalStateException("Questo utente non puo gestire gruppi.");
-    }
+    public abstract List<Group> getManagedGroups();
+
+    public abstract void addManagedGroup(Group group);
 
 }

@@ -1,9 +1,9 @@
 package model.session;
 
-import model.bean.UserBean;
+import model.entity.User;
 
 /** Espone in sola lettura l'identità autenticata ai controller applicativi. */
 @FunctionalInterface
 public interface SessionContext {
-    UserBean requireCurrentUser();
+    User requireCurrentUser();
 }

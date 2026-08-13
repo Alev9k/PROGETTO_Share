@@ -62,12 +62,4 @@ public class Item extends ItemSubject {
         status = ItemStatus.BROKEN;
         notifyItemBroken(event);
     }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public void setMaxUsageTime(int maxUsageTime) {
-        this.maxUsageTime = maxUsageTime;
-    }
 }

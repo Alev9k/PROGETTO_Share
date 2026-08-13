@@ -2,8 +2,6 @@ package controller;
 
 import model.bean.GroupBean;
 import model.bean.MembershipRequestBean;
-import model.bean.Role;
-import model.bean.UserBean;
 import model.dao.InMemoryGroupDAO;
 import model.dao.InMemoryBookingDAO;
 import model.dao.InMemoryMembershipRequestDAO;
@@ -13,6 +11,7 @@ import model.entity.Admin;
 import model.entity.Group;
 import model.entity.MembershipRequestStatus;
 import model.entity.Operator;
+import model.entity.User;
 import model.session.SessionContext;
 import exceptions.UnauthorizedOperationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,24 +32,24 @@ class GroupAccessWorkflowTest {
     private InMemoryBookingDAO bookingDAO;
     private String adminUsername;
     private String operatorUsername;
-    private UserBean adminBean;
-    private UserBean operatorBean;
+    private Admin admin;
+    private Operator operator;
     private GroupBean createdGroup;
     private MutableSessionContext session;
 
     private static final class MutableSessionContext implements SessionContext {
-        private UserBean currentUser;
+        private User currentUser;
 
-        private MutableSessionContext(UserBean currentUser) {
+        private MutableSessionContext(User currentUser) {
             setCurrentUser(currentUser);
         }
 
-        private void setCurrentUser(UserBean currentUser) {
+        private void setCurrentUser(User currentUser) {
             this.currentUser = Objects.requireNonNull(currentUser);
         }
 
         @Override
-        public UserBean requireCurrentUser() {
+        public User requireCurrentUser() {
             return currentUser;
         }
     }
@@ -65,11 +64,11 @@ class GroupAccessWorkflowTest {
         requestDAO = new InMemoryMembershipRequestDAO();
         bookingDAO = new InMemoryBookingDAO();
 
-        userDAO.save(new Admin(adminUsername, "password"));
-        userDAO.save(new Operator(operatorUsername, "password"));
-        adminBean = new UserBean(adminUsername, Role.ADMIN);
-        operatorBean = new UserBean(operatorUsername, Role.OPERATOR);
-        session = new MutableSessionContext(adminBean);
+        admin = new Admin(adminUsername, "password");
+        operator = new Operator(operatorUsername, "password");
+        userDAO.save(admin);
+        userDAO.save(operator);
+        session = new MutableSessionContext(admin);
 
         createdGroup = new CreateGroupController(groupDAO, userDAO, session).createGroup(
                 new GroupBean("Gruppo " + suffix, LocalTime.of(8, 0), LocalTime.of(18, 0)));
@@ -77,14 +76,14 @@ class GroupAccessWorkflowTest {
 
     @Test
     void acceptedRequestAddsMemberAndNotifiesOperator() throws Exception {
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         JoinGroupController joinController =
-                new JoinGroupController(groupDAO, userDAO, requestDAO, session);
+                new JoinGroupController(groupDAO, requestDAO, session);
         MembershipRequestBean request = joinController.requestAccess(createdGroup.getAccessToken());
 
         AccessNotificationController notifications =
-                new AccessNotificationController(userDAO, groupDAO, requestDAO, session);
-        session.setCurrentUser(adminBean);
+                new AccessNotificationController(groupDAO, requestDAO, session);
+        session.setCurrentUser(admin);
         assertEquals(1, notifications.countPendingForAdmin());
 
         ManageOperatorsController manageController = new ManageOperatorsController(
@@ -96,7 +95,7 @@ class GroupAccessWorkflowTest {
                 .isActiveMember(operatorUsername));
         assertEquals(0, notifications.countPendingForAdmin());
 
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         List<MembershipRequestBean> unread = notifications.getUnreadResults();
         assertEquals(1, unread.size());
         assertEquals(MembershipRequestStatus.ACCEPTED, unread.getFirst().getStatus());
@@ -110,12 +109,12 @@ class GroupAccessWorkflowTest {
 
     @Test
     void rejectedRequestDoesNotAddMemberAndNotifiesOperator() throws Exception {
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         JoinGroupController joinController =
-                new JoinGroupController(groupDAO, userDAO, requestDAO, session);
+                new JoinGroupController(groupDAO, requestDAO, session);
         MembershipRequestBean request = joinController.requestAccess(createdGroup.getAccessToken());
 
-        session.setCurrentUser(adminBean);
+        session.setCurrentUser(admin);
         ManageOperatorsController manageController = new ManageOperatorsController(
                 createdGroup.getGroupId(), userDAO, groupDAO, requestDAO, bookingDAO, session);
         manageController.rejectRequest(request);
@@ -123,18 +122,18 @@ class GroupAccessWorkflowTest {
         assertFalse(groupDAO.findGroupById(createdGroup.getGroupId())
                 .hasMember(operatorUsername));
 
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         List<MembershipRequestBean> unread = new AccessNotificationController(
-                userDAO, groupDAO, requestDAO, session).getUnreadResults();
+                groupDAO, requestDAO, session).getUnreadResults();
         assertEquals(1, unread.size());
         assertEquals(MembershipRequestStatus.REJECTED, unread.getFirst().getStatus());
     }
 
     @Test
     void invalidTokenDoesNotCreateRequest() {
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         JoinGroupController joinController =
-                new JoinGroupController(groupDAO, userDAO, requestDAO, session);
+                new JoinGroupController(groupDAO, requestDAO, session);
 
         assertThrows(IllegalArgumentException.class,
                 () -> joinController.requestAccess("999999"));
@@ -143,9 +142,9 @@ class GroupAccessWorkflowTest {
 
     @Test
     void malformedTokenDoesNotCreateRequest() {
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         JoinGroupController joinController =
-                new JoinGroupController(groupDAO, userDAO, requestDAO, session);
+                new JoinGroupController(groupDAO, requestDAO, session);
 
         assertThrows(IllegalArgumentException.class,
                 () -> joinController.requestAccess("TOKEN-NON-VALIDO"));
@@ -155,12 +154,12 @@ class GroupAccessWorkflowTest {
     @Test
     void adminCannotManageRequestsOfAnotherAdminsGroup() throws Exception {
         String otherAdminUsername = "other-admin-" + UUID.randomUUID();
-        userDAO.save(new Admin(otherAdminUsername, "password"));
-        UserBean otherAdmin = new UserBean(otherAdminUsername, Role.ADMIN);
+        Admin otherAdmin = new Admin(otherAdminUsername, "password");
+        userDAO.save(otherAdmin);
 
-        session.setCurrentUser(operatorBean);
+        session.setCurrentUser(operator);
         JoinGroupController joinController =
-                new JoinGroupController(groupDAO, userDAO, requestDAO, session);
+                new JoinGroupController(groupDAO, requestDAO, session);
         MembershipRequestBean request = joinController.requestAccess(createdGroup.getAccessToken());
         ManageOperatorsController manageController = new ManageOperatorsController(
                 createdGroup.getGroupId(), userDAO, groupDAO, requestDAO, bookingDAO, session);
@@ -168,7 +167,7 @@ class GroupAccessWorkflowTest {
         session.setCurrentUser(otherAdmin);
         assertThrows(UnauthorizedOperationException.class,
                 () -> manageController.acceptRequest(request));
-        session.setCurrentUser(adminBean);
+        session.setCurrentUser(admin);
         assertEquals(1, manageController.getPendingRequests().size());
     }
 
@@ -186,21 +185,21 @@ class GroupAccessWorkflowTest {
         FileGroupDAO fileGroupDAO = new FileGroupDAO(
                 groupsFile, itemsFile, membershipsFile);
 
-        fileUserDAO.save(new Admin(fileAdminUsername, "password"));
-        fileUserDAO.save(new Operator(fileOperatorUsername, "password"));
-        UserBean fileAdminBean = new UserBean(fileAdminUsername, Role.ADMIN);
-        UserBean fileOperatorBean = new UserBean(fileOperatorUsername, Role.OPERATOR);
-        MutableSessionContext fileSession = new MutableSessionContext(fileAdminBean);
+        Admin fileAdmin = new Admin(fileAdminUsername, "password");
+        Operator fileOperator = new Operator(fileOperatorUsername, "password");
+        fileUserDAO.save(fileAdmin);
+        fileUserDAO.save(fileOperator);
+        MutableSessionContext fileSession = new MutableSessionContext(fileAdmin);
         GroupBean fileGroup = new CreateGroupController(
                 fileGroupDAO, fileUserDAO, fileSession).createGroup(
                 new GroupBean("Gruppo persistente", LocalTime.of(8, 0),
                         LocalTime.of(18, 0)));
 
-        fileSession.setCurrentUser(fileOperatorBean);
+        fileSession.setCurrentUser(fileOperator);
         MembershipRequestBean request = new JoinGroupController(
-                fileGroupDAO, fileUserDAO, fileRequestDAO, fileSession).requestAccess(
+                fileGroupDAO, fileRequestDAO, fileSession).requestAccess(
                 fileGroup.getAccessToken());
-        fileSession.setCurrentUser(fileAdminBean);
+        fileSession.setCurrentUser(fileAdmin);
         new ManageOperatorsController(fileGroup.getGroupId(), fileUserDAO,
                 fileGroupDAO, fileRequestDAO, new InMemoryBookingDAO(), fileSession)
                 .acceptRequest(request);

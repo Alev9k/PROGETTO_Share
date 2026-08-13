@@ -2,7 +2,6 @@ package controller;
 
 import model.bean.GroupBean;
 import model.dao.GroupDAO;
-import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.User;
 import model.session.SessionContext;
@@ -14,12 +13,10 @@ import java.util.List;
  * Implementa la logica di business definita nel diagramma VOPC e nei casi d'uso.
  */
 public class ManageGroupController {
-    private final UserDAO userDAO; // Per recuperare Admin/Operator
     private final GroupDAO groupDAO; // Per gestire i gruppi (Demo o VFS)
     private final SessionContext session;
 
-    public ManageGroupController(UserDAO uDao, GroupDAO gDao, SessionContext session) {
-        this.userDAO = uDao;
+    public ManageGroupController(GroupDAO gDao, SessionContext session) {
         this.groupDAO = gDao;
         this.session = session;
     }
@@ -28,11 +25,11 @@ public class ManageGroupController {
     // --- Metodi di Recupero Dati ---
 
     public List<GroupBean> getGroupList(){
-        String adminUsername = session.requireCurrentUser().getUsername();
-        User admin = userDAO.findByUsername(adminUsername);
+        User admin = session.requireCurrentUser();
+        String adminUsername = admin.getUsername();
         List<GroupBean> beanList = new ArrayList<>();
 
-        if (admin == null || !admin.canManageGroups()) {
+        if (!admin.canManageGroups()) {
             throw new IllegalArgumentException("Utente non autorizzato alla gestione dei gruppi.");
         }
 

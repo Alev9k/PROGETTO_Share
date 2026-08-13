@@ -39,7 +39,7 @@ public class ControllerAssembler {
     }
 
     public ManageGroupController createManageGroupController() {
-        return new ManageGroupController(userDAO, groupDAO, userSession);
+        return new ManageGroupController(groupDAO, userSession);
     }
 
     // Metodi per le sotto-boundary (già definiti)
@@ -49,7 +49,7 @@ public class ControllerAssembler {
     }
 
     public ManageItemsController createManageItemsController(int groupID) {
-        return new ManageItemsController(groupID, groupDAO, userDAO, userSession);
+        return new ManageItemsController(groupID, groupDAO, userSession);
     }
 
     public CreateGroupController createCreateGroupController() {
@@ -57,30 +57,30 @@ public class ControllerAssembler {
     }
 
     public JoinGroupController createJoinGroupController() {
-        return new JoinGroupController(groupDAO, userDAO, membershipRequestDAO, userSession);
+        return new JoinGroupController(groupDAO, membershipRequestDAO, userSession);
     }
 
     public AccessNotificationController createAccessNotificationController() {
         return new AccessNotificationController(
-                userDAO, groupDAO, membershipRequestDAO, userSession);
+                groupDAO, membershipRequestDAO, userSession);
     }
 
     public BookItemController createBookItemController() {
-        return new BookItemController(groupDAO, userDAO, bookingDAO, userSession);
+        return new BookItemController(groupDAO, bookingDAO, userSession);
     }
 
     public MyBookingsController createMyBookingsController() {
-        return new MyBookingsController(userDAO, groupDAO, bookingDAO, userSession);
+        return new MyBookingsController(groupDAO, bookingDAO, userSession);
     }
 
     public ReturnItemController createReturnItemController() {
-        return new ReturnItemController(userDAO, groupDAO, bookingDAO, List.of(
+        return new ReturnItemController(groupDAO, bookingDAO, List.of(
                 new AdminBrokenItemNotificationObserver(groupDAO, notificationDAO),
                 new FutureBookingsCancellationObserver(
                         bookingDAO, groupDAO, notificationDAO)), userSession);
     }
 
     public EventNotificationController createEventNotificationController() {
-        return new EventNotificationController(userDAO, notificationDAO, userSession);
+        return new EventNotificationController(notificationDAO, userSession);
     }
 }

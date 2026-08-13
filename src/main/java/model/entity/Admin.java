@@ -12,6 +12,11 @@ public class Admin extends User {
     }
 
     @Override
+    public Role getRole() {
+        return Role.ADMIN;
+    }
+
+    @Override
     public boolean canManageGroups() {
         return true;
     }

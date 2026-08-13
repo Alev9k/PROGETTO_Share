@@ -3,7 +3,7 @@ package boundary.cli;
 import controller.ControllerAssembler;
 import controller.LoginController;
 import controller.RegistrationController;
-import model.bean.UserBean;
+import model.entity.User;
 import model.session.UserSession;
 
 import java.util.Scanner;
@@ -55,11 +55,13 @@ public class FrontControllerCLI {
     }
 
     private void dispatchAuthenticatedUser(Scanner scanner) {
-        UserBean user = userSession.requireCurrentUser();
+        User user = userSession.requireCurrentUser();
         System.out.println("\nAccesso effettuato come: " + user.getUsername());
         switch (user.getRole()) {
-            case ADMIN -> new AdminDashboardBoundaryCLI(controllerAssembler, scanner).start();
-            case OPERATOR -> new OperatorDashboardBoundaryCLI(controllerAssembler, scanner).start();
+            case ADMIN -> new AdminDashboardBoundaryCLI(
+                    controllerAssembler, scanner).start();
+            case OPERATOR -> new OperatorDashboardBoundaryCLI(
+                    controllerAssembler, scanner).start();
         }
     }
 }

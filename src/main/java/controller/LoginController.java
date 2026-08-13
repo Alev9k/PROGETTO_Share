@@ -1,7 +1,6 @@
 package controller;
 
 import exceptions.InvalidCredentialsException;
-import model.bean.Role;
 import model.bean.UserBean;
 import model.dao.*;
 import model.entity.*;
@@ -21,12 +20,8 @@ public class LoginController {
         if (u == null || !u.getPassword().equals(pass)) {
             throw new InvalidCredentialsException();
         }
-        UserBean authenticatedUser = switch (u) {
-            case Admin admin -> new UserBean(u.getUsername(), Role.ADMIN);
-            case Operator operator -> new UserBean(u.getUsername(), Role.OPERATOR);
-            default -> throw new IllegalStateException("Tipo utente non previsto: " + u.getClass().getName());
-        };
-        session.open(authenticatedUser);
+        UserBean authenticatedUser = new UserBean(u.getUsername(), u.getRole());
+        session.open(u);
         return authenticatedUser;
     }
 }

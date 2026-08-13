@@ -6,7 +6,6 @@ import exceptions.UnauthorizedOperationException;
 import model.bean.CreateItemBean;
 import model.bean.ItemBean;
 import model.dao.GroupDAO;
-import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.User;
@@ -17,14 +16,12 @@ import java.util.List;
 /** Controller del caso d'uso di visualizzazione e creazione degli item. */
 public class ManageItemsController {
     private final GroupDAO groupDAO;
-    private final UserDAO userDAO;
     private final Group contextGroup;
     private final SessionContext session;
 
-    public ManageItemsController(int groupID, GroupDAO groupDAO, UserDAO userDAO,
+    public ManageItemsController(int groupID, GroupDAO groupDAO,
                                  SessionContext session) {
         this.groupDAO = groupDAO;
-        this.userDAO = userDAO;
         this.session = session;
         this.contextGroup = groupDAO.findGroupById(groupID);
 
@@ -76,8 +73,8 @@ public class ManageItemsController {
 
     private void requireAuthorizedAdmin()
             throws UnauthorizedOperationException {
-        User admin = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (admin == null || !admin.canManageGroups()) {
+        User admin = session.requireCurrentUser();
+        if (!admin.canManageGroups()) {
             throw new UnauthorizedOperationException("Amministratore non autorizzato.");
         }
 

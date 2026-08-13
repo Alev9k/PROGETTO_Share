@@ -3,11 +3,10 @@ package controller;
 import model.bean.MembershipRequestBean;
 import model.dao.GroupDAO;
 import model.dao.MembershipRequestDAO;
-import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.MembershipRequest;
 import model.entity.MembershipRequestStatus;
-import model.entity.Operator;
+import model.entity.Role;
 import model.entity.User;
 import model.session.SessionContext;
 
@@ -17,15 +16,13 @@ import java.util.stream.Collectors;
 
 /** Controller applicativo per le notifiche derivate dalle richieste di accesso. */
 public class AccessNotificationController {
-    private final UserDAO userDAO;
     private final GroupDAO groupDAO;
     private final MembershipRequestDAO requestDAO;
     private final SessionContext session;
 
-    public AccessNotificationController(UserDAO userDAO, GroupDAO groupDAO,
+    public AccessNotificationController(GroupDAO groupDAO,
                                         MembershipRequestDAO requestDAO,
                                         SessionContext session) {
-        this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.requestDAO = requestDAO;
         this.session = session;
@@ -49,7 +46,7 @@ public class AccessNotificationController {
     }
 
     public List<MembershipRequestBean> getUnreadResults() {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         return requestDAO.findByOperatorUsername(operator.getUsername()).stream()
                 .filter(request -> request.getStatus() != MembershipRequestStatus.PENDING)
                 .filter(request -> !request.isResultRead())
@@ -58,7 +55,7 @@ public class AccessNotificationController {
     }
 
     public void markAsRead(MembershipRequestBean requestBean) {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         MembershipRequest request = requestDAO.findById(requestBean.getRequestId());
         if (request == null || !request.getOperatorUsername().equals(operator.getUsername())) {
             throw new IllegalArgumentException("Notifica non trovata.");
@@ -76,18 +73,18 @@ public class AccessNotificationController {
     }
 
     private User requireAdmin() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (user == null || !user.canManageGroups()) {
+        User user = session.requireCurrentUser();
+        if (!user.canManageGroups()) {
             throw new IllegalArgumentException("Amministratore non autorizzato.");
         }
         return user;
     }
 
-    private Operator requireOperator() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (!(user instanceof Operator operator)) {
+    private User requireOperator() {
+        User user = session.requireCurrentUser();
+        if (user.getRole() != Role.OPERATOR) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
-        return operator;
+        return user;
     }
 }

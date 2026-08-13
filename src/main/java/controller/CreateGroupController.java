@@ -2,7 +2,6 @@ package controller;
 
 import exceptions.DuplicateGroupNameException;
 import exceptions.UnauthorizedOperationException;
-import exceptions.UserNotFoundException;
 import model.dao.GroupDAO;
 import model.dao.UserDAO;
 import model.entity.Group;
@@ -46,7 +45,8 @@ public class CreateGroupController {
         String groupName = groupBean.getGroupName();
         LocalTime openTime = groupBean.getOpenTime();
         LocalTime closeTime = groupBean.getCloseTime();
-        String adminUsername = session.requireCurrentUser().getUsername();
+        User admin = session.requireCurrentUser();
+        String adminUsername = admin.getUsername();
 
         // 2. Validazione base e logica di business
         if (groupName == null || groupName.trim().isEmpty()) {
@@ -74,11 +74,6 @@ public class CreateGroupController {
             }
         }
 
-        User admin = userDAO.findByUsername(adminUsername);
-        if (admin == null) {
-            throw new UserNotFoundException(
-                    "Amministratore '" + adminUsername + "' non trovato.");
-        }
         if (!admin.canManageGroups()) {
             throw new UnauthorizedOperationException(
                     "L'utente corrente non è autorizzato a creare gruppi.");

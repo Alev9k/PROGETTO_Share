@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="489.0" prefWidth="350.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boundary.javafx.RegistrationGraphicController">
+<VBox alignment="TOP_CENTER" prefHeight="489.0" prefWidth="350.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="boundary.javafx.RegistrationGraphicController">
     <children>
         <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: #0f172a;">
             <children>

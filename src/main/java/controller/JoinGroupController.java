@@ -3,10 +3,10 @@ package controller;
 import model.bean.MembershipRequestBean;
 import model.dao.GroupDAO;
 import model.dao.MembershipRequestDAO;
-import model.dao.UserDAO;
 import model.entity.Group;
 import model.entity.MembershipRequest;
-import model.entity.Operator;
+import model.entity.Role;
+import model.entity.User;
 import model.session.SessionContext;
 
 import java.time.Clock;
@@ -18,22 +18,18 @@ import java.util.UUID;
 /** Controller applicativo del caso d'uso "Richiedi accesso al gruppo". */
 public class JoinGroupController {
     private final GroupDAO groupDAO;
-    private final UserDAO userDAO;
     private final MembershipRequestDAO requestDAO;
     private final SessionContext session;
     private final Clock clock;
 
-    public JoinGroupController(GroupDAO groupDAO, UserDAO userDAO,
-                               MembershipRequestDAO requestDAO,
+    public JoinGroupController(GroupDAO groupDAO, MembershipRequestDAO requestDAO,
                                SessionContext session) {
-        this(groupDAO, userDAO, requestDAO, session, Clock.systemDefaultZone());
+        this(groupDAO, requestDAO, session, Clock.systemDefaultZone());
     }
 
-    JoinGroupController(GroupDAO groupDAO, UserDAO userDAO,
-                        MembershipRequestDAO requestDAO, SessionContext session,
-                        Clock clock) {
+    JoinGroupController(GroupDAO groupDAO, MembershipRequestDAO requestDAO,
+                        SessionContext session, Clock clock) {
         this.groupDAO = groupDAO;
-        this.userDAO = userDAO;
         this.requestDAO = requestDAO;
         this.session = session;
         this.clock = clock;
@@ -47,10 +43,7 @@ public class JoinGroupController {
         if (!normalizedToken.matches("\\d{6}")) {
             throw new IllegalArgumentException("Il token deve contenere esattamente 6 cifre.");
         }
-        if (!(userDAO.findByUsername(session.requireCurrentUser().getUsername())
-                instanceof Operator operator)) {
-            throw new IllegalArgumentException("Solo un operatore può richiedere l'accesso a un gruppo.");
-        }
+        User operator = requireOperator();
 
         Group group = groupDAO.findGroupByAccessToken(normalizedToken);
         if (group == null) {
@@ -60,7 +53,8 @@ public class JoinGroupController {
             throw new IllegalStateException("Sei già membro di questo gruppo.");
         }
         if (requestDAO.findPending(group.getGroupID(), operator.getUsername()) != null) {
-            throw new IllegalStateException("Hai già una richiesta in attesa per questo gruppo.");
+            throw new IllegalStateException(
+                    "Hai già una richiesta in attesa per questo gruppo.");
         }
 
         MembershipRequest request = new MembershipRequest(
@@ -71,14 +65,20 @@ public class JoinGroupController {
     }
 
     public List<MembershipRequestBean> getRequestHistory() {
-        String operatorUsername = session.requireCurrentUser().getUsername();
-        if (!(userDAO.findByUsername(operatorUsername) instanceof Operator)) {
-            throw new IllegalArgumentException("Operatore non valido.");
-        }
+        String operatorUsername = requireOperator().getUsername();
         return requestDAO.findByOperatorUsername(operatorUsername).stream()
                 .sorted(Comparator.comparing(MembershipRequest::getCreatedAt).reversed())
-                .map(request -> toBean(request, groupDAO.findGroupById(request.getGroupId())))
+                .map(request -> toBean(request,
+                        groupDAO.findGroupById(request.getGroupId())))
                 .toList();
+    }
+
+    private User requireOperator() {
+        User user = session.requireCurrentUser();
+        if (user.getRole() != Role.OPERATOR) {
+            throw new IllegalArgumentException("Operatore non valido.");
+        }
+        return user;
     }
 
     private MembershipRequestBean toBean(MembershipRequest request, Group group) {

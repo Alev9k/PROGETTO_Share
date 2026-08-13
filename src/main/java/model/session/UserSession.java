@@ -1,6 +1,6 @@
 package model.session;
 
-import model.bean.UserBean;
+import model.entity.User;
 
 import java.util.Objects;
 
@@ -8,8 +8,8 @@ import java.util.Objects;
  * Sessione dell'applicazione desktop. Il processo può avere un solo utente
  * autenticato alla volta.
  */
-public class UserSession implements SessionContext {
-    private UserBean currentUser;
+public final class UserSession implements SessionContext {
+    private User currentUser;
 
     private UserSession() {
     }
@@ -22,7 +22,7 @@ public class UserSession implements SessionContext {
         return Holder.INSTANCE;
     }
 
-    public synchronized void open(UserBean user) {
+    public void open(User user) {
         if (currentUser != null) {
             throw new IllegalStateException("Esiste già una sessione attiva.");
         }
@@ -30,18 +30,14 @@ public class UserSession implements SessionContext {
     }
 
     @Override
-    public synchronized UserBean requireCurrentUser() {
+    public User requireCurrentUser() {
         if (currentUser == null) {
             throw new IllegalStateException("Nessun utente autenticato.");
         }
         return currentUser;
     }
 
-    public synchronized boolean isActive() {
-        return currentUser != null;
-    }
-
-    public synchronized void close() {
+    public void close() {
         currentUser = null;
     }
 }

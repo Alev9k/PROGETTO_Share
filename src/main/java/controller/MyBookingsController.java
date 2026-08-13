@@ -5,11 +5,10 @@ import model.bean.BookingBean;
 import model.bean.BookingStateBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
-import model.dao.UserDAO;
 import model.entity.Booking;
 import model.entity.Group;
 import model.entity.Item;
-import model.entity.Operator;
+import model.entity.Role;
 import model.entity.User;
 import model.session.SessionContext;
 
@@ -24,20 +23,18 @@ import java.util.stream.Collectors;
 
 /** Controller applicativo del caso d'uso "Le mie prenotazioni". */
 public class MyBookingsController {
-    private final UserDAO userDAO;
     private final GroupDAO groupDAO;
     private final BookingDAO bookingDAO;
     private final Clock clock;
     private final SessionContext session;
 
-    public MyBookingsController(UserDAO userDAO, GroupDAO groupDAO, BookingDAO bookingDAO,
+    public MyBookingsController(GroupDAO groupDAO, BookingDAO bookingDAO,
                                 SessionContext session) {
-        this(userDAO, groupDAO, bookingDAO, session, Clock.systemDefaultZone());
+        this(groupDAO, bookingDAO, session, Clock.systemDefaultZone());
     }
 
-    MyBookingsController(UserDAO userDAO, GroupDAO groupDAO,
-                         BookingDAO bookingDAO, SessionContext session, Clock clock) {
-        this.userDAO = Objects.requireNonNull(userDAO);
+    MyBookingsController(GroupDAO groupDAO, BookingDAO bookingDAO,
+                         SessionContext session, Clock clock) {
         this.groupDAO = Objects.requireNonNull(groupDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
         this.session = Objects.requireNonNull(session);
@@ -45,7 +42,7 @@ public class MyBookingsController {
     }
 
     public List<BookingBean> getMyBookings() {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         LocalDateTime now = LocalDateTime.now(clock);
         List<Booking> bookings = bookingDAO.findByOperator(operator.getUsername());
         if (bookings.isEmpty()) {
@@ -63,7 +60,7 @@ public class MyBookingsController {
 
     public void deleteBooking(String bookingId)
             throws UnauthorizedOperationException {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         if (bookingId == null || bookingId.isBlank()) {
             throw new IllegalArgumentException("Seleziona una prenotazione.");
         }
@@ -84,12 +81,12 @@ public class MyBookingsController {
         bookingDAO.deleteByIds(List.of(bookingId));
     }
 
-    private Operator requireOperator() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (!(user instanceof Operator operator)) {
+    private User requireOperator() {
+        User user = session.requireCurrentUser();
+        if (user.getRole() != Role.OPERATOR) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
-        return operator;
+        return user;
     }
 
     private BookingBean toBean(Booking booking, Group group, LocalDateTime now) {

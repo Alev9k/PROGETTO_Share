@@ -1,5 +1,7 @@
 package model.bean;
 
+import model.entity.Role;
+
 public class UserBean {
 
     private final String username;

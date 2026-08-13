@@ -17,7 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.bean.GroupBean;
-import model.bean.UserBean;
+import model.entity.User;
 import model.session.UserSession;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class JavaFxSceneNavigator implements SceneNavigator {
 
     @Override
     public void showDashboard() {
-        UserBean user = userSession.requireCurrentUser();
+        User user = userSession.requireCurrentUser();
         Objects.requireNonNull(user, "L'utente autenticato è obbligatorio.");
         stage.setResizable(true);
 

@@ -7,14 +7,13 @@ import model.bean.ItemBean;
 import model.bean.OperatorGroupBean;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
-import model.dao.UserDAO;
 import model.entity.Booking;
 import model.entity.BookingSchedule;
 import model.entity.BookingSlot;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.ItemStatus;
-import model.entity.Operator;
+import model.entity.Role;
 import model.entity.User;
 import model.session.SessionContext;
 
@@ -28,27 +27,25 @@ import java.util.UUID;
 /** Controller applicativo del caso d'uso "Prenota item". */
 public class BookItemController {
     private final GroupDAO groupDAO;
-    private final UserDAO userDAO;
     private final BookingDAO bookingDAO;
     private final Clock clock;
     private final SessionContext session;
 
-    public BookItemController(GroupDAO groupDAO, UserDAO userDAO, BookingDAO bookingDAO,
+    public BookItemController(GroupDAO groupDAO, BookingDAO bookingDAO,
                               SessionContext session) {
-        this(groupDAO, userDAO, bookingDAO, session, Clock.systemDefaultZone());
+        this(groupDAO, bookingDAO, session, Clock.systemDefaultZone());
     }
 
-    BookItemController(GroupDAO groupDAO, UserDAO userDAO,
-                       BookingDAO bookingDAO, SessionContext session, Clock clock) {
+    BookItemController(GroupDAO groupDAO, BookingDAO bookingDAO,
+                       SessionContext session, Clock clock) {
         this.groupDAO = Objects.requireNonNull(groupDAO);
-        this.userDAO = Objects.requireNonNull(userDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
         this.session = Objects.requireNonNull(session);
         this.clock = Objects.requireNonNull(clock);
     }
 
     public List<OperatorGroupBean> getMyGroups() {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         return groupDAO.findGroupsByMemberUsername(operator.getUsername()).stream()
                 .map(group -> toOperatorGroupBean(group, operator.getUsername()))
                 .toList();
@@ -60,7 +57,7 @@ public class BookItemController {
     }
 
     public List<ItemBean> getBookableItems(int groupId) {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         Group group = requireActiveMembership(groupId, operator.getUsername());
         return group.getItems().stream()
                 .filter(item -> item.getStatus() != ItemStatus.BROKEN)
@@ -72,7 +69,7 @@ public class BookItemController {
 
     public BookingAvailabilityBean getAvailability(int groupId, int itemId,
                                                    LocalDate date) {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         BookingSchedule schedule = buildSchedule(groupId, itemId, date,
                 operator.getUsername());
         return new BookingAvailabilityBean(groupId, itemId, date,
@@ -83,7 +80,7 @@ public class BookItemController {
         if (request == null) {
             throw new IllegalArgumentException("I dati della prenotazione sono obbligatori.");
         }
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         validateDate(request.getDate());
         Group group = requireActiveMembership(request.getGroupId(), operator.getUsername());
         Item item = requireItem(group, request.getItemId());
@@ -114,12 +111,12 @@ public class BookItemController {
         }
     }
 
-    private Operator requireOperator() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (!(user instanceof Operator operator)) {
+    private User requireOperator() {
+        User user = session.requireCurrentUser();
+        if (user.getRole() != Role.OPERATOR) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
-        return operator;
+        return user;
     }
 
     private Group requireActiveMembership(int groupId, String operatorUsername) {

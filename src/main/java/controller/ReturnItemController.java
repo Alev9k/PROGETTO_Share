@@ -3,12 +3,11 @@ package controller;
 import exceptions.UnauthorizedOperationException;
 import model.dao.BookingDAO;
 import model.dao.GroupDAO;
-import model.dao.UserDAO;
 import model.entity.Booking;
 import model.entity.Group;
 import model.entity.Item;
 import model.entity.ItemStatus;
-import model.entity.Operator;
+import model.entity.Role;
 import model.entity.ReturnCondition;
 import model.entity.User;
 import model.observer.ItemObserver;
@@ -21,25 +20,22 @@ import java.util.Objects;
 
 /** Controller applicativo del caso d'uso "Riconsegna item". */
 public class ReturnItemController {
-    private final UserDAO userDAO;
     private final GroupDAO groupDAO;
     private final BookingDAO bookingDAO;
     private final List<ItemObserver> itemObservers;
     private final Clock clock;
     private final SessionContext session;
 
-    public ReturnItemController(UserDAO userDAO, GroupDAO groupDAO,
-                                BookingDAO bookingDAO,
+    public ReturnItemController(GroupDAO groupDAO, BookingDAO bookingDAO,
                                 List<ItemObserver> itemObservers,
                                 SessionContext session) {
-        this(userDAO, groupDAO, bookingDAO, itemObservers, session,
+        this(groupDAO, bookingDAO, itemObservers, session,
                 Clock.systemDefaultZone());
     }
 
-    ReturnItemController(UserDAO userDAO, GroupDAO groupDAO,
-                         BookingDAO bookingDAO, List<ItemObserver> itemObservers,
+    ReturnItemController(GroupDAO groupDAO, BookingDAO bookingDAO,
+                         List<ItemObserver> itemObservers,
                          SessionContext session, Clock clock) {
-        this.userDAO = Objects.requireNonNull(userDAO);
         this.groupDAO = Objects.requireNonNull(groupDAO);
         this.bookingDAO = Objects.requireNonNull(bookingDAO);
         this.itemObservers = List.copyOf(Objects.requireNonNull(itemObservers));
@@ -49,7 +45,7 @@ public class ReturnItemController {
 
     public void returnItem(String bookingId, boolean broken)
             throws UnauthorizedOperationException {
-        Operator operator = requireOperator();
+        User operator = requireOperator();
         Booking booking = requireOwnedBooking(bookingId, operator.getUsername());
         Group group = groupDAO.findGroupById(booking.getGroupId());
         if (group == null) {
@@ -99,11 +95,11 @@ public class ReturnItemController {
         return booking;
     }
 
-    private Operator requireOperator() {
-        User user = userDAO.findByUsername(session.requireCurrentUser().getUsername());
-        if (!(user instanceof Operator operator)) {
+    private User requireOperator() {
+        User user = session.requireCurrentUser();
+        if (user.getRole() != Role.OPERATOR) {
             throw new IllegalArgumentException("Operatore non valido.");
         }
-        return operator;
+        return user;
     }
 }

@@ -1,7 +1,7 @@
 package boundary.javafx;
 
 import boundary.javafx.navigation.JavaFxSceneNavigator;
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import model.session.UserSession;
@@ -10,18 +10,18 @@ import java.util.Objects;
 
 /** Entry point JavaFX: crea il navigatore d'istanza e gli affida la prima route. */
 public class MainAppGUI extends Application {
-    private static ControllerFactory controllerFactory;
+    private static ControllerAssembler controllerAssembler;
 
-    public static void setControllerFactory(ControllerFactory factory) {
-        controllerFactory = Objects.requireNonNull(factory);
+    public static void setControllerAssembler(ControllerAssembler assembler) {
+        controllerAssembler = Objects.requireNonNull(assembler);
     }
 
     @Override
     public void start(Stage stage) {
-        ControllerFactory factory = Objects.requireNonNull(
-                controllerFactory,
-                "ControllerFactory non configurata prima dell'avvio JavaFX."
+        ControllerAssembler assembler = Objects.requireNonNull(
+                controllerAssembler,
+                "ControllerAssembler non configurato prima dell'avvio JavaFX."
         );
-        new JavaFxSceneNavigator(stage, factory, UserSession.getInstance()).showLogin();
+        new JavaFxSceneNavigator(stage, assembler, UserSession.getInstance()).showLogin();
     }
 }

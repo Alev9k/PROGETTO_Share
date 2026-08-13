@@ -1,23 +1,23 @@
 package boundary.cli;
 
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 
 import java.util.Scanner;
 
 /** Dashboard CLI dell'operatore autenticato. */
 public class OperatorDashboardBoundaryCLI {
-    private final ControllerFactory factory;
+    private final ControllerAssembler controllerAssembler;
     private final Scanner scanner;
     private final CliInput input;
     private final NotificationBoundaryCLI notifications;
 
-    public OperatorDashboardBoundaryCLI(ControllerFactory factory, Scanner scanner) {
-        this.factory = factory;
+    public OperatorDashboardBoundaryCLI(ControllerAssembler controllerAssembler, Scanner scanner) {
+        this.controllerAssembler = controllerAssembler;
         this.scanner = scanner;
         this.input = new CliInput(scanner);
         this.notifications = new NotificationBoundaryCLI(
-                factory.createAccessNotificationController(),
-                factory.createEventNotificationController());
+                controllerAssembler.createAccessNotificationController(),
+                controllerAssembler.createEventNotificationController());
     }
 
     public void start() {
@@ -32,12 +32,12 @@ public class OperatorDashboardBoundaryCLI {
 
             switch (input.readChoice("Scelta: ", 0, 4)) {
                 case 1 -> new BookItemBoundaryCLI(
-                        factory.createBookItemController(), scanner).start();
+                        controllerAssembler.createBookItemController(), scanner).start();
                 case 2 -> new RequestGroupAccessBoundaryCLI(
-                        factory.createJoinGroupController(), scanner).start();
+                        controllerAssembler.createJoinGroupController(), scanner).start();
                 case 3 -> new MyBookingsBoundaryCLI(
-                        factory.createMyBookingsController(),
-                        factory.createReturnItemController(), scanner).start();
+                        controllerAssembler.createMyBookingsController(),
+                        controllerAssembler.createReturnItemController(), scanner).start();
                 case 4 -> notifications.showForOperator();
                 case 0 -> {
                     return;

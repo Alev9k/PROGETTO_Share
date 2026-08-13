@@ -1,7 +1,7 @@
 package mainclass;
 
 import boundary.cli.*;
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 import model.dao.*;
 import boundary.javafx.*;
 import javafx.application.Application;
@@ -31,10 +31,9 @@ public class Main {
         BookingDAO bookingDAO = FactoryDAO.getBookingDAO(context);
         NotificationDAO notificationDAO = FactoryDAO.getNotificationDAO(context);
 
-        // 2. CREAZIONE DELLA CONTROLLER FACTORY
-        // Centralizziamo qui la gestione delle dipendenze
+        // 2. CREAZIONE DELL'ASSEMBLER DEI CONTROLLER
         UserSession userSession = UserSession.getInstance();
-        ControllerFactory controllerFactory = new ControllerFactory(
+        ControllerAssembler controllerAssembler = new ControllerAssembler(
                 userDAO, groupDAO, membershipRequestDAO, bookingDAO, notificationDAO,
                 userSession);
 
@@ -46,11 +45,9 @@ public class Main {
         scanner.nextLine(); // Pulizia buffer
 
         if (interfaceChoice == 1) {
-            // Passiamo la factory al Front Controller CLI
-            new FrontControllerCLI(controllerFactory, userSession).start();
+            new FrontControllerCLI(controllerAssembler, userSession).start();
         } else {
-            // Per JavaFX, potresti passare la factory tramite un setter o costruttore
-            MainAppGUI.setControllerFactory(controllerFactory);
+            MainAppGUI.setControllerAssembler(controllerAssembler);
             Application.launch(MainAppGUI.class, args);
         }
     }

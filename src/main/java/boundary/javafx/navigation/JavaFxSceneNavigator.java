@@ -11,7 +11,7 @@ import boundary.javafx.MyBookingsGraphicController;
 import boundary.javafx.OperatorDashboardGraphicController;
 import boundary.javafx.RegistrationGraphicController;
 import boundary.javafx.RequestGroupAccessGraphicController;
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,13 +27,13 @@ import java.util.function.Consumer;
 /** Implementazione JavaFX che possiede lo Stage e centralizza tutte le route. */
 public class JavaFxSceneNavigator implements SceneNavigator {
     private final Stage stage;
-    private final ControllerFactory controllerFactory;
+    private final ControllerAssembler controllerAssembler;
     private final UserSession userSession;
 
-    public JavaFxSceneNavigator(Stage stage, ControllerFactory controllerFactory,
+    public JavaFxSceneNavigator(Stage stage, ControllerAssembler controllerAssembler,
                                 UserSession userSession) {
         this.stage = Objects.requireNonNull(stage);
-        this.controllerFactory = Objects.requireNonNull(controllerFactory);
+        this.controllerAssembler = Objects.requireNonNull(controllerAssembler);
         this.userSession = Objects.requireNonNull(userSession);
     }
 
@@ -41,13 +41,13 @@ public class JavaFxSceneNavigator implements SceneNavigator {
     public void showLogin() {
         stage.setResizable(false);
         loadScene("/view/Login.fxml", (LoginGraphicController controller) ->
-                controller.initData(controllerFactory.createLoginController(), this));
+                controller.initData(controllerAssembler.createLoginController(), this));
     }
 
     @Override
     public void showRegistration() {
         loadScene("/view/Registration.fxml", (RegistrationGraphicController controller) ->
-                controller.initData(controllerFactory.createRegistrationController(), this));
+                controller.initData(controllerAssembler.createRegistrationController(), this));
     }
 
     @Override
@@ -59,13 +59,13 @@ public class JavaFxSceneNavigator implements SceneNavigator {
         switch (user.getRole()) {
             case ADMIN -> loadScene("/view/AdminDashboard.fxml",
                     (AdminDashboardGraphicController controller) -> controller.initData(
-                            controllerFactory.createAccessNotificationController(),
-                            controllerFactory.createEventNotificationController(),
+                            controllerAssembler.createAccessNotificationController(),
+                            controllerAssembler.createEventNotificationController(),
                             this, userSession));
             case OPERATOR -> loadScene("/view/OperatorDashboard.fxml",
                     (OperatorDashboardGraphicController controller) -> controller.initData(
-                            controllerFactory.createAccessNotificationController(),
-                            controllerFactory.createEventNotificationController(),
+                            controllerAssembler.createAccessNotificationController(),
+                            controllerAssembler.createEventNotificationController(),
                             this, userSession));
             case TECHNICIAN -> loadScene("/view/TechnicianDashboard.fxml", null);
         }
@@ -75,14 +75,14 @@ public class JavaFxSceneNavigator implements SceneNavigator {
     public void showCreateGroup() {
         loadScene("/view/CreateGroup.fxml", (CreateGroupGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createCreateGroupController(), this));
+                        controllerAssembler.createCreateGroupController(), this));
     }
 
     @Override
     public void showManageGroups() {
         loadScene("/view/ManageGroup.fxml", (ManageGroupGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createManageGroupController(), this));
+                        controllerAssembler.createManageGroupController(), this));
     }
 
     @Override
@@ -90,7 +90,7 @@ public class JavaFxSceneNavigator implements SceneNavigator {
         Objects.requireNonNull(group, "Il gruppo da gestire è obbligatorio.");
         loadScene("/view/ManageItems.fxml", (ManageItemsGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createManageItemsController(group.getGroupId()),
+                        controllerAssembler.createManageItemsController(group.getGroupId()),
                         this, group));
     }
 
@@ -99,7 +99,7 @@ public class JavaFxSceneNavigator implements SceneNavigator {
         Objects.requireNonNull(group, "Il gruppo da gestire è obbligatorio.");
         loadScene("/view/ManageOperators.fxml", (ManageOperatorsGraphicController controller) ->
                 controller.initData(
-                        controllerFactory.createManageOperatorsController(group.getGroupId()),
+                        controllerAssembler.createManageOperatorsController(group.getGroupId()),
                         this, group));
     }
 
@@ -107,20 +107,20 @@ public class JavaFxSceneNavigator implements SceneNavigator {
     public void showRequestGroupAccess() {
         loadScene("/view/RequestGroupAccess.fxml",
                 (RequestGroupAccessGraphicController controller) -> controller.initData(
-                        controllerFactory.createJoinGroupController(), this));
+                        controllerAssembler.createJoinGroupController(), this));
     }
 
     @Override
     public void showMyGroups() {
         loadScene("/view/MyGroups.fxml", (MyGroupsGraphicController controller) ->
-                controller.initData(controllerFactory.createBookItemController(), this));
+                controller.initData(controllerAssembler.createBookItemController(), this));
     }
 
     @Override
     public void showMyBookings() {
         loadScene("/view/MyBookings.fxml", (MyBookingsGraphicController controller) ->
-                controller.initData(controllerFactory.createMyBookingsController(),
-                        controllerFactory.createReturnItemController(), this));
+                controller.initData(controllerAssembler.createMyBookingsController(),
+                        controllerAssembler.createReturnItemController(), this));
     }
 
     @Override

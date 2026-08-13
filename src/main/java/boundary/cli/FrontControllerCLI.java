@@ -1,6 +1,6 @@
 package boundary.cli;
 
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 import controller.LoginController;
 import controller.RegistrationController;
 import model.bean.UserBean;
@@ -10,19 +10,19 @@ import java.util.Scanner;
 
 /** Front controller della variante CLI. */
 public class FrontControllerCLI {
-    private final ControllerFactory factory;
+    private final ControllerAssembler controllerAssembler;
     private final UserSession userSession;
 
-    public FrontControllerCLI(ControllerFactory factory, UserSession userSession) {
-        this.factory = factory;
+    public FrontControllerCLI(ControllerAssembler controllerAssembler, UserSession userSession) {
+        this.controllerAssembler = controllerAssembler;
         this.userSession = userSession;
     }
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
         CliInput input = new CliInput(scanner);
-        LoginController loginController = factory.createLoginController();
-        RegistrationController registrationController = factory.createRegistrationController();
+        LoginController loginController = controllerAssembler.createLoginController();
+        RegistrationController registrationController = controllerAssembler.createRegistrationController();
 
         while (true) {
             System.out.println("\n--- BENVENUTO IN SHARE ---");
@@ -55,8 +55,8 @@ public class FrontControllerCLI {
         UserBean user = userSession.requireCurrentUser();
         System.out.println("\nAccesso effettuato come: " + user.getUsername());
         switch (user.getRole()) {
-            case ADMIN -> new AdminDashboardBoundaryCLI(factory, scanner).start();
-            case OPERATOR -> new OperatorDashboardBoundaryCLI(factory, scanner).start();
+            case ADMIN -> new AdminDashboardBoundaryCLI(controllerAssembler, scanner).start();
+            case OPERATOR -> new OperatorDashboardBoundaryCLI(controllerAssembler, scanner).start();
             case TECHNICIAN ->
                     System.out.println("[MENU TECNICO] Funzionalità non ancora disponibili.");
         }

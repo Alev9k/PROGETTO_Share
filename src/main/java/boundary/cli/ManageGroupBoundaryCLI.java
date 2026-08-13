@@ -1,6 +1,6 @@
 package boundary.cli;
 
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 import controller.ManageGroupController;
 import model.bean.GroupBean;
 
@@ -13,14 +13,14 @@ public class ManageGroupBoundaryCLI {
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private final ManageGroupController controller;
-    private final ControllerFactory factory;
+    private final ControllerAssembler controllerAssembler;
     private final Scanner scanner;
     private final CliInput input;
 
     public ManageGroupBoundaryCLI(ManageGroupController controller,
-                                  ControllerFactory factory, Scanner scanner) {
+                                  ControllerAssembler controllerAssembler, Scanner scanner) {
         this.controller = controller;
-        this.factory = factory;
+        this.controllerAssembler = controllerAssembler;
         this.scanner = scanner;
         this.input = new CliInput(scanner);
     }
@@ -63,10 +63,10 @@ public class ManageGroupBoundaryCLI {
             System.out.println("0. Indietro");
             switch (input.readChoice("Scelta: ", 0, 2)) {
                 case 1 -> new ManageOperatorsBoundaryCLI(
-                        factory.createManageOperatorsController(group.getGroupId()),
+                        controllerAssembler.createManageOperatorsController(group.getGroupId()),
                         group, scanner).start();
                 case 2 -> new ManageItemsBoundaryCLI(
-                        factory.createManageItemsController(group.getGroupId()),
+                        controllerAssembler.createManageItemsController(group.getGroupId()),
                         scanner).start();
                 case 0 -> {
                     return;

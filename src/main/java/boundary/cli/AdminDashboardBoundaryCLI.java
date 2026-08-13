@@ -1,23 +1,23 @@
 package boundary.cli;
 
-import controller.ControllerFactory;
+import controller.ControllerAssembler;
 
 import java.util.Scanner;
 
 /** Dashboard CLI dell'amministratore autenticato. */
 public class AdminDashboardBoundaryCLI {
-    private final ControllerFactory factory;
+    private final ControllerAssembler controllerAssembler;
     private final Scanner scanner;
     private final CliInput input;
     private final NotificationBoundaryCLI notifications;
 
-    public AdminDashboardBoundaryCLI(ControllerFactory factory, Scanner scanner) {
-        this.factory = factory;
+    public AdminDashboardBoundaryCLI(ControllerAssembler controllerAssembler, Scanner scanner) {
+        this.controllerAssembler = controllerAssembler;
         this.scanner = scanner;
         this.input = new CliInput(scanner);
         this.notifications = new NotificationBoundaryCLI(
-                factory.createAccessNotificationController(),
-                factory.createEventNotificationController());
+                controllerAssembler.createAccessNotificationController(),
+                controllerAssembler.createEventNotificationController());
     }
 
     public void start() {
@@ -31,9 +31,10 @@ public class AdminDashboardBoundaryCLI {
 
             switch (input.readChoice("Scelta: ", 0, 3)) {
                 case 1 -> new CreateGroupBoundaryCLI(
-                        factory.createCreateGroupController(), scanner).start();
+                        controllerAssembler.createCreateGroupController(), scanner).start();
                 case 2 -> new ManageGroupBoundaryCLI(
-                        factory.createManageGroupController(), factory, scanner).showMenu();
+                        controllerAssembler.createManageGroupController(), controllerAssembler,
+                        scanner).showMenu();
                 case 3 -> notifications.showForAdmin();
                 case 0 -> {
                     return;

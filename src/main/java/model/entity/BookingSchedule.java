@@ -66,10 +66,9 @@ public class BookingSchedule {
         for (int duration = SLOT_MINUTES;
              duration <= item.getMaxUsageTime(); duration += SLOT_MINUTES) {
             LocalTime endTime = startTime.plusMinutes(duration);
-            if (!endTime.isAfter(startTime) || endTime.isAfter(group.getCloseTime())) {
-                break;
-            }
-            if (hasConflict(operatorUsername, startTime, endTime)) {
+            boolean invalidEndTime = !endTime.isAfter(startTime)
+                    || endTime.isAfter(group.getCloseTime());
+            if (invalidEndTime || hasConflict(operatorUsername, startTime, endTime)) {
                 break;
             }
             durations.add(duration);
@@ -128,7 +127,7 @@ public class BookingSchedule {
         LocalTime rounded = time.withSecond(0).withNano(0);
         int remainder = rounded.getMinute() % SLOT_MINUTES;
         if (remainder != 0) {
-            rounded = rounded.plusMinutes(SLOT_MINUTES - remainder);
+            rounded = rounded.plusMinutes((long) SLOT_MINUTES - remainder);
         } else if (hasPartialMinute) {
             rounded = rounded.plusMinutes(SLOT_MINUTES);
         }

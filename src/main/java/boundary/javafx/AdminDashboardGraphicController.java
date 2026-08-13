@@ -1,5 +1,6 @@
 package boundary.javafx;
 
+import boundary.javafx.navigation.NavigationException;
 import boundary.javafx.navigation.SceneNavigator;
 import controller.AccessNotificationController;
 import controller.EventNotificationController;
@@ -12,8 +13,13 @@ import model.bean.NotificationBean;
 import model.session.SessionContext;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdminDashboardGraphicController {
+
+    private static final Logger LOGGER = Logger.getLogger(
+            AdminDashboardGraphicController.class.getName());
 
     @FXML private Label welcomeLabel;
     @FXML private Label pendingRequestsLabel;
@@ -75,9 +81,9 @@ public class AdminDashboardGraphicController {
     private void handleManageGroups(Event event) {
         try {
             navigator.showManageGroups();
-        } catch (Exception e) {
+        } catch (NavigationException e) {
+            LOGGER.log(Level.SEVERE, "Navigazione verso la gestione gruppi fallita.", e);
             showError("Errore", "Impossibile caricare la gestione gruppi.");
-            e.printStackTrace();
         }
     }
 
@@ -85,8 +91,9 @@ public class AdminDashboardGraphicController {
     private void handleCreateGroup(Event event) {
         try {
             navigator.showCreateGroup();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NavigationException e) {
+            LOGGER.log(Level.SEVERE, "Navigazione verso la creazione del gruppo fallita.", e);
+            showError("Errore", "Impossibile caricare la creazione del gruppo.");
         }
     }
 
